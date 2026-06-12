@@ -1,0 +1,178 @@
+# PROMPT_BOOK.md — Prompt Engineering Log (ArchLens)
+
+Version: 1.00 | Status: Draft — awaiting lecturer approval | Course: AI Agent Orchestration — HW4 (EX04)
+
+---
+
+## 1. Purpose
+
+This document is the **prompt engineering log** ("prompt book") required by the Submission
+Guidelines V3 final checklist. It records every significant prompt used to build and operate
+**ArchLens** (the `archlens` package): prompts that drive the LangGraph agents, prompts used to
+generate project documentation, and prompts used for repository / graph analysis. The goal is
+traceability — a grader or future maintainer can see *what was asked, what came back, what
+failed, and how the prompt was refined* (L07, section 11; Guidelines V3).
+
+## 2. Maintenance Rules
+
+- **R-01 — Log everything significant.** Every prompt that (a) becomes an agent system prompt,
+  (b) generates a committed artifact (docs, code, diagrams), or (c) performs analysis whose
+  output is cited elsewhere (e.g., BugHunterAgent evidence claims) MUST get an entry.
+- **R-02 — Continuous updates.** Entries are added in the same change set as the work they
+  produced. A PR that adds an agent prompt without a PB entry fails review.
+- **R-03 — Sequential IDs.** Entries are numbered `PB-NNN` in creation order and never reused.
+- **R-04 — Verbatim when short, faithful summary when long.** Prompts under ~40 lines are
+  logged verbatim in a fenced block; longer prompts are summarized faithfully with a pointer
+  to the source file (e.g., `src/archlens/agents/bughunter.py`).
+- **R-05 — Honest evaluation.** The *Evaluation* field records failures as well as successes;
+  refinements must state what changed and why.
+- **R-06 — Token accounting.** When token counts are available (MetricsAgent reports, API usage
+  logs), record them; they feed the token-economics analysis (Part A reality check, >= 70%
+  savings target).
+- **R-07 — No secrets.** Prompts are sanitized: no API keys, no `.env` contents.
+
+## 3. Entry Template
+
+```markdown
+### PB-NNN — <short title>
+- **Date:** YYYY-MM-DD
+- **Model:** <model id / "n/a — planned">
+- **Context / Goal:** why this prompt exists, which agent or deliverable it serves
+- **Prompt:** verbatim (fenced) or faithful summary + source-file pointer
+- **Output Summary:** what the model produced
+- **Evaluation:** what worked / what failed
+- **Refinement Applied:** changes made to the prompt and the rationale
+- **Tokens:** input/output counts if known, else "not measured"
+```
+
+---
+
+## 4. Log Entries
+
+### PB-001 — Deep parallel analysis of the 5 MATERIALS course documents
+- **Date:** 2026-06-12
+- **Model:** Claude (Anthropic), orchestrated subagents
+- **Context / Goal:** Before writing any project document, build a grounded, complete
+  understanding of the five course sources (L07 lesson summary, Part A, Part B, Part C,
+  Submission Guidelines V3) stored in `MATERIALS/`.
+- **Prompt:** Fan-out / fan-in workflow: 5 parallel **reader agents**, one per file, each given
+  a structured-output schema (key requirements, thresholds, agent-relevant rules, grading
+  hooks, open questions); then 1 **synthesis agent** merging the five structured outputs into
+  a single project blueprint; then 1 **adversarial completeness critic** instructed to hunt
+  for any requirement present in the sources but missing from the synthesis (7 agents total).
+- **Output Summary:** Unified ArchLens blueprint: 7-agent roster, Graphify pipeline stages,
+  improvement-loop stop conditions, all machine-checkable engineering standards (150-line cap,
+  coverage >= 85, Ruff 0, uv-only, FIFO rate-limit queue), token-economics targets.
+- **Evaluation:** Worked: structured schemas made the five outputs mergeable without manual
+  reconciliation; the adversarial critic caught omissions the synthesis missed (e.g., the
+  duplicate-logic similarity >= 0.91 triage threshold and the "queue, never reject" rate-limit
+  rule). Failed initially: free-text first drafts from two readers were inconsistent in
+  terminology until the schema was enforced.
+- **Refinement Applied:** Enforced the JSON schema on all readers; added an explicit critic
+  pass as a standing pattern for all future synthesis work.
+- **Tokens:** ~480,000 total across the 7 agents.
+
+### PB-002 — Documentation-generation workflow (this docs/ set)
+- **Date:** 2026-06-12
+- **Model:** Claude (Anthropic), orchestrated subagents
+- **Context / Goal:** Produce the mandatory `docs/` set (PRD.md, PLAN.md, TODO.md, the five
+  specialized PRDs — PRD_agent_orchestration.md, PRD_api_gatekeeper.md, PRD_graph_pipeline.md,
+  PRD_improvement_loop.md, PRD_token_metrics.md — and PROMPT_BOOK.md) consistently, respecting
+  the workflow gate "PRD approved before other docs; all docs approved before development".
+- **Prompt:** Each doc-writer subagent received the **same authoritative project blueprint**
+  embedded verbatim in its prompt (names, thresholds, roster), plus a per-document SPEC
+  (sections, length, house style). Workflow: 8 parallel doc writers + 16 TODO-section writers
+  + a merge step + a verification pass checking cross-document consistency (same agent names,
+  same FR/NFR thresholds) + a targeted fix pass for any mismatch found.
+- **Output Summary:** Complete `docs/` tree in house style (Version 1.00 headers, mermaid
+  diagrams, FR-xx/NFR-xx requirement IDs, uv-only wording).
+- **Evaluation:** Worked: embedding the shared blueprint eliminated naming drift across
+  parallel writers (no "ArchLens vs archlens-tool" splits, identical thresholds everywhere).
+  Failed initially: without the verify+fix pass, two TODO sections used divergent
+  Definition-of-Done wording.
+- **Refinement Applied:** Made the verify-then-fix loop mandatory for any multi-writer doc job;
+  added the house-style header block to every SPEC.
+- **Tokens:** not fully measured; per-writer budgets logged in MetricsAgent backlog.
+
+### PB-003 — Per-agent system prompts (planned)
+- **Date:** planned (development phase, after docs approval)
+- **Model:** to be selected per `config/setup.json`; routed via `gatekeeper/gatekeeper.py`
+- **Context / Goal:** Author and iterate the system prompts for the LangGraph roster:
+  - **RepoAgent** — clone/validate the target repo (BugsInPy candidate or lecturer-approved
+    simpler repo); refuse to proceed on dirty clone state; uv-managed env only.
+  - **AnalystAgent** — compute degree/betweenness centrality, community detection,
+    hub-vs-bottleneck classification, bridge analysis; triage every edge as
+    EXTRACTED / INFERRED / AMBIGUOUS with confidence in [0.55, 0.95] (Part C).
+  - **BugHunterAgent** — the **evidence-ladder prompt**: every architectural-bug claim must
+    climb OBSERVED -> INFERRED -> EXTRACTED -> VALIDATED and cite
+    `relation -> confidence -> source_file`; uncited claims are rejected by the supervisor.
+  - **RefactorAgent** — split >150-line modules, break bottlenecks, merge duplicates only when
+    similarity >= 0.91 AND validated; always leave tests runnable (QAAgent gate).
+- **Prompt:** to be logged verbatim per agent on first commit of each prompt.
+- **Output Summary / Evaluation / Refinement:** pending; each agent gets its own sub-entry
+  (PB-003a..d) when implemented.
+- **Tokens:** to be recorded by MetricsAgent per invocation.
+
+### PB-004 — Baseline-vs-assisted measurement prompts (planned)
+- **Date:** planned (after first full Graphify run)
+- **Model:** same model for both arms (controlled comparison)
+- **Context / Goal:** Token-economics proof (Part A/B): one **naive baseline prompt** that
+  answers architecture questions from full repository context, vs the **Graphify-assisted
+  prompt** that answers from `graph.json` + Obsidian vault (`hot.md`, `index.md`, `wiki/`).
+  Target >= 70% input-token savings; if not achieved, log the written explanation here
+  (initial graph-scan cost amortization).
+- **Prompt:** identical question set for both arms; assisted arm instructed to read `index.md`
+  first, then at most 2-3 wiki pages (Part B navigation rule). To be logged verbatim.
+- **Output Summary / Evaluation:** pending; results feed MetricsAgent cost tables
+  (input/output tokens, $ per model) and the before/after measurement on the 4 knowledge
+  metrics (source traceability, noise reduction, correct-file identification,
+  correct-tool-at-the-right-time).
+- **Tokens:** the entire point — both arms fully measured.
+
+### PB-005 — SKILL.md routing descriptions (planned)
+- **Date:** planned (with the knowledge-assets deliverable)
+- **Model:** Claude (Anthropic)
+- **Context / Goal:** Write the YAML frontmatter `description` fields that make each ArchLens
+  SKILL.md discoverable at the right moment ("correct tool at the right time" metric). Each
+  skill declares allowed tools, "# When to use", "# Procedure", and guardrails: read-only =
+  auto-run; reversible = needs an undo path; irreversible = explicit human approval;
+  human-only skills set `disable-model-invocation`.
+- **Prompt:** description-writing prompt will be A/B tested: generic description vs
+  trigger-phrase-rich description, evaluated by routing accuracy on a fixed task list.
+- **Output Summary / Evaluation / Refinement:** pending.
+- **Tokens:** not yet measured.
+
+### PB-006 — Improvement-loop diff-evaluation prompt (planned)
+- **Date:** planned (improvement-loop implementation)
+- **Model:** per `config/setup.json`
+- **Context / Goal:** After each RefactorAgent change and Graphify re-run, a supervisor prompt
+  evaluates the metric diff against the Part C (p21) stop conditions: bottleneck node actually
+  lost dependencies (not merely moved load), improved modularity (fewer inter-community
+  edges), no new isolated components, all unit tests green, Ruff 0 violations; hard cap
+  5 iterations. The prompt must force a binary continue/stop decision with cited metrics.
+- **Prompt / Output / Evaluation:** pending; to be logged with the first loop run.
+- **Tokens:** to be recorded by MetricsAgent per iteration.
+
+---
+
+## 5. Lessons Learned (running list)
+
+1. **Structured-output schemas beat free text.** PB-001 readers only became mergeable once a
+   shared JSON schema was enforced; free-text summaries drifted in terminology and coverage.
+2. **Adversarial critics catch omissions.** A dedicated completeness critic found graded
+   requirements (similarity >= 0.91 triage, FIFO rate-limit queue semantics) that a single
+   synthesis pass missed. Every synthesis or merge step now ends with a critic pass.
+3. **Embed the shared blueprint for parallel consistency.** Giving every parallel writer the
+   identical authoritative blueprint (PB-002) is cheaper than reconciling divergent outputs
+   afterward; verification then only handles edge cases instead of wholesale rewrites.
+4. **Evidence-format constraints belong in the prompt, not post-processing.** Requiring
+   `relation -> confidence -> source_file` citations inside the BugHunterAgent prompt (PB-003)
+   makes unverifiable claims structurally impossible rather than filtered after the fact.
+5. **Measure both arms with the same prompt.** Token-savings claims (PB-004) are only valid
+   when the baseline and assisted runs answer the identical question set on the same model.
+
+---
+
+*References: L07 section 11 (EX04 tasks), Part A (token-economics reality check), Part B
+(graph-based knowledge navigation, wiki/index discipline), Part C (edge triage, evidence
+ladder, p21 diff metrics), Submission Guidelines V3 (final checklist — prompt book).*
