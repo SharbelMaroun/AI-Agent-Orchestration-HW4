@@ -292,4 +292,57 @@ ArchLens HW4 is DONE when ALL of the following hold (each item machine-checkable
 
 ---
 
+## Appendix A — EX04 Core-Task Traceability
+
+Mapping of all 5 L07 §11 EX04 core tasks to functional requirements (zero unmapped tasks):
+
+| # | EX04 core task (L07 §11) | Covering FRs |
+|---|---|---|
+| 1 | Code cloning (GitHub repo, lecturer-approved; BugsInPy or simpler fallback) | FR-01, FR-02, FR-03, FR-04 |
+| 2 | Run Graphify — graph, index, navigation pages (`hot.md`), display in Obsidian | FR-05, FR-06, FR-07, FR-08, FR-09, FR-10, FR-11, FR-12 |
+| 3 | Reverse engineering — block diagram + OOP class schema | FR-20, FR-21, FR-22 |
+| 4 | AI agents (LangGraph) for analysis, identification, and fixing of architectural bugs | FR-13–FR-19, FR-23–FR-27 |
+| 5 | Improvement loop — apply fix, re-run Graphify, stop conditions, unit tests after every change | FR-28, FR-29, FR-30, FR-31, FR-32 |
+| + | Token-savings proof required by L07 §9/§12 ("prove savings or explain") | FR-33, FR-34, FR-35 |
+| + | Part B final-project knowledge assets (SKILL.md, LLM Wiki, 4 metrics) | FR-36, FR-37, FR-38, FR-39 |
+
+## Appendix B — Target-Repository Shortlist (awaiting lecturer approval)
+
+Selection criteria: pure Python (AST-friendly), real test suite (the improvement loop
+needs a green baseline), uv-compatible installation, small enough for the 5-hour
+budget, present in BugsInPy where possible (L07 §11.2). Repo choice does not affect
+the grade — L07 §11.2.
+
+| # | Repository | BugsInPy? | uv compatibility | Test suite |
+|---|---|---|---|---|
+| 1 (primary) | https://github.com/tqdm/tqdm | Yes | Pure Python, installs clean via uv | pytest, active |
+| 2 | https://github.com/httpie/cli | Yes | Pure Python, uv-clean | pytest, active |
+| 3 | https://github.com/nvbn/thefuck | Yes | Pure Python, uv-clean | pytest, active |
+| F (fallback) | https://github.com/psf/requests | No | uv-clean | pytest, extensive |
+
+Fallback policy: FR-03 — if primary environment preparation fails, switch to F and
+log the decision (L07 §11.2 "do not get stuck"; a virtual environment is mandatory
+for BugsInPy work and is provided by the uv-managed environment, satisfying both the
+L07 requirement and the Guidelines V3 venv prohibition).
+
+## Appendix C — Change Log & Self-Review
+
+### Change log (per docs/VERSIONING.md)
+
+| Version | Date | Author | Change summary | Trigger |
+|---|---|---|---|---|
+| 1.00 | 2026-06-12 | S. Maroun + Claude | Initial draft (13 sections, FR-01..39, NFR-01..13) | — |
+| 1.00 | 2026-06-13 | S. Maroun + Claude | Consistency fixes (FR-28/29/30 canonical policies); Appendices A–C added | Internal review (pre-approval, no bump) |
+
+### Self-review checklist (TODO 2.011) — 0 open findings
+
+- [x] Every requirement carries a unique FR-xx / NFR-xx ID (FR-01..39, NFR-01..13; no duplicates)
+- [x] Every requirement is testable (thresholds/conditions stated numerically where applicable)
+- [x] All 5 EX04 core tasks trace to FRs (Appendix A, zero unmapped)
+- [x] No tooling other than uv is referenced for use anywhere in this document
+- [x] Stop conditions, hard cap, coverage 85, ruff 0, 150-line cap, uv-only each appear as a dedicated requirement (FR-30/31, NFR-01..04)
+- [x] Mandatory header present; status remains Draft pending lecturer approval
+
+---
+
 *End of document. This PRD awaits lecturer approval before any downstream document is finalized or any development begins.*

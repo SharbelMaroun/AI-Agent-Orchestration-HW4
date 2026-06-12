@@ -1,0 +1,23 @@
+flowchart TB
+    subgraph dev["Local dev machine (Windows 11 / any OS with uv)"]
+        subgraph uvenv["uv-managed environment (uv sync; uv run ONLY — no pip/venv)"]
+            proc["ArchLens process<br/>uv run python src/main.py"]
+            ck[("checkpoints.db<br/>SQLite, per-run thread_id")]
+        end
+        gfy["Graphify CLI<br/>(subprocess via graphops/)"]
+        clone["Target repo clone<br/>runs/run_id/target/"]
+        vaultdir["Obsidian vault dir<br/>runs/run_id/vault/"]
+        obsidian["Obsidian app<br/>(opens vault read-only)"]
+        envfile[".env (git-ignored)<br/>.env-example committed"]
+    end
+    api["Anthropic API<br/>(HTTPS)"]
+    gh["GitHub (HTTPS)"]
+
+    proc --> ck
+    proc --> gfy
+    proc --> clone
+    proc --> vaultdir
+    obsidian --> vaultdir
+    envfile -.->|os.environ.get| proc
+    proc -- "gatekeeper ONLY:<br/>30/min, 500/hr, 5 conc,<br/>FIFO queue" --> api
+    proc -- "git clone/fetch/push (RepoAgent)<br/>via gatekeeper ONLY" --> gh

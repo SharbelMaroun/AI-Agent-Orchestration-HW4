@@ -100,7 +100,7 @@ flowchart TB
     subgraph agents["src/archlens/agents/ — LangGraph StateGraph"]
         sup["Supervisor<br/>deterministic route(state)"]
         repo["RepoAgent"]
-        graph["GraphAgent"]
+        grapha["GraphAgent"]
         analyst["AnalystAgent"]
         hunter["BugHunterAgent"]
         refactor["RefactorAgent"]
@@ -108,8 +108,8 @@ flowchart TB
         met["MetricsAgent"]
         state["AgentState (state.py)<br/>target_repo · graph_snapshot · findings ·<br/>loop_iteration · stop_eval · token_ledger · approvals"]
     end
-    sup --> repo & graph & analyst & hunter & refactor & qa & met
-    repo & graph & analyst & hunter & refactor & qa & met --> state
+    sup --> repo & grapha & analyst & hunter & refactor & qa & met
+    repo & grapha & analyst & hunter & refactor & qa & met --> state
     state --> sup
 ```
 
@@ -222,7 +222,7 @@ sequenceDiagram
     HUM-->>SUP: approval granted (recorded in approvals)
     SUP->>RF: route (VALIDATED + granted)
     RF->>SDK: apply_refactor(finding) — one fix per iteration
-    SDK-->>RF: ChangeManifest (on git branch archlens/iter-&lt;N&gt;-&lt;fix-id&gt; = undo path)
+    SDK-->>RF: ChangeManifest (on git branch archlens/iter-N-fix-id = undo path)
     RF-->>SUP: code changed
     SUP->>QA: route — unit-test gate after EVERY change
     QA->>SDK: run_qa(): uv run pytest (cov ≥ 85), uv run ruff (0)
@@ -291,8 +291,8 @@ flowchart TB
             ck[("checkpoints.db<br/>SQLite, per-run thread_id")]
         end
         gfy["Graphify CLI<br/>(subprocess via graphops/)"]
-        clone["Target repo clone<br/>runs/&lt;run_id&gt;/target/"]
-        vaultdir["Obsidian vault dir<br/>runs/&lt;run_id&gt;/vault/"]
+        clone["Target repo clone<br/>runs/run_id/target/"]
+        vaultdir["Obsidian vault dir<br/>runs/run_id/vault/"]
         obsidian["Obsidian app<br/>(opens vault read-only)"]
         envfile[".env (git-ignored)<br/>.env-example committed"]
     end
@@ -478,6 +478,30 @@ Every code file (tests included) respects the 150-code-line cap (blank/comment l
 | 16 | Token economics: baseline vs Graphify, ≥ 70% target, cost tables, written explanation if missed | ADR-006, §8 metrics JSON, §11 M7 |
 | 17 | Versions start at 1.00 (`shared/version.py`) | §1 header, §9 tree |
 | 18 | Rate limits 30/min, 500/hr, 5 concurrent, retry_after 30 s, max_retries 3, FIFO queue never reject/crash | ADR-004, §7, §12 gatekeeper tests |
+
+---
+
+## 14. Requirement Traceability (PRD → PLAN/TODO)
+
+Cross-document check (TODO 2.041): every PRD requirement ID maps to a PLAN milestone
+and a TODO phase. **0 orphan requirement IDs.**
+
+| PRD requirement IDs | Subject | PLAN milestone (§11) | TODO phase |
+|---|---|---|---|
+| FR-01, FR-02, FR-03, FR-04 | Target-repo management | M2 | Phase 3 |
+| FR-05, FR-06, FR-07, FR-08 | Graphify pipeline | M3 | Phase 4 |
+| FR-09, FR-10, FR-11, FR-12 | Obsidian vault generation | M3 | Phase 5 |
+| FR-13, FR-14, FR-15, FR-16, FR-17, FR-18, FR-19 | Graph analysis & findings | M4 | Phase 6 |
+| FR-20, FR-21, FR-22 | Reverse-engineering deliverables | M4 | Phase 7 |
+| FR-23, FR-24, FR-25, FR-26, FR-27 | Multi-agent orchestration, SDK, gatekeeper boundaries | M5 | Phases 8, 9, 10 |
+| FR-28, FR-29, FR-30, FR-31, FR-32 | Improvement loop & stop conditions | M6 | Phase 11 |
+| FR-33, FR-34, FR-35 | Token measurement | M7 | Phase 12 |
+| FR-36, FR-37, FR-38, FR-39 | Knowledge assets (SKILL.md, LLM Wiki, 4 metrics) | M7 | Phase 14 |
+| NFR-01 (coverage ≥ 85), NFR-02 (ruff 0), NFR-03 (150-line cap) | Quality gates | M1, M8 | Phases 1, 13 |
+| NFR-04 (uv-only), NFR-07 (secrets), NFR-08 (no hardcoding), NFR-12 (versioning 1.00), NFR-13 (layout) | Setup & compliance | M1 | Phase 1 |
+| NFR-05 (SDK single entry), NFR-11 (DRY thresholds) | SDK architecture | M5 | Phase 8 |
+| NFR-06 (gatekeeper-only egress), NFR-10 (thread safety) | Gatekeeper | M5 | Phase 9 |
+| NFR-09 (local-only execution) | Runtime posture | M8 | Phases 15, 16 |
 
 ---
 

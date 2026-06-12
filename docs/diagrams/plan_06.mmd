@@ -1,0 +1,20 @@
+stateDiagram-v2
+    [*] --> Supervisor
+    Supervisor --> RepoAgent: target_repo missing/invalid
+    Supervisor --> GraphAgent: graph_snapshot absent or stale
+    Supervisor --> AnalystAgent: snapshot fresh, no analysis
+    Supervisor --> BugHunterAgent: analysis done, no VALIDATED finding
+    Supervisor --> AwaitingApproval: VALIDATED finding, irreversible fix
+    AwaitingApproval --> RefactorAgent: approval granted
+    AwaitingApproval --> Supervisor: approval denied (skip finding)
+    Supervisor --> QAAgent: code changed
+    QAAgent --> RefactorAgent: red, retries < 3 (repair)
+    QAAgent --> Supervisor: green, or red after revert
+    Supervisor --> MetricsAgent: iteration artifacts complete
+    RepoAgent --> Supervisor
+    GraphAgent --> Supervisor
+    AnalystAgent --> Supervisor
+    BugHunterAgent --> Supervisor
+    RefactorAgent --> Supervisor
+    MetricsAgent --> Supervisor
+    Supervisor --> [*]: stop_eval.met OR loop_iteration == 5
