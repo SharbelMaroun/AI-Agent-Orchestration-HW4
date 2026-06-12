@@ -1,0 +1,9 @@
+{
+  "version": "1.00",
+  "target_repo_url": "https://github.com/tqdm/tqdm",
+  "target_repo_branch": "master",
+  "fallback_repo_url": "https://github.com/psf/requests",
+  "clone_dir": "runs/target",
+  "graphify_output_dir": "runs/graphify",
+  "obsidian_vault_dir": "runs/vault"
+}
