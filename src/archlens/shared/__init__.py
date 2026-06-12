@@ -1,3 +1,3 @@
-"""Shared building blocks: version, constants, config loaders, logging bootstrap."""
+"""Shared building blocks: version, constants, config loaders, errors, logging bootstrap."""
 
-__all__ = ["config", "constants", "logging_setup", "rate_limits", "version"]
+__all__ = ["config", "constants", "errors", "logging_setup", "rate_limits", "version"]

@@ -1,3 +1,3 @@
 """SDK layer — the single entry point for all ArchLens business logic."""
 
-__all__ = ["sdk"]
+__all__ = ["repo_config", "sandbox", "sdk", "validation"]

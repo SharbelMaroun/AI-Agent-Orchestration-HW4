@@ -488,7 +488,7 @@ and a TODO phase. **0 orphan requirement IDs.**
 
 | PRD requirement IDs | Subject | PLAN milestone (§11) | TODO phase |
 |---|---|---|---|
-| FR-01, FR-02, FR-03, FR-04 | Target-repo management | M2 | Phase 3 |
+| FR-01, FR-02, FR-03, FR-04, FR-40, FR-41, FR-42, FR-43 | Target-repo management, sandbox, retry, validation, git egress guard | M2 | Phase 3 |
 | FR-05, FR-06, FR-07, FR-08 | Graphify pipeline | M3 | Phase 4 |
 | FR-09, FR-10, FR-11, FR-12 | Obsidian vault generation | M3 | Phase 5 |
 | FR-13, FR-14, FR-15, FR-16, FR-17, FR-18, FR-19 | Graph analysis & findings | M4 | Phase 6 |

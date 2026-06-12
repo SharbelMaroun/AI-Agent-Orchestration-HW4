@@ -106,6 +106,10 @@ Each story includes acceptance criteria (AC). Stories are testable by P-2's AI g
 - **FR-02** — RepoAgent SHALL clone the configured GitHub repository (BugsInPy candidate with a uv-managed environment, or a simpler lecturer-approved repo) and validate it: directory exists, is a git repo, contains Python sources.
 - **FR-03** — If environment preparation of the primary target fails (drivers, native libs, broken installs), RepoAgent SHALL switch to the configured fallback repository, log the decision in `log.md`, and continue — per L07 §11.2 "do not get stuck".
 - **FR-04** — RepoAgent SHALL record the resolved commit hash so every downstream artifact (graph, vault, metrics) is traceable to an exact target state.
+- **FR-40** — Every clone SHALL land in a sandboxed per-run directory under the configured `workdir_root`; path containment is enforced (no resolved path may escape the sandbox root) and cleanup is idempotent.
+- **FR-41** — Clone retries SHALL follow `config/rate_limits.json` (max_retries, retry_after_seconds): transient failures (network, timeout) are retried, permanent failures (auth, disk full) are raised immediately as typed exceptions.
+- **FR-42** — Every cloned target SHALL pass four validation checks before use — is-Python (share threshold + project config), size bounds (file count + MB), has-tests, recognized license — aggregated in a `ValidationResult` with a per-check reason string.
+- **FR-43** — Git network operations SHALL exist only inside `gatekeeper/`; a guard test scans the rest of `src/archlens` for subprocess/git usage and fails on any match.
 
 ### 6.2 Graphify pipeline
 
@@ -298,7 +302,7 @@ Mapping of all 5 L07 §11 EX04 core tasks to functional requirements (zero unmap
 
 | # | EX04 core task (L07 §11) | Covering FRs |
 |---|---|---|
-| 1 | Code cloning (GitHub repo, lecturer-approved; BugsInPy or simpler fallback) | FR-01, FR-02, FR-03, FR-04 |
+| 1 | Code cloning (GitHub repo, lecturer-approved; BugsInPy or simpler fallback) | FR-01, FR-02, FR-03, FR-04, FR-40, FR-41, FR-42, FR-43 |
 | 2 | Run Graphify — graph, index, navigation pages (`hot.md`), display in Obsidian | FR-05, FR-06, FR-07, FR-08, FR-09, FR-10, FR-11, FR-12 |
 | 3 | Reverse engineering — block diagram + OOP class schema | FR-20, FR-21, FR-22 |
 | 4 | AI agents (LangGraph) for analysis, identification, and fixing of architectural bugs | FR-13–FR-19, FR-23–FR-27 |
@@ -313,12 +317,12 @@ needs a green baseline), uv-compatible installation, small enough for the 5-hour
 budget, present in BugsInPy where possible (L07 §11.2). Repo choice does not affect
 the grade — L07 §11.2.
 
-| # | Repository | BugsInPy? | uv compatibility | Test suite |
+| # | Repository | BugsInPy? | uv compatibility (measured — see docs/REPO_SELECTION.md) | Test suite |
 |---|---|---|---|---|
-| 1 (primary) | https://github.com/tqdm/tqdm | Yes | Pure Python, installs clean via uv | pytest, active |
-| 2 | https://github.com/httpie/cli | Yes | Pure Python, uv-clean | pytest, active |
-| 3 | https://github.com/nvbn/thefuck | Yes | Pure Python, uv-clean | pytest, active |
-| F (fallback) | https://github.com/psf/requests | No | uv-clean | pytest, extensive |
+| 1 (primary) | https://github.com/httpie/cli | Yes | uv-OK via `uv run --with-editable` (1028 tests collected) | pytest, 44 test files |
+| 2 | https://github.com/tqdm/tqdm | Yes | `uv sync` FAIL (dep conflict); `--with-editable` OK | pytest, 20 test files |
+| 3 | https://github.com/nvbn/thefuck | Yes | setup.py-only; `uv sync` FAIL | pytest, 204 test files |
+| F (fallback) | https://github.com/psf/requests | No | modern packaging, uv-friendly | pytest, extensive |
 
 Fallback policy: FR-03 — if primary environment preparation fails, switch to F and
 log the decision (L07 §11.2 "do not get stuck"; a virtual environment is mandatory

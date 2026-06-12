@@ -1,16 +1,53 @@
-"""setup.json schema model and loader with runtime config-version validation."""
+"""setup.json schema models and loader with runtime config-version validation."""
 
 import json
 from pathlib import Path
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, field_validator
 
-from archlens.shared.constants import SETUP_FILE
+from archlens.shared.constants import (
+    ALLOWED_URL_SCHEMES,
+    DEFAULT_CLONE_DEPTH,
+    DEFAULT_MAX_SIZE_MB,
+    DEFAULT_TIMEOUT_S,
+    SETUP_FILE,
+)
 from archlens.shared.version import VERSION
 
 
 class ConfigVersionError(ValueError):
     """Raised when a config file's version key does not match the project version."""
+
+
+class RepoBlock(BaseModel):
+    """One repository entry (target_repo / fallback_repo) — 7 keys, unknown keys rejected."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    url: str
+    branch: str
+    pinned_commit: str
+    workdir_root: str
+    clone_depth: int = DEFAULT_CLONE_DEPTH
+    timeout_s: int = DEFAULT_TIMEOUT_S
+    max_size_mb: int = DEFAULT_MAX_SIZE_MB
+
+    @field_validator("url")
+    @classmethod
+    def _allowed_scheme_only(cls, value: str) -> str:
+        if not value.startswith(tuple(f"{s}://" for s in ALLOWED_URL_SCHEMES)):
+            raise ValueError(f"URL scheme must be one of {ALLOWED_URL_SCHEMES}: {value}")
+        return value
+
+
+class ValidationBlock(BaseModel):
+    """Thresholds for target-repo validation checks."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    python_min_share: float
+    min_file_count: int
+    max_file_count: int
 
 
 class SetupConfig(BaseModel):
@@ -19,12 +56,11 @@ class SetupConfig(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     version: str
-    target_repo_url: str
-    target_repo_branch: str
-    fallback_repo_url: str
-    clone_dir: str
+    target_repo: RepoBlock
+    fallback_repo: RepoBlock
     graphify_output_dir: str
     obsidian_vault_dir: str
+    validation: ValidationBlock
 
 
 def _read_json(path: Path) -> dict:

@@ -1,9 +1,18 @@
-"""Gatekeeper — the sole path for every external API call.
+"""Gatekeeper — the sole path for every external API and network call.
 
-No other module may touch the network; full queue/retry behavior arrives in Phase 9.
+LLM calls and git remote operations all route through this class; no other module
+may touch the network (enforced by tests/test_no_direct_git.py).
 """
 
+import logging
+from pathlib import Path
+
+from archlens.gatekeeper.git_ops import clone_with_retry
+from archlens.shared.config import RepoBlock
+from archlens.shared.constants import LOGGER_NAME
 from archlens.shared.rate_limits import RateLimitsConfig, load_rate_limits
+
+logger = logging.getLogger(f"{LOGGER_NAME}.gatekeeper")
 
 
 class Gatekeeper:
@@ -15,3 +24,9 @@ class Gatekeeper:
     @property
     def limits(self) -> RateLimitsConfig:
         return self._config
+
+    def git_clone(self, repo: RepoBlock, dest: Path) -> Path:
+        """Clone a remote repository under the retry policy from rate_limits.json."""
+        limits = self._config.rate_limits.services.default
+        logger.info("git clone %s -> %s (depth=%s)", repo.url, dest, repo.clone_depth)
+        return clone_with_retry(repo, dest, limits)
