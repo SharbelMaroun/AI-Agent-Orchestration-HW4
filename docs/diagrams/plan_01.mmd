@@ -1,0 +1,13 @@
+flowchart TB
+    student["Student / Lecturer<br/>(human approver)"]
+    archlens["ArchLens<br/>Multi-agent reverse-engineering<br/>and refactoring system"]
+    github["GitHub<br/>(target repo: BugsInPy candidate<br/>or lecturer-approved)"]
+    anthropic["Anthropic API<br/>(LLM)"]
+    graphify["Graphify CLI<br/>(knowledge-graph generator)"]
+    obsidian["Obsidian app<br/>(vault viewer)"]
+
+    student -- "configures setup.json, approves irreversible refactors, reads reports" --> archlens
+    archlens -- "git clone/fetch/push (RepoAgent)<br/>ONLY via gatekeeper" --> github
+    archlens -- "LLM calls ONLY via gatekeeper" --> anthropic
+    archlens -- "detect→extract→build→cluster→export" --> graphify
+    archlens -- "writes vault (hot.md, index.md, wiki/, log.md)" --> obsidian

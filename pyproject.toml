@@ -1,0 +1,51 @@
+[project]
+name = "archlens"
+version = "1.00"
+description = "Multi-agent graph-based reverse engineering of Python codebases (HW4/EX04, AI Agent Orchestration)"
+readme = "README.md"
+authors = [
+    { name = "SharbelMaroun", email = "142183717+SharbelMaroun@users.noreply.github.com" }
+]
+requires-python = ">=3.10"
+dependencies = [
+    "anthropic>=0.109.1",
+    "langgraph>=1.2.5",
+    "networkx>=3.4.2",
+    "pydantic>=2.13.4",
+]
+
+[project.scripts]
+archlens = "archlens.__main__:main"
+
+[build-system]
+requires = ["uv_build>=0.10.9,<0.11.0"]
+build-backend = "uv_build"
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM"]
+ignore = ["E501"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.coverage.run]
+source = ["archlens"]
+branch = true
+omit = ["src/main.py", "tests/*"]
+
+[tool.coverage.report]
+fail_under = 85
+show_missing = true
+
+[dependency-groups]
+dev = [
+    "pre-commit>=4.6.0",
+    "pytest>=9.0.3",
+    "pytest-cov>=7.1.0",
+    "ruff>=0.15.17",
+]

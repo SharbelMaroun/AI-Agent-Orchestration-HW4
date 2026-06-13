@@ -1,0 +1,27 @@
+flowchart TB
+    subgraph archlens_system["ArchLens system (uv-managed Python 3.10+ env)"]
+        cli["CLI — src/main.py<br/>thin, zero business logic"]
+        sdk["SDK — src/archlens/sdk/sdk.py<br/>single entry point, ALL business logic"]
+        orch["Agent layer — src/archlens/agents/<br/>LangGraph StateGraph, supervisor + 7 agents"]
+        gk["Gatekeeper — src/archlens/gatekeeper/gatekeeper.py<br/>rate limits, FIFO queue, token ledger"]
+        graphops["graphops/ — Graphify wrapper,<br/>graph metrics, diffing"]
+        vault["vault/ — Obsidian vault builder"]
+        metrics["metrics/ — token economics,<br/>cost tables, stop-condition eval"]
+        cfg["config/ — setup.json,<br/>rate_limits.json, logging_config.json"]
+    end
+    ext_llm["Anthropic API"]
+    ext_gh["GitHub (remote)"]
+    ext_gfy["Graphify CLI"]
+    ext_repo["Target repo clone (workdir)"]
+
+    cli --> sdk
+    orch --> sdk
+    sdk --> graphops
+    sdk --> vault
+    sdk --> metrics
+    sdk --> gk
+    gk --> ext_llm
+    gk -->|git clone/fetch/push| ext_gh
+    graphops --> ext_gfy
+    sdk --> ext_repo
+    cfg -.->|cfg.get only, no hardcoded values| sdk

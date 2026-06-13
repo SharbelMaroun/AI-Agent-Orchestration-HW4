@@ -1,0 +1,9 @@
+{
+  "nodes": [
+    {"id": "a.py", "type": "code", "source_file": "a.py"},
+    {"id": "b.py", "type": "code", "source_file": "b.py"}
+  ],
+  "edges": [
+    {"from": "a.py", "to": "b.py", "relation": "imports", "type": "EXTRACTED", "confidence": 0.95, "source_file": "a.py"}
+  ]
+}

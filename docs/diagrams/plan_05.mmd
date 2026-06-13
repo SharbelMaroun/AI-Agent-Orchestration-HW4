@@ -1,0 +1,42 @@
+sequenceDiagram
+    participant SUP as Supervisor
+    participant BH as BugHunterAgent
+    participant HUM as Human approver
+    participant RF as RefactorAgent
+    participant SDK as ArchLensSDK
+    participant QA as QAAgent
+    participant GA as GraphAgent
+    participant MA as MetricsAgent
+
+    SUP->>BH: route (analysis complete, iteration n)
+    BH->>SDK: hunt_bugs() — climb evidence ladder to VALIDATED
+    SDK-->>BH: Finding(relation → confidence → source_file)
+    BH-->>SUP: findings += VALIDATED finding
+    SUP->>HUM: interrupt_before RefactorAgent (irreversible)
+    HUM-->>SUP: approval granted (recorded in approvals)
+    SUP->>RF: route (VALIDATED + granted)
+    RF->>SDK: apply_refactor(finding) — one fix per iteration
+    SDK-->>RF: ChangeManifest (on git branch archlens/iter-N-fix-id = undo path)
+    RF-->>SUP: code changed
+    SUP->>QA: route — unit-test gate after EVERY change
+    QA->>SDK: run_qa(): uv run pytest (cov ≥ 85), uv run ruff (0)
+    alt QA red
+        SDK-->>QA: failures
+        QA-->>SUP: red → RefactorAgent repair (up to 3 attempts) else git revert — never kept on red
+    else QA green
+        SDK-->>QA: green
+        QA-->>SUP: verdict green
+    end
+    SUP->>GA: route — re-run Graphify on modified code
+    GA->>SDK: run_graphify() + build_vault()
+    SDK-->>GA: GraphSnapshot(n+1)
+    GA-->>SUP: snapshot fresh
+    SUP->>MA: route — stop-condition evaluation
+    MA->>SDK: diff_metrics(snapshot n, n+1) + token ledger update
+    SDK-->>MA: LoopState (5 Part C p21 verdicts)
+    MA-->>SUP: stop_eval
+    alt stop_eval.met or loop_iteration == 5
+        SUP-->>SUP: END
+    else continue
+        SUP-->>SUP: loop_iteration += 1 → next iteration
+    end

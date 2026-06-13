@@ -1,0 +1,4 @@
+[project]
+name = "no-tests-pkg"
+version = "1.00"
+requires-python = ">=3.10"

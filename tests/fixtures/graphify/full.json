@@ -1,0 +1,27 @@
+{
+  "nodes": [
+    {"id": "checkout_service.py", "type": "code", "source_file": "src/payments/checkout_service.py"},
+    {"id": "billing_api.py", "type": "code", "source_file": "src/payments/billing_api.py"},
+    {"id": "auth_controller.py", "type": "code", "source_file": "src/auth/controller.py"},
+    {"id": "session_store.py", "type": "code", "source_file": "src/auth/session_store.py"},
+    {"id": "PRD_payments.md", "type": "doc", "source_file": "docs/PRD_payments.md"},
+    {"id": "test_checkout.py", "type": "test", "source_file": "tests/test_checkout.py"}
+  ],
+  "rationale_nodes": [
+    {"id": "why-fifo", "subtype": "WHY", "text": "FIFO never rejects per gatekeeper PRD", "rationale_for": "checkout_service.py->billing_api.py"}
+  ],
+  "edges": [
+    {"from": "checkout_service.py", "to": "billing_api.py", "relation": "calls", "type": "EXTRACTED", "confidence": 0.95, "source_file": "src/payments/checkout_service.py"},
+    {"from": "PRD_payments.md", "to": "checkout_service.py", "relation": "implements", "type": "INFERRED", "confidence": 0.82, "source_file": "docs/PRD_payments.md"},
+    {"from": "test_checkout.py", "to": "checkout_service.py", "relation": "tested_by", "type": "EXTRACTED", "confidence": 0.95, "source_file": "tests/test_checkout.py"},
+    {"from": "auth_controller.py", "to": "session_store.py", "relation": "writes_session", "type": "EXTRACTED", "confidence": 0.95, "source_file": "src/auth/controller.py"},
+    {"from": "checkout_service.py", "to": "auth_controller.py", "relation": "uses", "type": "AMBIGUOUS", "confidence": 0.6, "source_file": "src/payments/checkout_service.py"}
+  ],
+  "communities": [
+    {"community_id": "c1", "label": "payments", "node_ids": ["checkout_service.py", "billing_api.py", "PRD_payments.md", "test_checkout.py"], "inter_community_edge_count": 1},
+    {"community_id": "c2", "label": "auth", "node_ids": ["auth_controller.py", "session_store.py"], "inter_community_edge_count": 1}
+  ],
+  "hyperedges": [
+    {"id": "h1", "relation": "validates", "member_node_ids": ["PRD_payments.md", "checkout_service.py", "test_checkout.py"], "source_file": "docs/PRD_payments.md"}
+  ]
+}

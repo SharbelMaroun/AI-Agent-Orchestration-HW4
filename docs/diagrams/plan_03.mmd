@@ -1,0 +1,15 @@
+flowchart TB
+    subgraph agents["src/archlens/agents/ — LangGraph StateGraph"]
+        sup["Supervisor<br/>deterministic route(state)"]
+        repo["RepoAgent"]
+        grapha["GraphAgent"]
+        analyst["AnalystAgent"]
+        hunter["BugHunterAgent"]
+        refactor["RefactorAgent"]
+        qa["QAAgent"]
+        met["MetricsAgent"]
+        state["AgentState (state.py)<br/>target_repo · graph_snapshot · findings ·<br/>loop_iteration · stop_eval · token_ledger · approvals"]
+    end
+    sup --> repo & grapha & analyst & hunter & refactor & qa & met
+    repo & grapha & analyst & hunter & refactor & qa & met --> state
+    state --> sup

@@ -1,0 +1,43 @@
+{
+  "version": "1.00",
+  "target_repo": {
+    "url": "https://github.com/httpie/cli",
+    "branch": "master",
+    "pinned_commit": "HEAD",
+    "workdir_root": "runs",
+    "clone_depth": 1,
+    "timeout_s": 300,
+    "max_size_mb": 200
+  },
+  "fallback_repo": {
+    "url": "https://github.com/psf/requests",
+    "branch": "main",
+    "pinned_commit": "HEAD",
+    "workdir_root": "runs",
+    "clone_depth": 1,
+    "timeout_s": 300,
+    "max_size_mb": 200
+  },
+  "graphify_output_dir": "runs/graphify",
+  "obsidian_vault_dir": "runs/vault",
+  "validation": {
+    "python_min_share": 0.5,
+    "min_file_count": 5,
+    "max_file_count": 5000
+  },
+  "graphify": {
+    "binary": "graphify",
+    "stages": ["detect", "extract", "build", "cluster", "export"],
+    "output_root": "runs/graphify",
+    "timeout_s": 600,
+    "analysis_depth": "structural",
+    "token_budget": 100000
+  },
+  "vault": {
+    "vault_root": "runs/vault",
+    "raw_dir_name": "raw",
+    "wiki_dir_name": "wiki",
+    "hot_top_n": 10,
+    "index_read_first_count": 3
+  }
+}
