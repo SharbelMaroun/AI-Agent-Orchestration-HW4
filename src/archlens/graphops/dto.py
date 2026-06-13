@@ -97,3 +97,43 @@ class FolderMismatch:
     community_id: int
     folder: str
     dominant_folder: str
+
+
+@dataclass(frozen=True)
+class MacroView:
+    """Whole-graph (macro) summary."""
+
+    node_count: int
+    edge_count: int
+    density: float
+    component_count: int
+    top_hubs: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class CommunitySummary:
+    """Per-community (meso) summary including the community's connector edges."""
+
+    community_id: int
+    size: int
+    members: tuple[str, ...]
+    connectors: tuple[tuple[str, str], ...]
+
+
+@dataclass(frozen=True)
+class Neighborhood:
+    """Single-node (micro) neighbourhood with one citation per incident edge."""
+
+    node_id: str
+    predecessors: tuple[str, ...]
+    successors: tuple[str, ...]
+    citations: tuple[Citation, ...]
+
+
+@dataclass(frozen=True)
+class DiffReport:
+    """Before/after deltas feeding the improvement-loop stop conditions (Part C p21)."""
+
+    dependency_loss: int
+    inter_community_after: int
+    isolated_after: int
