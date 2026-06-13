@@ -1,5 +1,6 @@
 """Centralized named constants — the only sanctioned home for magic values."""
 
+from enum import Enum
 from pathlib import Path
 
 CONFIG_DIR = Path("config")
@@ -17,3 +18,61 @@ ALLOWED_URL_SCHEMES = ("https",)
 DEFAULT_CLONE_DEPTH = 1
 DEFAULT_TIMEOUT_S = 300
 DEFAULT_MAX_SIZE_MB = 200
+
+# Graphify pipeline constants (Phase 4)
+GRAPH_JSON = "graph.json"
+GRAPH_HTML = "graph.html"
+REPORT_MD = "REPORT.md"
+MANIFEST_JSON = "manifest.json"
+GRAPHIFY_STAGES = ("detect", "extract", "build", "cluster", "export")
+ANALYSIS_DEPTHS = ("structural", "semantic", "full")
+CONFIDENCE_MIN = 0.55
+CONFIDENCE_MAX = 0.95
+EXTRACTED_CONFIDENCE = 0.95
+DUPLICATE_SIMILARITY_THRESHOLD = 0.91
+
+
+class NodeType(str, Enum):
+    """graph.json node kinds (PRD_graph_pipeline §4.1)."""
+
+    CODE = "code"
+    DOC = "doc"
+    TEST = "test"
+    RATIONALE = "rationale"
+    MEDIA = "media"
+    CONFIG = "config"
+
+
+class EvidenceType(str, Enum):
+    """Edge certainty levels — the evidence ladder (Part C p6)."""
+
+    EXTRACTED = "EXTRACTED"
+    INFERRED = "INFERRED"
+    AMBIGUOUS = "AMBIGUOUS"
+
+
+class Relation(str, Enum):
+    """Closed relation vocabulary (PRD_graph_pipeline §4.2)."""
+
+    IMPLEMENTS = "implements"
+    IMPORTS = "imports"
+    CALLS = "calls"
+    USES = "uses"
+    MENTIONS = "mentions"
+    TESTED_BY = "tested_by"
+    RATIONALE_FOR = "rationale_for"
+    SEMANTICALLY_SIMILAR_TO = "semantically_similar_to"
+    VALIDATES = "validates"
+    WRITES_SESSION = "writes_session"
+    CHECKS_POLICY = "checks_policy"
+    READS = "reads"
+    DEFINES = "defines"
+    AMBIGUOUS = "ambiguous"
+
+
+class RationaleSubtype(str, Enum):
+    """Rationale-node subtypes (Part C p15)."""
+
+    WHY = "WHY"
+    TODO = "TODO"
+    NOTE = "NOTE"

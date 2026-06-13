@@ -5,6 +5,7 @@ from pathlib import Path
 
 from pydantic import BaseModel, ConfigDict, field_validator
 
+from archlens.graphops.config import GraphifyConfig
 from archlens.shared.constants import (
     ALLOWED_URL_SCHEMES,
     DEFAULT_CLONE_DEPTH,
@@ -61,6 +62,7 @@ class SetupConfig(BaseModel):
     graphify_output_dir: str
     obsidian_vault_dir: str
     validation: ValidationBlock
+    graphify: GraphifyConfig
 
 
 def _read_json(path: Path) -> dict:

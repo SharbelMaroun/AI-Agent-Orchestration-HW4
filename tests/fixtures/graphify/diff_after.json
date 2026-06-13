@@ -1,0 +1,15 @@
+{
+  "nodes": [
+    {"id": "a", "type": "code", "source_file": "a.py"},
+    {"id": "b", "type": "code", "source_file": "b.py"},
+    {"id": "hub", "type": "code", "source_file": "hub.py"},
+    {"id": "lonely", "type": "code", "source_file": "lonely.py"}
+  ],
+  "edges": [
+    {"from": "a", "to": "hub", "relation": "calls", "type": "EXTRACTED", "confidence": 0.95, "source_file": "a.py"},
+    {"from": "b", "to": "lonely", "relation": "calls", "type": "EXTRACTED", "confidence": 0.95, "source_file": "b.py"}
+  ],
+  "communities": [
+    {"community_id": "c1", "label": "x", "node_ids": ["a", "hub"], "inter_community_edge_count": 1}
+  ]
+}

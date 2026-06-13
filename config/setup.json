@@ -24,5 +24,13 @@
     "python_min_share": 0.5,
     "min_file_count": 5,
     "max_file_count": 5000
+  },
+  "graphify": {
+    "binary": "graphify",
+    "stages": ["detect", "extract", "build", "cluster", "export"],
+    "output_root": "runs/graphify",
+    "timeout_s": 600,
+    "analysis_depth": "structural",
+    "token_budget": 100000
   }
 }

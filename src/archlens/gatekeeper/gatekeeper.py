@@ -8,6 +8,7 @@ import logging
 from pathlib import Path
 
 from archlens.gatekeeper.git_ops import clone_with_retry
+from archlens.gatekeeper.graphify_ops import run_stage
 from archlens.shared.config import RepoBlock
 from archlens.shared.constants import LOGGER_NAME
 from archlens.shared.rate_limits import RateLimitsConfig, load_rate_limits
@@ -30,3 +31,8 @@ class Gatekeeper:
         limits = self._config.rate_limits.services.default
         logger.info("git clone %s -> %s (depth=%s)", repo.url, dest, repo.clone_depth)
         return clone_with_retry(repo, dest, limits)
+
+    def run_graphify_stage(self, argv: list[str], stage: str, timeout_s: int) -> str:
+        """Execute one Graphify pipeline stage through the gatekeeper egress."""
+        logger.info("graphify stage %s: %s", stage, " ".join(argv[:3]))
+        return run_stage(argv, stage, timeout_s)
