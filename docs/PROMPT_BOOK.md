@@ -197,3 +197,66 @@ failed, and how the prompt was refined* (L07, section 11; Guidelines V3).
 *References: L07 section 11 (EX04 tasks), Part A (token-economics reality check), Part B
 (graph-based knowledge navigation, wiki/index discipline), Part C (edge triage, evidence
 ladder, p21 diff metrics), Submission Guidelines V3 (final checklist — prompt book).*
+
+## Phase 10 — Agent Prompt Templates (10.046)
+
+Seven versioned templates under `src/archlens/agents/prompts/`, one per agent.
+
+### PB-10-RepoAgent
+- **ID:** `repo` | **Version:** 1.00 | **Intent:** drive the RepoAgent node via the SDK
+
+| Variable | Role |
+| --- | --- |
+| `target_url` | template input |
+| `branch` | template input |
+- _Iteration log:_ v1.00 initial template (Phase 10).
+
+### PB-10-GraphAgent
+- **ID:** `graph` | **Version:** 1.00 | **Intent:** drive the GraphAgent node via the SDK
+
+| Variable | Role |
+| --- | --- |
+| `repo_path` | template input |
+- _Iteration log:_ v1.00 initial template (Phase 10).
+
+### PB-10-AnalystAgent
+- **ID:** `analyst` | **Version:** 1.00 | **Intent:** drive the AnalystAgent node via the SDK
+
+| Variable | Role |
+| --- | --- |
+| `graph_json` | template input |
+- _Iteration log:_ v1.00 initial template (Phase 10).
+
+### PB-10-BugHunterAgent
+- **ID:** `bughunter` | **Version:** 1.00 | **Intent:** drive the BugHunterAgent node via the SDK
+
+| Variable | Role |
+| --- | --- |
+| `graph_json` | template input |
+- _Iteration log:_ v1.00 initial template (Phase 10).
+
+### PB-10-RefactorAgent
+- **ID:** `refactor` | **Version:** 1.00 | **Intent:** drive the RefactorAgent node via the SDK
+
+| Variable | Role |
+| --- | --- |
+| `finding_id` | template input |
+| `source_file` | template input |
+- _Iteration log:_ v1.00 initial template (Phase 10).
+
+### PB-10-QAAgent
+- **ID:** `qa` | **Version:** 1.00 | **Intent:** drive the QAAgent node via the SDK
+
+| Variable | Role |
+| --- | --- |
+| `coverage_min` | template input |
+- _Iteration log:_ v1.00 initial template (Phase 10).
+
+### PB-10-MetricsAgent
+- **ID:** `metrics` | **Version:** 1.00 | **Intent:** drive the MetricsAgent node via the SDK
+
+| Variable | Role |
+| --- | --- |
+| `baseline_run` | template input |
+| `assisted_run` | template input |
+- _Iteration log:_ v1.00 initial template (Phase 10).
