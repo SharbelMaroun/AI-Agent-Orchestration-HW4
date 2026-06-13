@@ -29,8 +29,11 @@ def _supervisor(state: dict) -> dict:
     return {}
 
 
-def build_orchestration_graph(sdk):
-    """Build and compile the StateGraph: supervisor hub plus the 7 agent nodes."""
+def build_orchestration_graph(sdk, checkpointer=None, interrupt_after=None):
+    """Build and compile the StateGraph: supervisor hub plus the 7 agent nodes.
+
+    Optionally compile with a checkpointer and interrupt-after node list for resumable runs.
+    """
     builder = StateGraph(AgentState)
     builder.add_node("supervisor", _supervisor)
     for name, factory in _AGENTS.items():
@@ -43,4 +46,4 @@ def build_orchestration_graph(sdk):
     builder.add_conditional_edges("supervisor", route_from_supervisor, mapping)
     for name in (*_AGENTS, "stop_eval"):
         builder.add_edge(name, "supervisor")
-    return builder.compile()
+    return builder.compile(checkpointer=checkpointer, interrupt_after=list(interrupt_after or []))

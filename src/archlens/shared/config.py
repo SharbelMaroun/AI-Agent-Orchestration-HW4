@@ -88,6 +88,7 @@ class SdkBlock(BaseModel):
     default_analysis_depth: str = "structural"
     plugin_allowlist: list[str] = Field(default_factory=list)
     vault_output_root: str = "runs/vault"
+    checkpoint_db: str = "runs/checkpoints.sqlite"
 
 
 class SetupConfig(BaseModel):

@@ -53,6 +53,7 @@
   "sdk": {
     "default_analysis_depth": "structural",
     "plugin_allowlist": [],
-    "vault_output_root": "runs/vault"
+    "vault_output_root": "runs/vault",
+    "checkpoint_db": "runs/checkpoints.sqlite"
   }
 }
