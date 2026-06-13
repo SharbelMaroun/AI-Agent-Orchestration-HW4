@@ -1,11 +1,38 @@
-"""Density-based community detection — never derived from folders (tasks 6.013, 6.015)."""
+"""Community detection plus the graph.json cluster loader (tasks 6.013, 6.015, 7.004)."""
 
+import json
 from collections import Counter
+from dataclasses import dataclass
+from pathlib import Path
 
 import networkx as nx
 from networkx.algorithms.community import greedy_modularity_communities
 
 from archlens.graphops.dto import FolderMismatch
+
+
+@dataclass(frozen=True)
+class LoadedCommunity:
+    """One cluster parsed from a Graphify graph.json communities section."""
+
+    community_id: str
+    label: str
+    members: tuple[str, ...]
+    inter_community_edge_count: int
+
+
+def load_communities(source: dict | str | Path) -> list[LoadedCommunity]:
+    """Parse the communities (cluster) section of a graph.json into LoadedCommunity records."""
+    data = source if isinstance(source, dict) else json.loads(Path(source).read_text(encoding="utf-8"))
+    return [
+        LoadedCommunity(
+            community_id=c["community_id"],
+            label=c.get("label", c["community_id"]),
+            members=tuple(c.get("node_ids", [])),
+            inter_community_edge_count=c.get("inter_community_edge_count", 0),
+        )
+        for c in data.get("communities", [])
+    ]
 
 
 def _folder(source_file: str) -> str:

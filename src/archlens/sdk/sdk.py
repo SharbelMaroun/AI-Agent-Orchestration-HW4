@@ -7,6 +7,7 @@ from pathlib import Path
 
 from archlens.graphops import commands as _commands
 from archlens.graphops.adapter import load_graphify_graph
+from archlens.graphops.block_model import build_block_model
 from archlens.graphops.bridges import bridge_report
 from archlens.graphops.centrality import degree_centrality
 from archlens.graphops.classify import classify
@@ -18,6 +19,7 @@ from archlens.graphops.graph_metrics import modularity
 from archlens.graphops.layout import RunLayout, new_run_id
 from archlens.graphops.loader import load_graph
 from archlens.graphops.manifest import Manifest, save_manifest
+from archlens.graphops.mermaid_blocks import render_block_diagram
 from archlens.graphops.orchestrator import run_pipeline
 from archlens.graphops.parser import Graph, parse_graph
 from archlens.graphops.spof import critical_paths, spof_detect
@@ -166,3 +168,10 @@ class ArchLensSDK:
     def diff_analysis_graphs(self, before, after):
         """Before/after deltas for the improvement-loop stop conditions."""
         return _commands.diff(before, after)
+
+    # --- Phase 7 reverse-engineering deliverables ---
+
+    def generate_block_diagram(self, graph_source, direction: str | None = None) -> str:
+        """Render the architecture block diagram (mermaid flowchart) from a graph.json."""
+        direction = direction or self._config().deliverables.mermaid_direction
+        return render_block_diagram(build_block_model(graph_source), direction)
