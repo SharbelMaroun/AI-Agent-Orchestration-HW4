@@ -24,9 +24,9 @@ clones and outputs land under the git-ignored `runs/`.
 
 ## Report
 
-What was actually done on branch `Sharbel` (commits `ef5e993` → `1158695`,
+What was actually done on branch `Sharbel` (commits `ef5e993` → `f359c08`,
 2026-06-12/13), including the real failures hit along the way. Everything below is
-reproducible from the repo; nothing is staged.
+reproducible from the repo.
 
 ### Timeline of work
 
@@ -36,15 +36,19 @@ reproducible from the repo; nothing is staged.
 | `dc8348d` | **Phase 1 — Project setup & tooling** (45/45 tasks) | uv project `archlens` v1.00, package skeleton, config trio + pydantic loaders, SDK/Gatekeeper stubs, 21 TDD tests, pre-commit gates |
 | `a0b0b9f` | **Phase 2 — Documentation & approval gates** (40/45; 5 await the lecturer) | ADR-000..010 standalone files + index, GLOSSARY (44 terms), VERSIONING, README outline, PRD appendices, PLAN traceability matrix, all 7 diagrams compiled |
 | `1158695` | **Phase 3 — Target repository module** (44/45; approval task blocked) | Sandbox manager, gatekeeper-only git ops with typed errors + config-driven retry, 4 validation checks, RepoAgent node with fallback, measured repo-selection evidence |
+| `41881db` | **Phase 4 — Graphify pipeline integration** (49/50; 4.002 awaits lecturer) | graph.json models + validating parser, stage orchestrator, run layout/manifest, GraphDiff engine, SDK facade — built first against a *mocked* CLI (see correction below) |
+| `6b1b8d1` | **Phase 5 — Obsidian vault & navigation** (48/50; 5.002 + 5.046 blocked) | layout, frontmatter, wikilinks, hot.md/index.md/wiki pages, append-only log, raw ingest, orphan/broken-link validation, deterministic builder, `archlens vault` CLI + GraphAgent |
+| `77658a0` | **Graphify correction — real CLI + adapter, run for real** | rebuilt the wrapper to real `graphify update`/`extract`, added a node-link adapter, ran on httpie (2033 nodes / 4306 edges / 138 communities), built + validated a real vault |
+| `f359c08` | Pin prerequisite `graphifyy==0.8.39` | reproducible external-tool version |
 
-Task ledger after Phase 3: **131 DONE · 8 IN_PROGRESS · 13 BLOCKED (lecturer gates) · 618 TODO** of 770.
+Task ledger after Phase 5 + the Graphify correction: **228 DONE · 7 IN_PROGRESS · 14 BLOCKED · 521 TODO** of 770. (BLOCKED = lecturer-approval gates plus 5.046, which needs the Obsidian GUI.)
 
 ### Quality-gate evidence (final state)
 
 ```text
 $ uv run pytest --cov=archlens --cov-branch
-76 passed in 1.67s
-Required test coverage of 85.0% reached. Total coverage: 95.38%
+177 passed in 1.70s
+Required test coverage of 85.0% reached. Total coverage: 96.33%
 
 $ uv run ruff check .
 All checks passed!
@@ -141,11 +145,14 @@ the system temp directory. Full honest log trail: `docs/REPO_SELECTION.md` §3.
 
 ### What is verifiable right now
 
-- `uv run pytest` — 76 tests, including: mocked-git clone wrapper (no network in
-  tests), retry policy driven entirely by `config/rate_limits.json`, sandbox
-  containment/idempotent cleanup, 4 repo-validation checks against committed fixtures,
-  RepoAgent fallback behavior, a guard test proving no module outside `gatekeeper/`
-  touches subprocess/git, and a LangGraph `StateGraph` compile of the RepoAgent node.
+- `uv run pytest` — 177 tests across the repo module, the Graphify pipeline (models,
+  validating parser, node-link adapter, diff engine, orchestrator), and the Obsidian
+  vault generator (hot.md golden file, broken-link/orphan validation, deterministic
+  rebuild), plus a guard test proving no module outside `gatekeeper/` touches
+  subprocess/git.
+- A **real Graphify run** on the httpie clone (`graphify update`, no LLM): 2033 nodes,
+  4306 edges, 138 communities → ArchLens built a 138-page Obsidian vault that passes
+  validation (0 broken links, 0 orphans). See the correction note below.
 - `uv run python -c "..."` config-switch demo — primary `httpie/cli`, fallback
   `psf/requests`, no code change needed (see `docs/REPO_SELECTION.md` §5).
 - Lecturer-approval gates (PRD, all-docs, target repo) are deliberately BLOCKED —
@@ -154,9 +161,11 @@ the system temp directory. Full honest log trail: `docs/REPO_SELECTION.md` §3.
 
 ### Not yet captured
 
-Obsidian-vault screenshots and Graphify outputs (`graph.json`, `graph.html`, `hot.md`)
-do not exist yet — they arrive with Phases 4–5. No GUI exists to screenshot; the CLI
-currently exposes `--version` only. Token-economics tables arrive with Phase 12.
+Real `graph.json` / `graph.html` / `GRAPH_REPORT.md` now exist (httpie, under the
+git-ignored `runs/`), and a real Obsidian vault was generated and validated. Still open:
+`graph.html`/vault **screenshots** (need a GUI), the **semantic** `graphify extract` pass
+(needs an LLM API key), and the **token-economics** before/after tables (Phase 12, via
+`graphify benchmark`).
 
 ### Correction (2026-06-13): Graphify integration rebuilt against the real CLI, then run for real
 
