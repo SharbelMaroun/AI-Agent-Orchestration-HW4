@@ -5,6 +5,7 @@ GUI/CLI layers hold zero logic; they call this facade exclusively.
 
 from pathlib import Path
 
+from archlens.graphops.adapter import load_graphify_graph
 from archlens.graphops.cli_wrapper import GraphifyCLI
 from archlens.graphops.diff import GraphDiff, compute_diff
 from archlens.graphops.layout import RunLayout, new_run_id
@@ -74,6 +75,9 @@ class ArchLensSDK:
         return compute_diff(parse_graph(before), parse_graph(after), bottleneck)
 
     def build_vault(self, graph_source, raw_sources: list | None = None) -> VaultLayout:
-        """Build the Obsidian vault (hot.md, index.md, wiki/, log.md, raw/) from a graph.json."""
-        graph = graph_source if isinstance(graph_source, Graph) else parse_graph(graph_source)
+        """Build the Obsidian vault (hot.md, index.md, wiki/, log.md, raw/) from a graph.json.
+
+        Accepts a real Graphify graph.json (node-link) or our canonical schema via the adapter.
+        """
+        graph = graph_source if isinstance(graph_source, Graph) else load_graphify_graph(graph_source)
         return _build_vault(graph, self._config().vault, raw_sources)

@@ -20,7 +20,7 @@ class GraphDiff(BaseModel):
 
 
 def _edge_key(edge) -> tuple[str, str, str]:
-    return (edge.src, edge.dst, edge.relation.value)
+    return (edge.src, edge.dst, edge.relation)
 
 
 def _inter_count(graph: Graph) -> int:

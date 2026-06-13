@@ -36,7 +36,7 @@ def test_node_requires_source_file():
 def test_edge_parses_from_to_aliases():
     edge = Edge.model_validate(EDGE)
     assert edge.src == "a.py" and edge.dst == "b.py"
-    assert edge.relation.value == "imports"
+    assert edge.relation == "imports"
 
 
 def test_edge_rejects_confidence_below_floor():
@@ -62,9 +62,10 @@ def test_edge_requires_source_file():
         Edge.model_validate(payload)
 
 
-def test_edge_rejects_unknown_relation():
-    with pytest.raises(ValidationError):
-        Edge.model_validate({**EDGE, "relation": "depends_on"})
+def test_edge_accepts_open_relation_vocabulary():
+    # Graphify emits an open AST relation set; "contains" is valid, not a closed enum member.
+    edge = Edge.model_validate({**EDGE, "relation": "contains"})
+    assert edge.relation == "contains"
 
 
 def test_extracted_edge_must_be_pinned_at_max_confidence():

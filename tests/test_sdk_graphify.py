@@ -13,10 +13,10 @@ FIXTURES = Path(__file__).resolve().parent / "fixtures" / "graphify"
 
 class FakeGatekeeper:
     def __init__(self) -> None:
-        self.stages: list[str] = []
+        self.commands: list[str] = []
 
-    def run_graphify_stage(self, argv, stage, timeout_s):
-        self.stages.append(stage)
+    def run_graphify(self, argv, label, timeout_s):
+        self.commands.append(label)
         return "ok"
 
 
@@ -40,11 +40,6 @@ def test_run_pipeline_persists_manifest(setup_json, tmp_path: Path):
     sdk = ArchLensSDK(setup=cfg, gatekeeper=FakeGatekeeper())
     manifest = sdk.run_graphify_pipeline(Path("/repo"), run_id="run-test")
     assert isinstance(manifest, Manifest)
-    assert [s.stage.value for s in manifest.stages] == [
-        "detect",
-        "extract",
-        "build",
-        "cluster",
-        "export",
-    ]
+    assert manifest.stages[0].stage == "update"  # structural depth -> graphify update
+    assert manifest.stages[0].status.value == "ok"
     assert (tmp_path / "run-test" / "manifest.json").is_file()

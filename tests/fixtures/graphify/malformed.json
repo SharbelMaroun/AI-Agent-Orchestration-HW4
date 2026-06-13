@@ -3,6 +3,6 @@
     {"id": "a.py", "type": "code", "source_file": "a.py"}
   ],
   "edges": [
-    {"from": "a.py", "to": "b.py", "relation": "depends_on", "type": "EXTRACTED", "confidence": 0.95, "source_file": "a.py"}
+    {"from": "a.py", "to": "b.py", "relation": "imports", "type": "INFERRED", "confidence": 0.5, "source_file": "a.py"}
   ]
 }

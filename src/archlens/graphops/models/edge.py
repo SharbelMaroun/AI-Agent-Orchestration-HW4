@@ -1,4 +1,8 @@
-"""Edge model with confidence-range and evidence-type validation (tasks 4.025-4.026)."""
+"""Edge model with confidence-range validation; relation is an open AST vocabulary (4.025-4.026).
+
+Graphify emits an open relation set (calls, contains, imports_from, inherits, re_exports,
+references, method, ...), so `relation` is a free string rather than a closed enum.
+"""
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -7,7 +11,6 @@ from archlens.shared.constants import (
     CONFIDENCE_MIN,
     EXTRACTED_CONFIDENCE,
     EvidenceType,
-    Relation,
 )
 
 
@@ -18,7 +21,7 @@ class Edge(BaseModel):
 
     src: str = Field(alias="from")
     dst: str = Field(alias="to")
-    relation: Relation
+    relation: str
     type: EvidenceType
     confidence: float
     source_file: str

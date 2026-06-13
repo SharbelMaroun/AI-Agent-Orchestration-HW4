@@ -26,11 +26,11 @@ class StageStatus(str, Enum):
 
 
 class StageResult(BaseModel):
-    """Outcome of one stage; serialized into manifest.json."""
+    """Outcome of one Graphify command/phase; serialized into manifest.json."""
 
     model_config = ConfigDict(extra="forbid")
 
-    stage: PipelineStage
+    stage: str
     status: StageStatus
     message: str = ""
 

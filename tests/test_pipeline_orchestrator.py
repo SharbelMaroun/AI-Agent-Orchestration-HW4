@@ -1,4 +1,4 @@
-"""TDD tests for the stage orchestrator: happy path, halt, cache skip, error paths (4.016-4.047)."""
+"""TDD tests for the orchestrator: real command run + typed-error handling (4.016-4.017, 4.047)."""
 
 from pathlib import Path
 
@@ -7,44 +7,34 @@ from archlens.graphops.orchestrator import run_pipeline
 from archlens.graphops.stages import StageStatus
 
 
-class SpyCLI:
-    def __init__(self, fail_on=None, error=None) -> None:
-        self.calls: list[str] = []
-        self._fail_on = fail_on
+class FakeCLI:
+    def __init__(self, command: str = "update", error=None) -> None:
+        self.command = command
         self._error = error
+        self.ran = False
 
-    def run_stage(self, stage, repo_path):
-        self.calls.append(stage)
-        if stage == self._fail_on:
+    def run(self, repo_path):
+        self.ran = True
+        if self._error:
             raise self._error
         return "ok"
 
 
-def test_happy_path_runs_five_stages():
-    cli = SpyCLI()
+def test_successful_run_records_ok_stage():
+    cli = FakeCLI()
     results = run_pipeline(cli, Path("/repo"))
-    assert [r.stage.value for r in results] == ["detect", "extract", "build", "cluster", "export"]
-    assert all(r.status is StageStatus.OK for r in results)
-
-
-def test_halt_on_first_failure_skips_later_stages():
-    cli = SpyCLI(fail_on="build", error=GraphifyStageError("build", "boom"))
-    results = run_pipeline(cli, Path("/repo"))
-    assert [r.stage.value for r in results] == ["detect", "extract", "build"]
-    assert results[-1].status is StageStatus.FAILED
-    assert cli.calls == ["detect", "extract", "build"]
-
-
-def test_cache_hit_skips_extract_without_invoking_it():
-    cli = SpyCLI()
-    results = run_pipeline(cli, Path("/repo"), skip_extract=True)
-    assert "extract" not in cli.calls
-    extract = next(r for r in results if r.stage.value == "extract")
-    assert extract.status is StageStatus.SKIPPED
-
-
-def test_missing_binary_returns_failed_result_not_crash():
-    cli = SpyCLI(fail_on="detect", error=GraphifyNotFoundError("nope"))
-    results = run_pipeline(cli, Path("/repo"))
-    assert results[0].status is StageStatus.FAILED
+    assert cli.ran
     assert len(results) == 1
+    assert results[0].stage == "update"
+    assert results[0].status is StageStatus.OK
+
+
+def test_stage_error_returns_failed_not_crash():
+    results = run_pipeline(FakeCLI(error=GraphifyStageError("update", "boom")), Path("/repo"))
+    assert results[0].status is StageStatus.FAILED
+    assert "boom" in results[0].message
+
+
+def test_missing_binary_returns_failed_not_crash():
+    results = run_pipeline(FakeCLI(error=GraphifyNotFoundError("nope")), Path("/repo"))
+    assert results[0].status is StageStatus.FAILED

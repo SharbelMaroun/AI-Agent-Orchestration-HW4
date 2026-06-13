@@ -1,12 +1,6 @@
 """TDD tests for the PipelineStage ordering and StageResult model (tasks 4.014-4.016)."""
 
-from archlens.graphops.stages import (
-    PipelineStage,
-    StageResult,
-    StageStatus,
-    ordered_stages,
-    stage_index,
-)
+from archlens.graphops.stages import StageResult, StageStatus, ordered_stages, stage_index
 
 
 def test_canonical_stage_order():
@@ -25,5 +19,5 @@ def test_stage_index_is_monotonic():
 
 
 def test_stage_result_serializes_to_json():
-    result = StageResult(stage=PipelineStage.BUILD, status=StageStatus.OK)
-    assert result.model_dump(mode="json") == {"stage": "build", "status": "ok", "message": ""}
+    result = StageResult(stage="update", status=StageStatus.OK)
+    assert result.model_dump(mode="json") == {"stage": "update", "status": "ok", "message": ""}

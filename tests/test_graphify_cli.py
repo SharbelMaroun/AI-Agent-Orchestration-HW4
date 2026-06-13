@@ -1,49 +1,47 @@
-"""TDD tests for GraphifyCLI argv construction and gatekeeper delegation (tasks 4.011-4.013)."""
+"""TDD tests for GraphifyCLI real-command construction + gatekeeper delegation (4.011-4.013)."""
 
 from pathlib import Path
 
 from archlens.graphops.cli_wrapper import GraphifyCLI, build_argv
 from archlens.graphops.config import GraphifyConfig
 
-CFG = GraphifyConfig.model_validate(
-    {
-        "binary": "graphify",
-        "stages": ["detect", "extract", "build", "cluster", "export"],
-        "output_root": "runs/graphify",
-        "timeout_s": 600,
-        "analysis_depth": "structural",
-        "token_budget": 100000,
-    }
-)
+
+def _cfg(depth: str = "structural") -> GraphifyConfig:
+    return GraphifyConfig.model_validate(
+        {
+            "binary": "graphify",
+            "stages": ["detect", "extract", "build", "cluster", "export"],
+            "output_root": "runs/graphify",
+            "timeout_s": 600,
+            "analysis_depth": depth,
+            "token_budget": 100000,
+        }
+    )
 
 
 class FakeGatekeeper:
     def __init__(self) -> None:
         self.calls: list[tuple] = []
 
-    def run_graphify_stage(self, argv, stage, timeout_s):
-        self.calls.append((argv, stage, timeout_s))
+    def run_graphify(self, argv, label, timeout_s):
+        self.calls.append((argv, label, timeout_s))
         return "ok"
 
 
-def test_build_argv_is_exact():
-    argv = build_argv(CFG, "extract", Path("/tmp/repo"))
-    assert argv == [
-        "uv",
-        "run",
-        "graphify",
-        "--stage",
-        "extract",
-        "--repo",
-        str(Path("/tmp/repo")),
-        "--depth",
-        "structural",
-    ]
+def test_build_argv_uses_real_graphify_command():
+    assert build_argv(_cfg(), "update", Path("/repo")) == ["graphify", "update", str(Path("/repo"))]
 
 
-def test_cli_delegates_each_stage_to_gatekeeper():
+def test_structural_uses_update_and_semantic_uses_extract():
+    assert GraphifyCLI(_cfg("structural"), FakeGatekeeper()).command == "update"
+    assert GraphifyCLI(_cfg("semantic"), FakeGatekeeper()).command == "extract"
+
+
+def test_run_delegates_to_gatekeeper():
     gk = FakeGatekeeper()
-    out = GraphifyCLI(CFG, gk).run_stage("build", Path("/tmp/repo"))
+    out = GraphifyCLI(_cfg(), gk).run(Path("/repo"))
     assert out == "ok"
-    assert gk.calls[0][1] == "build"
-    assert gk.calls[0][2] == 600
+    argv, label, timeout = gk.calls[0]
+    assert argv[:2] == ["graphify", "update"]
+    assert label == "update"
+    assert timeout == 600

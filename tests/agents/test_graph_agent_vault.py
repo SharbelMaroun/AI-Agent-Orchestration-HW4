@@ -10,7 +10,7 @@ FIXTURE = Path(__file__).resolve().parents[1] / "fixtures" / "vault" / "graph.js
 
 
 class FakeGatekeeper:
-    def run_graphify_stage(self, argv, stage, timeout_s):
+    def run_graphify(self, argv, label, timeout_s):
         return "ok"
 
 

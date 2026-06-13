@@ -10,13 +10,17 @@ Full documentation lives in `docs/` (PRD, PLAN, specialized PRDs, TODO, prompt b
 ## Quickstart (uv only)
 
 ```bash
+uv tool install graphifyy        # prerequisite: the external Graphify code-graph CLI
 uv sync                          # install the locked environment
 uv run pytest                    # run the test suite (coverage gate: 85%)
 uv run ruff check .              # lint gate: zero violations
 uv run python src/main.py --version
 ```
 
-All tooling goes through uv; this project never uses other package managers.
+All tooling goes through uv; this project never uses other package managers. Graphify
+(`graphifyy` on PyPI, command `graphify`, by Safi Shamsi) is an external CLI tool — like
+`git`, it is invoked through the gatekeeper and is **not** vendored into the repo. Its
+clones and outputs land under the git-ignored `runs/`.
 
 ## Report
 
@@ -153,3 +157,55 @@ the system temp directory. Full honest log trail: `docs/REPO_SELECTION.md` §3.
 Obsidian-vault screenshots and Graphify outputs (`graph.json`, `graph.html`, `hot.md`)
 do not exist yet — they arrive with Phases 4–5. No GUI exists to screenshot; the CLI
 currently exposes `--version` only. Token-economics tables arrive with Phase 12.
+
+### Correction (2026-06-13): Graphify integration rebuilt against the real CLI, then run for real
+
+We got something wrong in Phase 4 and fixed it. Recorded honestly, with before/after.
+
+**What we did wrong.** The Phase 4 Graphify wrapper was built against an *assumed*
+five-stage interface, `graphify --stage <s> --repo <p> --depth <d>`, and was only ever
+exercised against hand-authored `graph.json` fixtures with a **mocked** subprocess. So:
+
+- Graphify was **never actually run**; the httpie repo was **never analyzed**; no real
+  `graph.json` existed.
+- The real tool — **`graphifyy`** on PyPI (command `graphify`, by Safi Shamsi, *not*
+  Dr. Yoram Segal, who only teaches with it) — has **no** `--stage`/`--repo`/`--depth`
+  flags. Its real `graph.json` is networkx node-link JSON: edges under `links` with
+  `source`/`target`, an **open** AST relation vocabulary (`calls`, `contains`,
+  `imports_from`, `inherits`, `re_exports`, ...), the evidence tier in `confidence` plus
+  a numeric `confidence_score`, and community membership as a per-node `community` id.
+  Our PRD-spec models (`from`/`to`, closed relation enum, float `confidence`) did not
+  match it.
+
+**What we did to fix it.**
+
+1. Installed the real tool the uv-compliant way: `uv tool install graphifyy` (v0.8.37).
+2. Rewrote `graphops/cli_wrapper.py` + `gatekeeper/graphify_ops.py` to call the real
+   commands — `graphify update <repo>` for the structural, no-LLM pass (the "almost
+   free" AST analysis) and `graphify extract` for the semantic pass — through the
+   gatekeeper, exactly like `git`.
+3. Added `graphops/adapter.py` (`load_graphify_graph`) that normalizes real node-link
+   output (and our canonical fixtures) into the `Graph` aggregate, and relaxed the
+   models to reality (`relation` is now an open string; nodes carry `label` /
+   `source_location`; the adapter pins EXTRACTED confidence and maps `file_type`).
+4. **Ran it for real** on the httpie clone and rebuilt the vault end-to-end.
+
+**Real-run evidence (no LLM / no API key — structural `graphify update`):**
+
+```text
+$ graphify update runs/eval/httpie
+  AST extraction: 188/188 files (100%) [8 workers]
+[graphify watch] Rebuilt: 2033 nodes, 4306 edges, 138 communities
+  graph.json, graph.html and GRAPH_REPORT.md updated
+
+# ArchLens then consumed that real graph.json:
+REAL httpie graph: 2033 nodes, 4306 edges, 138 communities
+vault root: runs/httpie-vault   wiki community pages: 138   hot.md lines: 46
+raw/ files: ['GRAPH_REPORT.md', 'graph.json']
+VALIDATION ok: True | orphans: 0 | broken_links: 0 | lint: 0
+```
+
+The wrapper, adapter, and models are now exercised by unit tests *and* proven against a
+real 2033-node Graphify graph. `graph.html` / vault screenshots remain to be captured;
+the semantic (`extract`) pass needs an LLM API key and is deferred to the token-economics
+work in Phase 12.

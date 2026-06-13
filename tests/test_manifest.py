@@ -4,11 +4,11 @@ from pathlib import Path
 
 from archlens.graphops.layout import RunLayout
 from archlens.graphops.manifest import Manifest, extend_history, load_manifest, save_manifest
-from archlens.graphops.stages import PipelineStage, StageResult, StageStatus
+from archlens.graphops.stages import StageResult, StageStatus
 
 
 def _manifest(run_id: str, history: list[str]) -> Manifest:
-    stage = StageResult(stage=PipelineStage.EXPORT, status=StageStatus.OK)
+    stage = StageResult(stage="update", status=StageStatus.OK)
     return Manifest(run_id=run_id, analysis_depth="structural", stages=[stage], history=history)
 
 
@@ -17,7 +17,7 @@ def test_save_and_load_round_trip(tmp_path: Path):
     save_manifest(layout, _manifest("run-1", ["run-1"]))
     loaded = load_manifest(layout.manifest)
     assert loaded.run_id == "run-1"
-    assert loaded.stages[0].stage is PipelineStage.EXPORT
+    assert loaded.stages[0].stage == "update"
 
 
 def test_extend_history_preserves_order():
