@@ -48,7 +48,6 @@
   "deliverables": {
     "output_dir": "deliverables",
     "mermaid_direction": "TD",
-    "match_confidence_threshold": 0.55,
-    "duplicate_similarity_threshold": 0.91
+    "match_confidence_threshold": 0.55
   }
 }
