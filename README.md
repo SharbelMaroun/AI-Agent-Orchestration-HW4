@@ -22,6 +22,21 @@ All tooling goes through uv; this project never uses other package managers. Gra
 `git`, it is invoked through the gatekeeper and is **not** vendored into the repo. Its
 clones and outputs land under the git-ignored `runs/`.
 
+### Optional developer setup: the `/graphify` skill in Claude Code
+
+ArchLens drives Graphify through the gatekeeper, so this is **not required** to run the
+project. It only adds a `/graphify` slash command to your own Claude Code for ad-hoc
+graph queries:
+
+```bash
+graphify install --platform claude   # installs the skill into ~/.claude/skills/graphify/
+# then restart Claude Code (skills load at startup) and type:  /graphify .
+graphify uninstall                   # to remove it later
+```
+
+This writes to your per-machine `~/.claude/` (a `SKILL.md`, its `references/`, and a
+`graphify` section in `~/.claude/CLAUDE.md`) — it changes your local IDE, not this repo.
+
 ## Report
 
 What was actually done on branch `Sharbel` (commits `ef5e993` → `f359c08`,
