@@ -42,4 +42,6 @@ def supervise(state: dict) -> dict:
         return _decision("GraphAgent", "patch applied: re-run the graph")
     if "tests_green" not in stop:
         return _decision("QAAgent", "graph refreshed: run QA")
-    return _decision("stop_eval", "QA done: evaluate the stop conditions")
+    if not state.get("token_ledger"):
+        return _decision("MetricsAgent", "QA done: aggregate token metrics")
+    return _decision("stop_eval", "metrics done: evaluate the stop conditions")

@@ -24,7 +24,9 @@ CASES = [
     ({**_ANALYZE, "findings": [{"from": "analyst"}, _bug()]}, "RefactorAgent"),
     ({**_ANALYZE, "findings": [_bug(status="fixed")]}, "GraphAgent"),
     (_QA, "QAAgent"),
-    ({**_QA, "stop_eval": {"tests_green": True, "ruff_zero": True}}, "stop_eval"),
+    ({**_QA, "stop_eval": {"tests_green": True, "ruff_zero": True}}, "MetricsAgent"),
+    ({**_QA, "stop_eval": {"tests_green": True, "ruff_zero": True},
+      "token_ledger": {"baseline_tokens": 1}}, "stop_eval"),
     ({**_ANALYZE, "stop_eval": {"met": True}}, "END"),
     ({**_ANALYZE, "loop_iteration": 5}, "END"),
 ]
