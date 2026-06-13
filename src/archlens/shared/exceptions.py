@@ -8,8 +8,10 @@ class ArchLensError(Exception):
 
     code = f"{EXCEPTION_CODE_PREFIX}-000"
 
-    def __init__(self, message: str = "", source_context: str | None = None) -> None:
+    def __init__(self, message: str = "", source_context: str | None = None,
+                 retryable: bool = False) -> None:
         self.source_context = source_context
+        self.retryable = retryable
         super().__init__(message)
 
 
