@@ -18,3 +18,8 @@ logs/
 archlens.log
 runs/
 graphify-out/
+
+# Generated reverse-engineering deliverables (regenerable via `archlens deliverables`)
+deliverables/ARCHITECTURE.md
+deliverables/CLASS_SCHEMA.md
+deliverables/ALIGNMENT_AUDIT.md

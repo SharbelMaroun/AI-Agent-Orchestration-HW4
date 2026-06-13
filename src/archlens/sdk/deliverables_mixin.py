@@ -10,6 +10,9 @@ from archlens.graphops.mermaid_classes import render_class_diagram
 from archlens.graphops.orphan_detector import detect_orphans
 from archlens.graphops.req_matcher import match_requirements
 from archlens.graphops.req_parser import parse_requirements
+from archlens.vault.arch_doc import write_architecture
+from archlens.vault.audit_doc import write_audit
+from archlens.vault.class_doc import write_class_schema
 
 
 class DeliverablesMixin:
@@ -42,3 +45,15 @@ class DeliverablesMixin:
             "shared_flows": detect_shared_flows(matches),
             "duplicate_flows": detect_duplicate_flows(graph_source),
         }
+
+    def generate_deliverables(self, graph_source, source_root, prd_source,
+                              out_dir=None, version: str | None = None) -> list:
+        """Write ARCHITECTURE.md, CLASS_SCHEMA.md, and ALIGNMENT_AUDIT.md; return their paths."""
+        version = version or self.version()
+        out_dir = out_dir or self._config().deliverables.output_dir
+        direction = self._config().deliverables.mermaid_direction
+        return [
+            write_architecture(graph_source, out_dir, version, direction),
+            write_class_schema(source_root, out_dir, version),
+            write_audit(prd_source, graph_source, out_dir, version),
+        ]

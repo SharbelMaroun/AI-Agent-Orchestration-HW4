@@ -10,7 +10,8 @@ class EvidenceLintError(ValueError):
 
 
 def _tag_count(claim: str) -> int:
-    return sum(1 for tag in EVIDENCE_TAGS if tag in claim)
+    # Count only bracketed [TAG] markers, so the tag words appearing in prose do not count.
+    return sum(claim.count(f"[{tag}]") for tag in EVIDENCE_TAGS)
 
 
 def lint_claims(claims: Iterable[str]) -> list[str]:

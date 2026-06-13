@@ -11,6 +11,11 @@ def _build_parser() -> argparse.ArgumentParser:
     sub = parser.add_subparsers(dest="command")
     vault = sub.add_parser("vault", help="build the Obsidian vault from a graph.json")
     vault.add_argument("graph", help="path to a Graphify graph.json")
+    deliv = sub.add_parser("deliverables", help="generate reverse-engineering deliverables")
+    deliv.add_argument("--graph", default="graphify-out/graph.json", help="canonical graph.json")
+    deliv.add_argument("--src", default="src", help="target source root for the class schema")
+    deliv.add_argument("--prd", default="docs/PRD.md", help="PRD markdown for the alignment audit")
+    deliv.add_argument("--out", default=None, help="output directory (defaults to config)")
     return parser
 
 
@@ -22,6 +27,11 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "vault":
         layout = ArchLensSDK().build_vault(args.graph)
         print(layout.root)
+        return 0
+    if args.command == "deliverables":
+        paths = ArchLensSDK().generate_deliverables(args.graph, args.src, args.prd, args.out)
+        for path in paths:
+            print(path)
         return 0
     _build_parser().print_help()
     return 0
