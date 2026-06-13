@@ -87,3 +87,13 @@ class ReviewItem:
     dst: str
     reason: str
     citation: Citation
+
+
+@dataclass(frozen=True)
+class FolderMismatch:
+    """A node whose density community disagrees with its source-folder grouping."""
+
+    node_id: str
+    community_id: int
+    folder: str
+    dominant_folder: str
