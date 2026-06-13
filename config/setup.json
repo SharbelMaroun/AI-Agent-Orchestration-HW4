@@ -44,5 +44,10 @@
     "confidence_floor": 0.55,
     "confidence_strong": 0.95,
     "duplicate_similarity_threshold": 0.91
+  },
+  "deliverables": {
+    "output_dir": "deliverables",
+    "mermaid_direction": "TD",
+    "match_confidence_threshold": 0.55
   }
 }

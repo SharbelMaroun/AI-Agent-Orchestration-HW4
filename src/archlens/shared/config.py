@@ -13,6 +13,7 @@ from archlens.shared.constants import (
     DEFAULT_CLONE_DEPTH,
     DEFAULT_MAX_SIZE_MB,
     DEFAULT_TIMEOUT_S,
+    DELIVERABLES_DIR,
     DUPLICATE_SIMILARITY_THRESHOLD,
     SETUP_FILE,
 )
@@ -65,6 +66,20 @@ class AnalysisBlock(BaseModel):
     duplicate_similarity_threshold: float = DUPLICATE_SIMILARITY_THRESHOLD
 
 
+class DeliverablesBlock(BaseModel):
+    """Phase 7 reverse-engineering deliverable settings (no value hardcoded in code).
+
+    The duplicate-similarity threshold is intentionally NOT duplicated here; the deliverable
+    flow detector reads the single source of truth at ``analysis.duplicate_similarity_threshold``.
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    output_dir: str = DELIVERABLES_DIR
+    mermaid_direction: str = "TD"
+    match_confidence_threshold: float = CONFIDENCE_MIN
+
+
 class SetupConfig(BaseModel):
     """Typed view of config/setup.json; unknown keys are rejected."""
 
@@ -79,6 +94,7 @@ class SetupConfig(BaseModel):
     graphify: GraphifyConfig
     vault: VaultConfig
     analysis: AnalysisBlock = Field(default_factory=AnalysisBlock)
+    deliverables: DeliverablesBlock = Field(default_factory=DeliverablesBlock)
 
 
 def _read_json(path: Path) -> dict:

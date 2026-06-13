@@ -41,6 +41,13 @@ WIKI_DIR = "wiki"
 FRONTMATTER_KEYS = ("type", "status", "project")
 HOT_MAX_LINES = 120
 
+# Phase 7 reverse-engineering deliverables
+DELIVERABLES_DIR = "deliverables"
+ARCHITECTURE_MD = "ARCHITECTURE.md"
+CLASS_SCHEMA_MD = "CLASS_SCHEMA.md"
+ALIGNMENT_AUDIT_MD = "ALIGNMENT_AUDIT.md"
+EVIDENCE_TAGS = ("OBSERVED", "INFERRED", "EXTRACTED", "VALIDATED")
+
 
 class NodeType(str, Enum):
     """graph.json node kinds (PRD_graph_pipeline §4.1)."""
