@@ -67,14 +67,17 @@ class AnalysisBlock(BaseModel):
 
 
 class DeliverablesBlock(BaseModel):
-    """Phase 7 reverse-engineering deliverable settings (no value hardcoded in code)."""
+    """Phase 7 reverse-engineering deliverable settings (no value hardcoded in code).
+
+    The duplicate-similarity threshold is intentionally NOT duplicated here; the deliverable
+    flow detector reads the single source of truth at ``analysis.duplicate_similarity_threshold``.
+    """
 
     model_config = ConfigDict(extra="forbid")
 
     output_dir: str = DELIVERABLES_DIR
     mermaid_direction: str = "TD"
     match_confidence_threshold: float = CONFIDENCE_MIN
-    duplicate_similarity_threshold: float = DUPLICATE_SIMILARITY_THRESHOLD
 
 
 class SetupConfig(BaseModel):
