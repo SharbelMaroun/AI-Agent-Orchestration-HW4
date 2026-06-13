@@ -3,14 +3,17 @@
 import json
 from pathlib import Path
 
-from pydantic import BaseModel, ConfigDict, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from archlens.graphops.config import GraphifyConfig
 from archlens.shared.constants import (
     ALLOWED_URL_SCHEMES,
+    CONFIDENCE_MAX,
+    CONFIDENCE_MIN,
     DEFAULT_CLONE_DEPTH,
     DEFAULT_MAX_SIZE_MB,
     DEFAULT_TIMEOUT_S,
+    DUPLICATE_SIMILARITY_THRESHOLD,
     SETUP_FILE,
 )
 from archlens.shared.version import VERSION
@@ -52,6 +55,16 @@ class ValidationBlock(BaseModel):
     max_file_count: int
 
 
+class AnalysisBlock(BaseModel):
+    """Confidence and duplicate thresholds for the Phase 6 graph-analysis engine."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    confidence_floor: float = CONFIDENCE_MIN
+    confidence_strong: float = CONFIDENCE_MAX
+    duplicate_similarity_threshold: float = DUPLICATE_SIMILARITY_THRESHOLD
+
+
 class SetupConfig(BaseModel):
     """Typed view of config/setup.json; unknown keys are rejected."""
 
@@ -65,6 +78,7 @@ class SetupConfig(BaseModel):
     validation: ValidationBlock
     graphify: GraphifyConfig
     vault: VaultConfig
+    analysis: AnalysisBlock = Field(default_factory=AnalysisBlock)
 
 
 def _read_json(path: Path) -> dict:

@@ -22,5 +22,9 @@ class GraphParseError(GraphifyError):
     """graph.json failed schema validation; the message names the offending location."""
 
 
+class GraphSchemaError(GraphifyError):
+    """The analysis loader rejected a graph; the message lists every offending node or edge id."""
+
+
 class TokenBudgetExceededError(GraphifyError):
     """A semantic pass would exceed the configured per-run token budget."""
