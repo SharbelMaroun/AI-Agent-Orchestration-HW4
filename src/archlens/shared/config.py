@@ -80,6 +80,16 @@ class DeliverablesBlock(BaseModel):
     match_confidence_threshold: float = CONFIDENCE_MIN
 
 
+class SdkBlock(BaseModel):
+    """Phase 8 SDK-layer settings (analysis depth, plugin allowlist, vault output root)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    default_analysis_depth: str = "structural"
+    plugin_allowlist: list[str] = Field(default_factory=list)
+    vault_output_root: str = "runs/vault"
+
+
 class SetupConfig(BaseModel):
     """Typed view of config/setup.json; unknown keys are rejected."""
 
@@ -95,6 +105,7 @@ class SetupConfig(BaseModel):
     vault: VaultConfig
     analysis: AnalysisBlock = Field(default_factory=AnalysisBlock)
     deliverables: DeliverablesBlock = Field(default_factory=DeliverablesBlock)
+    sdk: SdkBlock = Field(default_factory=SdkBlock)
 
 
 def _read_json(path: Path) -> dict:

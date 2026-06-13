@@ -49,5 +49,10 @@
     "output_dir": "deliverables",
     "mermaid_direction": "TD",
     "match_confidence_threshold": 0.55
+  },
+  "sdk": {
+    "default_analysis_depth": "structural",
+    "plugin_allowlist": [],
+    "vault_output_root": "runs/vault"
   }
 }
