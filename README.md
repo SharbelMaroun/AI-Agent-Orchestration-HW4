@@ -10,7 +10,7 @@ Full documentation lives in `docs/` (PRD, PLAN, specialized PRDs, TODO, prompt b
 ## Quickstart (uv only)
 
 ```bash
-uv tool install graphifyy        # prerequisite: the external Graphify code-graph CLI
+uv tool install graphifyy==0.8.39   # prerequisite: the external Graphify code-graph CLI (pinned)
 uv sync                          # install the locked environment
 uv run pytest                    # run the test suite (coverage gate: 85%)
 uv run ruff check .              # lint gate: zero violations
@@ -179,7 +179,7 @@ exercised against hand-authored `graph.json` fixtures with a **mocked** subproce
 
 **What we did to fix it.**
 
-1. Installed the real tool the uv-compliant way: `uv tool install graphifyy` (v0.8.37).
+1. Installed the real tool the uv-compliant way, pinned: `uv tool install graphifyy==0.8.39`.
 2. Rewrote `graphops/cli_wrapper.py` + `gatekeeper/graphify_ops.py` to call the real
    commands — `graphify update <repo>` for the structural, no-LLM pass (the "almost
    free" AST analysis) and `graphify extract` for the semantic pass — through the
