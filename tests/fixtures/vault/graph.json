@@ -1,0 +1,34 @@
+{
+  "nodes": [
+    {"id": "cli_main", "type": "code", "source_file": "src/cli/main.py"},
+    {"id": "checkout", "type": "code", "source_file": "src/payments/checkout.py"},
+    {"id": "billing", "type": "code", "source_file": "src/payments/billing.py"},
+    {"id": "invoice", "type": "code", "source_file": "src/payments/invoice.py"},
+    {"id": "refund", "type": "code", "source_file": "src/payments/refund.py"},
+    {"id": "pricing", "type": "code", "source_file": "src/payments/pricing.py"},
+    {"id": "PRD_payments", "type": "doc", "source_file": "docs/PRD_payments.md"},
+    {"id": "test_checkout", "type": "test", "source_file": "tests/test_checkout.py"},
+    {"id": "login", "type": "code", "source_file": "src/auth/login.py"},
+    {"id": "session", "type": "code", "source_file": "src/auth/session.py"},
+    {"id": "policy", "type": "code", "source_file": "src/auth/policy.py"},
+    {"id": "token", "type": "code", "source_file": "src/auth/token.py"}
+  ],
+  "edges": [
+    {"from": "cli_main", "to": "checkout", "relation": "calls", "type": "EXTRACTED", "confidence": 0.95, "source_file": "src/cli/main.py"},
+    {"from": "checkout", "to": "billing", "relation": "calls", "type": "EXTRACTED", "confidence": 0.95, "source_file": "src/payments/checkout.py"},
+    {"from": "billing", "to": "invoice", "relation": "calls", "type": "EXTRACTED", "confidence": 0.95, "source_file": "src/payments/billing.py"},
+    {"from": "checkout", "to": "refund", "relation": "calls", "type": "EXTRACTED", "confidence": 0.95, "source_file": "src/payments/checkout.py"},
+    {"from": "checkout", "to": "pricing", "relation": "uses", "type": "EXTRACTED", "confidence": 0.95, "source_file": "src/payments/checkout.py"},
+    {"from": "PRD_payments", "to": "checkout", "relation": "implements", "type": "INFERRED", "confidence": 0.82, "source_file": "docs/PRD_payments.md"},
+    {"from": "test_checkout", "to": "checkout", "relation": "tested_by", "type": "EXTRACTED", "confidence": 0.95, "source_file": "tests/test_checkout.py"},
+    {"from": "login", "to": "session", "relation": "writes_session", "type": "EXTRACTED", "confidence": 0.95, "source_file": "src/auth/login.py"},
+    {"from": "login", "to": "policy", "relation": "checks_policy", "type": "EXTRACTED", "confidence": 0.95, "source_file": "src/auth/login.py"},
+    {"from": "session", "to": "token", "relation": "uses", "type": "EXTRACTED", "confidence": 0.95, "source_file": "src/auth/session.py"},
+    {"from": "checkout", "to": "login", "relation": "uses", "type": "AMBIGUOUS", "confidence": 0.6, "source_file": "src/payments/checkout.py"},
+    {"from": "billing", "to": "token", "relation": "reads", "type": "INFERRED", "confidence": 0.6, "source_file": "src/payments/billing.py"}
+  ],
+  "communities": [
+    {"community_id": "c_pay", "label": "payments", "node_ids": ["cli_main", "checkout", "billing", "invoice", "refund", "pricing", "PRD_payments", "test_checkout"], "inter_community_edge_count": 2},
+    {"community_id": "c_auth", "label": "auth", "node_ids": ["login", "session", "policy", "token"], "inter_community_edge_count": 2}
+  ]
+}

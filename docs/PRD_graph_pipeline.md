@@ -214,6 +214,29 @@ Requirements: frontmatter keys `type`, `status`, `project`; member list with `[[
 
 Append-only journal: one entry per pipeline run with timestamp, analysis depth, stage outcomes, node/edge/community counts, token spend, anomalies opened/closed, and diff summary vs. previous run. This is the Part B ingestion log and the audit trail QAAgent checks.
 
+### 7.5 Vault functional requirements
+
+| ID | Requirement |
+|---|---|
+| FR-VAULT-01 | `hot.md` SHALL contain exactly three sections (top-N centrality, entry points, anomalies needing review) and stay within `HOT_MAX_LINES` (120) lines. |
+| FR-VAULT-02 | `index.md` SHALL be the read-first hub: a read-first banner, 2–3 curated next-read wikilinks, and a full community map linking every `wiki/` page. |
+| FR-VAULT-03 | `wiki/` SHALL hold one note per community, each with `type/status/project` frontmatter, a member list, bridge-out links, and back-links to `index.md` and `hot.md`. |
+| FR-VAULT-04 | `raw/` SHALL hold verbatim, checksummed copies of `graph.json` and `REPORT.md`; no generator other than raw-ingest writes there. |
+| FR-VAULT-05 | `log.md` SHALL be an append-only, ISO-8601-timestamped journal — existing content is never truncated. |
+| FR-VAULT-06 | Every generated note SHALL carry the mandatory frontmatter keys and obey one-idea-per-note (a single H1). |
+| FR-VAULT-07 | Every wikilink SHALL resolve to an existing note; a clean build SHALL report zero broken links and zero orphans (`index`/`log` excepted as hubs/journals). |
+| FR-VAULT-08 | A rebuild SHALL be deterministic: `wiki/`, `hot.md`, and `index.md` byte-identical while `log.md` grows by exactly one entry. |
+
+### 7.6 Obsidian-open smoke test (manual)
+
+1. Run `uv run archlens vault <path/to/graph.json>` — **expected:** exit code 0 and the vault root path printed.
+2. In Obsidian choose *Open folder as vault* on the printed root — **expected:** the vault opens with `index.md` listed.
+3. Open the Graph view — **expected:** community clusters render with no parse errors.
+4. Open the *Unresolved links* pane — **expected:** it is empty (zero unresolved links).
+5. Navigate `index.md` → `hot.md` → any community page — **expected:** every target resolves within 2–3 hops.
+
+After a successful manual pass, append a dated `PASS` line and the §7.4 knowledge-asset before/after table to `log.md`.
+
 ---
 
 ## 8. Re-run and Graph-Diff Support (Improvement Loop)

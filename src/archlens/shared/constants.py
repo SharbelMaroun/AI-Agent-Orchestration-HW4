@@ -30,6 +30,16 @@ CONFIDENCE_MIN = 0.55
 CONFIDENCE_MAX = 0.95
 EXTRACTED_CONFIDENCE = 0.95
 DUPLICATE_SIMILARITY_THRESHOLD = 0.91
+LOW_CONFIDENCE_FLOOR = 0.65
+
+# Obsidian vault constants (Phase 5)
+HOT_MD = "hot.md"
+INDEX_MD = "index.md"
+LOG_MD = "log.md"
+RAW_DIR = "raw"
+WIKI_DIR = "wiki"
+FRONTMATTER_KEYS = ("type", "status", "project")
+HOT_MAX_LINES = 120
 
 
 class NodeType(str, Enum):

@@ -32,5 +32,12 @@
     "timeout_s": 600,
     "analysis_depth": "structural",
     "token_budget": 100000
+  },
+  "vault": {
+    "vault_root": "runs/vault",
+    "raw_dir_name": "raw",
+    "wiki_dir_name": "wiki",
+    "hot_top_n": 10,
+    "index_read_first_count": 3
   }
 }

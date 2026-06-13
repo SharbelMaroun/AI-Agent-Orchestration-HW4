@@ -14,6 +14,7 @@ from archlens.shared.constants import (
     SETUP_FILE,
 )
 from archlens.shared.version import VERSION
+from archlens.vault.config import VaultConfig
 
 
 class ConfigVersionError(ValueError):
@@ -63,6 +64,7 @@ class SetupConfig(BaseModel):
     obsidian_vault_dir: str
     validation: ValidationBlock
     graphify: GraphifyConfig
+    vault: VaultConfig
 
 
 def _read_json(path: Path) -> dict:

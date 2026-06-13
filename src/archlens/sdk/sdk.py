@@ -16,6 +16,8 @@ from archlens.sdk.sandbox import SandboxManager
 from archlens.sdk.validation import ValidationResult, validate_repo
 from archlens.shared.config import SetupConfig, load_setup
 from archlens.shared.version import get_version
+from archlens.vault.builder import build_vault as _build_vault
+from archlens.vault.layout import VaultLayout
 
 
 class ArchLensSDK:
@@ -70,3 +72,8 @@ class ArchLensSDK:
     def diff_graphs(self, before, after, bottleneck: str | None = None) -> GraphDiff:
         """Diff two Graphify runs for the improvement-loop stop conditions."""
         return compute_diff(parse_graph(before), parse_graph(after), bottleneck)
+
+    def build_vault(self, graph_source, raw_sources: list | None = None) -> VaultLayout:
+        """Build the Obsidian vault (hot.md, index.md, wiki/, log.md, raw/) from a graph.json."""
+        graph = graph_source if isinstance(graph_source, Graph) else parse_graph(graph_source)
+        return _build_vault(graph, self._config().vault, raw_sources)
