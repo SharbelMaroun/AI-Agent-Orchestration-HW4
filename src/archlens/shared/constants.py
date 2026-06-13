@@ -86,3 +86,11 @@ class RationaleSubtype(str, Enum):
     WHY = "WHY"
     TODO = "TODO"
     NOTE = "NOTE"
+
+
+class CriticalRelation(str, Enum):
+    """Security-critical relations whose chains define SPOF paths (task 6.027, Part C)."""
+
+    VALIDATES = "validates"
+    WRITES_SESSION = "writes_session"
+    CHECKS_POLICY = "checks_policy"

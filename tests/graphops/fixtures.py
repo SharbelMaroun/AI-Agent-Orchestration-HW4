@@ -88,6 +88,34 @@ def build_auth_path() -> dict:
     return {"nodes": nodes, "edges": edges}
 
 
+def build_healthy_hub() -> dict:
+    """Hub ``h`` wired to a 4-cycle of neighbours a-b-c-d. 5 nodes, 8 edges.
+
+    Removing ``h`` leaves a,b,c,d connected with node-disjoint redundancy 2, so ``h`` is a HUB
+    (degree 4) whose bypass-path count is 2 — not a single point of failure.
+    """
+    ring = ["a", "b", "c", "d"]
+    nodes = [_node("h"), *[_node(x) for x in ring]]
+    edges = [_edge("h", x) for x in ring]
+    edges += [_edge(ring[i], ring[(i + 1) % 4]) for i in range(4)]
+    return {"nodes": nodes, "edges": edges}
+
+
+def build_bottleneck() -> dict:
+    """``gate`` is the sole link between {l1,l2} and {r1,r2}. 5 nodes, 4 edges.
+
+    Removing ``gate`` splits the graph, so ``gate`` is a BOTTLENECK (degree 4) with bypass count 0.
+    """
+    nodes = [_node(n) for n in ("l1", "l2", "gate", "r1", "r2")]
+    edges = [
+        _edge("l1", "gate"),
+        _edge("l2", "gate"),
+        _edge("gate", "r1"),
+        _edge("gate", "r2"),
+    ]
+    return {"nodes": nodes, "edges": edges}
+
+
 def build_composite() -> dict:
     """Kitchen-sink graph: a hub, a bottleneck, a duplicate pair, and all three evidence types.
 
