@@ -39,5 +39,10 @@
     "wiki_dir_name": "wiki",
     "hot_top_n": 10,
     "index_read_first_count": 3
+  },
+  "analysis": {
+    "confidence_floor": 0.55,
+    "confidence_strong": 0.95,
+    "duplicate_similarity_threshold": 0.91
   }
 }
