@@ -1,5 +1,6 @@
 """Shared fixtures: temp config copies, environment stubs, git fixture factory."""
 
+import json
 import shutil
 import socket
 import subprocess
@@ -142,3 +143,40 @@ def blocked_sockets(monkeypatch):
 
     monkeypatch.setattr(socket.socket, "connect", _blocked)
     return True
+
+
+@pytest.fixture()
+def fake_clock():
+    """A deterministic FakeClock for gatekeeper window/retry/drain tests (task 9.007)."""
+    from archlens.gatekeeper.clock import FakeClock
+
+    return FakeClock()
+
+
+@pytest.fixture()
+def rate_config_factory(tmp_path):
+    """Write a temp rate_limits.json with overridable version/limits; return its path."""
+    def _make(version="1.00", **overrides):
+        default = {"requests_per_minute": 30, "requests_per_hour": 500, "concurrent_max": 5,
+                   "retry_after_seconds": 30, "max_retries": 3}
+        default.update({k: v for k, v in overrides.items() if k in default})
+        data = {"version": version, "rate_limits": {"services": {"default": default}},
+                "queue": {"max_depth": 100, "backpressure_warn_ratio": 0.8}}
+        path = tmp_path / "rate_limits.json"
+        path.write_text(json.dumps(data), encoding="utf-8")
+        return path
+
+    return _make
+
+
+@pytest.fixture()
+def mock_anthropic():
+    """Factory for a deterministic Anthropic client double with canned token usage."""
+    def _make(text="canned response", in_tokens=10, out_tokens=5):
+        def create(model, messages, **kwargs):
+            usage = SimpleNamespace(input_tokens=in_tokens, output_tokens=out_tokens)
+            return SimpleNamespace(text=text, model=model, usage=usage)
+
+        return SimpleNamespace(create=create)
+
+    return _make
