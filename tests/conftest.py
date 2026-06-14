@@ -119,7 +119,7 @@ class _MockSDK:
     def single_points_of_failure(self, graph):
         return [SimpleNamespace(node_id="ss", citations=[SimpleNamespace(source_file="ss.py")])]
 
-    def run_quality_gates(self):
+    def run_quality_gates(self, repo_path=None):
         return SimpleNamespace(tests_green=True, coverage_pct=97.0, ruff_violations=0)
 
     def token_usage(self):

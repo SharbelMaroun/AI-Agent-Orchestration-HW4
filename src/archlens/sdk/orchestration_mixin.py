@@ -3,7 +3,9 @@
 These run the LangGraph orchestration built in Phase 10, keeping the SDK the single entry point.
 """
 
+from ..agents.contracts import QAReport
 from ..agents.metrics_agent import make_metrics_node
+from ..agents.quality_gates import run_quality_gates
 from ..agents.runner import make_runner
 from ..sdk.dto_core import AnalysisReport
 from ..sdk.dto_loop import LoopResult, TokenReport
@@ -48,6 +50,10 @@ class OrchestrationMixin:
         from ..agents.loop_wiring import build_loop_deps
         loop_deps = deps if deps is not None else build_loop_deps(self)
         return LoopController(loop_deps).run(candidates or [])
+
+    def run_quality_gates(self, repo_path=None) -> QAReport:
+        """Run the dependency-free QA gate over a cloned repo (parse every module)."""
+        return run_quality_gates(repo_path)
 
     def measure_tokens(self) -> TokenReport:
         """Delegate to MetricsAgent token accounting; flag explanation when savings < 70%."""
