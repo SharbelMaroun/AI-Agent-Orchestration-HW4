@@ -27,6 +27,7 @@ class Gatekeeper:
         self._config = config if config is not None else load_rate_limits()
         self._executor = executor
         self.usage_ledger = usage_ledger if usage_ledger is not None else TokenLedger()
+        self.budget_alerts: list[dict] = []
 
     @property
     def limits(self) -> RateLimitsConfig:
@@ -56,11 +57,27 @@ class Gatekeeper:
                      question_id: str = "") -> TokenLedgerEntry:
         """Append one metrics TokenLedgerEntry for a completed LLM call (task 12.009)."""
         usage = getattr(response, "usage", None)
-        return self.usage_ledger.append(TokenLedgerEntry(
+        entry = self.usage_ledger.append(TokenLedgerEntry(
             agent=agent, model=model, protocol=protocol,
             input_tokens=int(getattr(usage, "input_tokens", 0) or 0),
             output_tokens=int(getattr(usage, "output_tokens", 0) or 0),
             question_id=question_id))
+        self._check_budget()
+        return entry
+
+    def _check_budget(self) -> None:
+        """Log a structured warning the first time cumulative tokens cross the alert ratio.
+
+        Never raises and never rejects — the call always completes (task 12.036).
+        """
+        budget = self._config.budget
+        if budget.token_budget <= 0 or self.budget_alerts:
+            return
+        used = self.usage_ledger.total_tokens()
+        if used >= budget.alert_ratio * budget.token_budget:
+            self.budget_alerts.append({"used": used, "token_budget": budget.token_budget})
+            logger.warning("token budget alert: %d/%d tokens used (>= %.0f%%)",
+                           used, budget.token_budget, budget.alert_ratio * 100)
 
     def git_clone(self, repo: RepoBlock, dest: Path) -> Path:
         """Clone a remote repository under the retry policy from rate_limits.json."""
