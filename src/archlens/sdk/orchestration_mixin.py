@@ -42,6 +42,13 @@ class OrchestrationMixin:
         diffs = tuple(f"{key}={value}" for key, value in stop.items() if key != "met")
         return LoopResult(state.get("loop_iteration", 0), reason, diffs)
 
+    def run_improvement_loop(self, candidates=None, deps=None) -> LoopResult:
+        """Run the Phase 11 improvement loop (the single SDK entry point) and return its result."""
+        from ..agents.loop_controller import LoopController
+        from ..agents.loop_wiring import build_loop_deps
+        loop_deps = deps if deps is not None else build_loop_deps(self)
+        return LoopController(loop_deps).run(candidates or [])
+
     def measure_tokens(self) -> TokenReport:
         """Delegate to MetricsAgent token accounting; flag explanation when savings < 70%."""
         ledger = make_metrics_node(self)({}).get("token_ledger", {})

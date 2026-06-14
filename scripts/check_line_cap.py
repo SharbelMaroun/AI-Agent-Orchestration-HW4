@@ -20,6 +20,8 @@ def scan(roots: list[Path] | tuple[Path, ...]) -> list[tuple[Path, int]]:
     over = []
     for root in roots:
         for py_file in sorted(Path(root).rglob("*.py")):
+            if "fixtures" in py_file.parts:  # test data (e.g. planted oversized modules) is exempt
+                continue
             n = effective_lines(py_file.read_text(encoding="utf-8"))
             if n > LINE_CAP:
                 over.append((py_file, n))

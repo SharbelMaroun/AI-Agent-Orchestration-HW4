@@ -13,6 +13,8 @@ def test_no_source_or_test_file_exceeds_150_effective_lines():
     offenders = []
     for subdir in ("src", "tests"):
         for py_file in (ROOT / subdir).rglob("*.py"):
+            if "fixtures" in py_file.parts:  # test data (e.g. planted oversized modules) is exempt
+                continue
             count = _effective_lines(py_file.read_text(encoding="utf-8"))
             if count > 150:
                 offenders.append(f"{py_file.relative_to(ROOT)}: {count}")

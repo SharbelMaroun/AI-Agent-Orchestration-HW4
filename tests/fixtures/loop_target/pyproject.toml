@@ -1,0 +1,9 @@
+[project]
+name = "loop-target"
+version = "0.1.0"
+description = "Convergence fixture for the ArchLens improvement loop (task 11.048)"
+requires-python = ">=3.10"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
