@@ -37,6 +37,7 @@ def make_graph_node(sdk):
             "report_md": getattr(result, "report_md", "REPORT.md"),
             "snapshot_id": previous.get("snapshot_id", 0) + 1,
             "post_fix": bool(state.get("findings")),
+            "diff": getattr(result, "diff", {}),
         }}
 
     return graph_node

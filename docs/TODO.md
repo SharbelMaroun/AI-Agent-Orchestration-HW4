@@ -440,9 +440,9 @@ Version: 1.00 | Status: Living document | Course: AI Agent Orchestration — HW4
 - [x] 8.045 Implement a repo-wide 150-line audit test counting code lines (blank/comment lines excluded) for every file in src/ and tests/ | **Status:** DONE | **DoD:** tests/test_line_budget.py exists and executes in the default `uv run pytest` suite
 - [x] 8.046 Split every module flagged by the line-budget audit as exceeding 150 code lines (e.g., sdk.py → facade + _wiring.py) | **Status:** DONE | **DoD:** Line-budget test passes with 0 violations and the full test suite stays green
 - [x] 8.047 Write Google-style API docstrings for every public SDK callable, DTO, and exception, backed by a docstring-coverage test | **Status:** DONE | **DoD:** Docstring-coverage test asserting non-empty __doc__ on 100% of public API members passes
-- [ ] 8.048 Write an SDK-level integration test driving analyze() → build_vault() → measure_tokens() end-to-end against a stub gatekeeper | **Status:** TODO | **DoD:** `uv run pytest tests/integration/test_sdk_flow.py` passes
-- [ ] 8.049 Write an SDK-level integration test for run_loop() covering stop-condition early exit and the 5-iteration hard cap | **Status:** TODO | **DoD:** `uv run pytest tests/integration/test_sdk_loop.py` passes
-- [ ] 8.050 Verify Phase 8 quality gates with the combined coverage and lint command | **Status:** TODO | **DoD:** `uv run pytest --cov=src/archlens --cov-branch --cov-fail-under=85 && uv run ruff check src tests` exits 0
+- [x] 8.048 Write an SDK-level integration test driving analyze() → build_vault() → measure_tokens() end-to-end against a stub gatekeeper | **Status:** DONE | **DoD:** `uv run pytest tests/integration/test_sdk_flow.py` passes
+- [x] 8.049 Write an SDK-level integration test for run_loop() covering stop-condition early exit and the 5-iteration hard cap | **Status:** DONE | **DoD:** `uv run pytest tests/integration/test_sdk_loop.py` passes
+- [x] 8.050 Verify Phase 8 quality gates with the combined coverage and lint command | **Status:** DONE | **DoD:** `uv run pytest --cov=src/archlens --cov-branch --cov-fail-under=85 && uv run ruff check src tests` exits 0
 
 ## Phase 9 — API Gatekeeper & Rate Limiting
 
