@@ -1,10 +1,34 @@
 """GraphAgent node — run the Graphify pipeline then build the Obsidian vault (task 5.044)."""
 
+import json
 import logging
+from pathlib import Path
 
-from ..shared.constants import LOGGER_NAME
+from ..shared.constants import (
+    GRAPH_JSON,
+    GRAPHIFY_OUT_DIR,
+    GRAPHIFY_REPORT_MD,
+    LOGGER_NAME,
+)
 
 logger = logging.getLogger(f"{LOGGER_NAME}.graph_agent")
+
+
+def _out_dir(repo: str) -> Path:
+    """Graphify writes graph.json/graph.html/GRAPH_REPORT.md to ``<repo>/graphify-out/``."""
+    return Path(repo) / GRAPHIFY_OUT_DIR
+
+
+def _counts(result, graph_json: str) -> tuple[int, int]:
+    """Node/edge counts: prefer explicit result attrs, else read the produced graph.json."""
+    nodes, edges = getattr(result, "node_count", None), getattr(result, "edge_count", None)
+    if nodes is not None and edges is not None:
+        return nodes, edges
+    try:
+        data = json.loads(Path(graph_json).read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return nodes or 0, edges or 0
+    return len(data.get("nodes", [])), len(data.get("links", data.get("edges", [])))
 
 
 def make_graph_agent(sdk):
@@ -30,11 +54,14 @@ def make_graph_node(sdk):
         repo = state["target_repo"]["local_path"]
         result = sdk.run_graphify_pipeline(repo)
         previous = state.get("graph_snapshot") or {}
+        graph_json = getattr(result, "graph_json", None) or str(_out_dir(repo) / GRAPH_JSON)
+        nodes, edges = _counts(result, graph_json)
         return {"graph_snapshot": {
-            "graph_json": getattr(result, "graph_json", "graph.json"),
-            "node_count": getattr(result, "node_count", 0),
-            "edge_count": getattr(result, "edge_count", 0),
-            "report_md": getattr(result, "report_md", "REPORT.md"),
+            "graph_json": graph_json,
+            "node_count": nodes,
+            "edge_count": edges,
+            "report_md": getattr(result, "report_md", None) or str(
+                _out_dir(repo) / GRAPHIFY_REPORT_MD),
             "snapshot_id": previous.get("snapshot_id", 0) + 1,
             "post_fix": bool(state.get("findings")),
             "diff": getattr(result, "diff", {}),

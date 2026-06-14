@@ -59,7 +59,7 @@ class ArchLensSDK(GraphAnalysisMixin, DeliverablesMixin, OrchestrationMixin, Met
         repo = select_repo(self._config(), use_fallback)
         sandbox = SandboxManager(repo.workdir_root)
         sandbox.create_run_dir(run_id)
-        return self._gk().git_clone(repo, sandbox.target_path(run_id))
+        return self._gk().git_clone(repo, sandbox.fresh_target(run_id))
 
     def validate_repo(self, repo_dir: Path, use_fallback: bool = False) -> ValidationResult:
         """Run the four validation checks against a cloned checkout."""
