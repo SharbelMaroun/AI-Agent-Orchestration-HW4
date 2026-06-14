@@ -1,11 +1,25 @@
 # ArchLens
 
+Version: 1.00 | Status: Living document | Course: AI Agent Orchestration — HW4 (EX04)
+
 Multi-agent, graph-based reverse engineering of Python codebases — HW4/EX04 for the
 AI Agent Orchestration course. ArchLens clones a target repository, builds a knowledge
 graph with Graphify, navigates it in an Obsidian vault, detects architectural defects
 with LangGraph agents, fixes them in a measured improvement loop, and proves token savings.
 
 Full documentation lives in `docs/` (PRD, PLAN, specialized PRDs, TODO, prompt book).
+
+## Table of Contents
+
+1. [Quickstart (uv only)](#quickstart-uv-only)
+2. [Installation](#installation)
+3. [CLI usage](#cli-usage)
+4. [Architecture](#architecture)
+5. [Configuration reference](#configuration-reference)
+6. [Token economics](#token-economics)
+7. [Report](#report)
+8. [Contributing](#contributing)
+9. [License & credits](#license--credits)
 
 ## Quickstart (uv only)
 
@@ -262,3 +276,138 @@ The wrapper, adapter, and models are now exercised by unit tests *and* proven ag
 real 2033-node Graphify graph. `graph.html` / vault screenshots remain to be captured;
 the semantic (`extract`) pass needs an LLM API key and is deferred to the token-economics
 work in Phase 12.
+
+## Installation
+
+```bash
+git clone https://github.com/SharbelMaroun/AI-Agent-Orchestration-HW4
+cd AI-Agent-Orchestration-HW4
+cp .env-example .env             # then fill in ANTHROPIC_API_KEY / GITHUB_TOKEN
+uv sync                          # install the locked environment from pyproject.toml + uv.lock
+```
+
+`.env` is git-ignored; only `.env-example` (dummy values) is tracked. No secret ever appears in
+code, config, logs, or docs. Everything runs through `uv run`.
+
+## CLI usage
+
+The CLI (`src/main.py`) is a thin argparse shell that delegates everything to `ArchLensSDK`.
+
+```bash
+$ uv run python src/main.py --version
+1.00
+```
+
+```bash
+uv run python src/main.py vault <graph.json>          # build the Obsidian vault from a graph
+uv run python src/main.py deliverables --graph <g.json> --src src --prd docs/PRD.md
+uv run python src/main.py analyze                     # Repo -> Graph -> Analyst report
+uv run python src/main.py tokens                      # token-savings report
+uv run python src/main.py loop                        # run the improvement loop
+```
+
+### Screenshots
+
+This environment is headless, so the graph and vault images are rendered from their underlying data
+rather than captured from a live browser/Obsidian UI; the CLI image shows real command output.
+
+![ArchLens CLI run showing version and token-savings output](docs/screenshots/cli_run.png)
+*The thin CLI delegating to the SDK.*
+
+![Top-degree subgraph rendered from the real httpie graph.json](docs/screenshots/graph_html.png)
+*graph.html — the real 2033-node httpie dependency graph (top-degree subgraph).*
+
+![Obsidian vault index.md read-first hub](docs/screenshots/obsidian_vault.png)
+*The Obsidian vault's read-first `index.md` hub.*
+
+## Architecture
+
+ArchLens is a LangGraph supervisor hub delegating to seven agents; all external calls route through
+the gatekeeper. See [docs/PRD.md](docs/PRD.md) and [docs/PLAN.md](docs/PLAN.md) for the full design.
+
+```mermaid
+graph TD
+    CLI[Thin CLI] --> SDK[ArchLensSDK]
+    SDK --> SUP[Supervisor]
+    SUP --> Repo[RepoAgent]
+    SUP --> Graph[GraphAgent]
+    SUP --> Analyst[AnalystAgent]
+    SUP --> Bug[BugHunterAgent]
+    SUP --> Refactor[RefactorAgent]
+    SUP --> QA[QAAgent]
+    SUP --> Metrics[MetricsAgent]
+    Repo --> GK[Gatekeeper]
+    Graph --> GK
+    Metrics --> GK
+    GK --> LLM[(Claude API)]
+    GK --> Git[(git / Graphify)]
+```
+
+## Configuration reference
+
+All behaviour is config-driven (no hardcoded values). The three config files and every key:
+
+### config/setup.json
+
+| Block | Keys | Effect |
+| --- | --- | --- |
+| (top) | `version`, `graphify_output_dir`, `obsidian_vault_dir` | config schema version + default Graphify/vault output roots |
+| `target_repo`, `fallback_repo` | `url`, `branch`, `pinned_commit`, `workdir_root`, `clone_depth`, `timeout_s`, `max_size_mb` | primary + fallback repo to clone, with sandbox root and size/time bounds |
+| `validation` | `python_min_share`, `min_file_count`, `max_file_count` | target-repo acceptance thresholds |
+| `graphify` | `binary`, `stages`, `output_root`, `timeout_s`, `analysis_depth`, `token_budget` | Graphify CLI invocation + pipeline stages |
+| `vault` | `vault_root`, `raw_dir_name`, `wiki_dir_name`, `hot_top_n`, `index_read_first_count` | Obsidian vault layout + hot/index sizing |
+| `analysis` | `confidence_floor`, `confidence_strong`, `duplicate_similarity_threshold` | edge-triage confidence band + duplicate threshold (0.91) |
+| `deliverables` | `output_dir`, `mermaid_direction`, `match_confidence_threshold` | reverse-engineering deliverable settings |
+| `sdk` | `default_analysis_depth`, `plugin_allowlist`, `vault_output_root`, `checkpoint_db` | SDK + LangGraph checkpointer settings |
+| `improvement_loop` | `max_iterations`, `priority_order`, `allowed_evidence_levels`, `branch_prefix` | loop cap (5), fix priority P1-P5, evidence gate |
+| `metrics` | `output_dir`, `baseline_ledger`, `assisted_ledger`, `metrics_json`, `savings_target_pct`, `max_wiki_pages`, `default_model` | token-measurement paths + 70% target |
+| `pricing` | `claude-opus-4-8`, `claude-sonnet-4-6`, `claude-haiku-4-5` (each `input_per_mtok`, `output_per_mtok`) | per-model USD/MTok pricing |
+| `knowledge_assets` | `raw_dir`, `wiki_dir`, `skills_dir`, `eval_task_set`, `metrics_output` | LLM-wiki + skills paths |
+| `sensitivity` | `run_count`, `analysis_depth`, `top_k_pages`, `rate_limit_rpm`, `similarity_threshold`, `baseline` | OAT ranges + baseline + repeat-run count |
+
+### config/rate_limits.json
+
+| Block | Keys | Effect |
+| --- | --- | --- |
+| (top) | `version` | schema version |
+| `rate_limits.services.default` | `requests_per_minute` (30), `requests_per_hour` (500), `concurrent_max` (5), `retry_after_seconds` (30), `max_retries` (3) | gatekeeper rate-limit policy |
+| `queue` | `max_depth`, `backpressure_warn_ratio` | FIFO overflow-queue depth + warn ratio |
+| `budget` | `token_budget`, `alert_ratio` | token-budget alert threshold |
+
+### config/logging_config.json
+
+| Block | Keys | Effect |
+| --- | --- | --- |
+| (top) | `version`, `disable_existing_loggers` | dictConfig v1 document |
+| `formatters.standard` | `format` | log line format |
+| `handlers.console`, `handlers.file` | `class`, `level`, `formatter`, (`filename`, `delay`) | console + file handlers |
+| `loggers.archlens` | `level`, `handlers`, `propagate` | the `archlens` logger config |
+
+## Token economics
+
+Measured on the real httpie checkout (133 `.py` files), 10 standard architecture questions:
+
+| Protocol | Total input tokens | Per-question |
+| --- | --- | --- |
+| Baseline (naive full-context) | 1,481,736 | ~148k |
+| Graphify-assisted (index + ≤3 wiki + subgraph) | 34,801 | ~3.4k |
+
+**Token savings: 97.65%** (target ≥ 70%). Even charging the one-time Graphify build cost (~148k
+tokens), the graph **breaks even after 2 queries**. Per-model USD cost tables are in
+`docs/metrics/COST_TABLES.md`; the full schema is `metrics/out/token_metrics.json`.
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for branch naming, PR review rules, commit style, and the
+uv-only policy. Every PR uses the gate checklist in
+[.github/PULL_REQUEST_TEMPLATE.md](.github/PULL_REQUEST_TEMPLATE.md) and must pass CI
+(ruff, coverage ≥ 85%, 150-line cap, forbidden-tooling, gitleaks).
+
+## License & credits
+
+- **License:** MIT (see `LICENSE`).
+- **Course materials:** Lecture 07 §11 and Parts A/B/C of the AI Agent Orchestration course.
+- **Graphify:** external code-graph CLI (`graphifyy` on PyPI, by Safi Shamsi).
+- **Target corpus:** BugsInPy-style Python repositories (primary target: httpie).
+- **Third-party dependencies:** LangGraph, Anthropic SDK, NetworkX, Pydantic, matplotlib (see
+  `pyproject.toml` + `uv.lock`).
