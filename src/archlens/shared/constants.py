@@ -59,6 +59,20 @@ CLI_SUBCOMMANDS = ("analyze", "vault", "loop", "tokens")
 PLUGIN_GROUP = "archlens.agent_plugins"
 EXCEPTION_CODE_PREFIX = "ARCHLENS"
 
+# Phase 14 knowledge-asset constants (Part B; SKILL.md, raw->wiki, 4-metric rubric)
+SKILLS_DIR = "skills"
+INDEX_FILE = INDEX_MD
+LOG_FILE = LOG_MD
+RUBRIC_MIN_SCORE = 0
+RUBRIC_MAX_SCORE = 10
+RUBRIC_METRICS = (
+    "source_traceability",
+    "noise_reduction",
+    "correct_file_identification",
+    "correct_tool_timing",
+)
+GUARDRAIL_LEVELS = ("auto", "reversible", "irreversible", "human_only")
+
 # Phase 12 token-measurement constants (PRD_token_metrics §3, §4)
 SAVINGS_TARGET_PCT = 70.0
 MAX_WIKI_PAGES_PER_QUESTION = 3

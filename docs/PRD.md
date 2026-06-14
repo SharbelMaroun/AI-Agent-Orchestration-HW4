@@ -169,6 +169,11 @@ Each story includes acceptance criteria (AC). Stories are testable by P-2's AI g
 - **FR-37** — Each skill SHALL declare its guardrail class: read-only → auto-invocable; reversible → requires a documented undo path; irreversible → requires explicit human approval. Human-only skills SHALL set `disable-model-invocation`.
 - **FR-38** — The project SHALL maintain an LLM Wiki: `raw/` sources transformed into `wiki/` pages, with `index.md` as the hub read first (then 2–3 pages per query) and `log.md` as the ingestion journal.
 - **FR-39** — The project SHALL measure before/after (without wiki vs. with wiki) on the 4 Part B metrics: source traceability, noise reduction, correct-file identification, correct-tool-at-the-right-time, and publish the comparison table.
+- **FR-44** — Every `SKILL.md` SHALL pass a schema validator (`sdk.validate_skill`) that rejects frontmatter missing or with empty `name`, `description`, or allowed-tools fields, before the skill is usable.
+- **FR-45** — A guardrail classifier SHALL map each skill's declared tools and step markers to exactly one of `auto` (read-only), `reversible` (documented undo path required), `irreversible` (explicit human approval required), or `human_only` (`disable-model-invocation`, never auto-invocable).
+- **FR-46** — A skill router SHALL match prompts to skills by trigger phrase/problem pattern, return no match for ambiguous prompts, and never auto-return a `disable-model-invocation` skill.
+- **FR-47** — The raw→wiki pipeline SHALL stamp every ingested `raw/` file with a provenance header (source path + timestamp), produce `wiki/` pages that backlink their `raw/` source, build an `index.md` hub linking 2–3 wiki pages per topic, and append one `log.md` journal entry per pipeline stage; every wiki page SHALL be reachable from `index.md` within 2 hops with zero orphans.
+- **FR-48** — The 4-metric knowledge rubric SHALL score each metric on an integer 0–10 scale with a mandatory rationale, drive a before/after measurement harness over a fixed 10-task evaluation set, and feed an iterate cycle (score → correct weakest metric → re-measure) that stops when all metrics meet target or after 3 cycles.
 
 ---
 

@@ -128,6 +128,18 @@ class ModelPricing(BaseModel):
     output_per_mtok: float
 
 
+class KnowledgeAssetsBlock(BaseModel):
+    """Phase 14 knowledge-asset settings (vault raw/wiki dirs, skills, eval task set, metrics out)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    raw_dir: str = "raw"
+    wiki_dir: str = "wiki"
+    skills_dir: str = "skills"
+    eval_task_set: str = "config/eval_tasks.json"
+    metrics_output: str = "metrics/out"
+
+
 class SetupConfig(BaseModel):
     """Typed view of config/setup.json; unknown keys are rejected."""
 
@@ -147,6 +159,7 @@ class SetupConfig(BaseModel):
     improvement_loop: ImprovementLoopBlock = Field(default_factory=ImprovementLoopBlock)
     metrics: MetricsBlock = Field(default_factory=MetricsBlock)
     pricing: dict[str, ModelPricing] = Field(default_factory=dict)
+    knowledge_assets: KnowledgeAssetsBlock = Field(default_factory=KnowledgeAssetsBlock)
 
 
 def _read_json(path: Path) -> dict:
