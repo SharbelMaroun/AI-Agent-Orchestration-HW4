@@ -1,9 +1,9 @@
 """Dependency-free quality gate over a cloned repo — the QAAgent's stop-condition input.
 
-The target repo's own unit suite needs its bespoke virtualenv (the L07 lecture flags exactly
-this: "BugsInPy ... mandatory to work in a virtual environment"), which cannot be provisioned for
-an arbitrary clone inside the orchestration. We instead run the strongest correctness gate that
-needs no install: every Python module must still parse. A plan-only refactor leaves the tree
+The target repo's own unit suite needs its bespoke isolated environment (the L07 lecture flags
+exactly this: BugsInPy must "work in a virtual environment"), which cannot be provisioned for an
+arbitrary clone inside the orchestration. We instead run the strongest correctness gate that needs
+no dependency install: every Python module must still parse. A plan-only refactor leaves the tree
 green here; a refactor that produced a syntax error would be caught and counted as a violation.
 """
 
