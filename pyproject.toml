@@ -7,6 +7,8 @@ authors = [
     { name = "SharbelMaroun", email = "142183717+SharbelMaroun@users.noreply.github.com" }
 ]
 requires-python = ">=3.10"
+license = "MIT"
+license-files = ["LICENSE"]
 dependencies = [
     "anthropic>=0.109.1",
     "langgraph>=1.2.5",
@@ -46,9 +48,13 @@ show_missing = true
 
 [dependency-groups]
 dev = [
+    "jupyter>=1.1.1",
     "matplotlib>=3.10.9",
+    "nbconvert>=7.17.1",
+    "pandas>=2.3.3",
     "pre-commit>=4.6.0",
     "pytest>=9.0.3",
     "pytest-cov>=7.1.0",
     "ruff>=0.15.17",
+    "seaborn>=0.13.2",
 ]

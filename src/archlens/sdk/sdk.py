@@ -19,19 +19,22 @@ from ..sdk.knowledge_mixin import KnowledgeMixin
 from ..sdk.metrics_mixin import MetricsMixin
 from ..sdk.orchestration_mixin import OrchestrationMixin
 from ..sdk.repo_config import select_repo
+from ..sdk.research_mixin import ResearchMixin
 from ..sdk.sandbox import SandboxManager
 from ..sdk.validation import ValidationResult, validate_repo
 from ..shared.config import SetupConfig, load_setup
+from ..shared.dotenv import load_dotenv
 from ..shared.version import get_version
 from ..vault.builder import build_vault as _build_vault
 from ..vault.layout import VaultLayout
 
 
 class ArchLensSDK(GraphAnalysisMixin, DeliverablesMixin, OrchestrationMixin, MetricsMixin,
-                  KnowledgeMixin):
+                  KnowledgeMixin, ResearchMixin):
     """Facade over all ArchLens capabilities; phase method groups are added via mixins."""
 
     def __init__(self, setup: SetupConfig | None = None, gatekeeper=None) -> None:
+        load_dotenv()  # read .env so a pasted API key enables live LLM mode automatically
         self._setup = setup
         self._gatekeeper = gatekeeper
 

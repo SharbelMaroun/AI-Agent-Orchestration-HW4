@@ -1,0 +1,86 @@
+{
+  "mode": "assisted",
+  "tasks": [
+    {
+      "correct_file_identification": 10,
+      "correct_tool_timing": 10,
+      "id": "E01",
+      "input_tokens": 24000,
+      "noise_reduction": 8,
+      "source_traceability": 10
+    },
+    {
+      "correct_file_identification": 10,
+      "correct_tool_timing": 10,
+      "id": "E02",
+      "input_tokens": 23600,
+      "noise_reduction": 8,
+      "source_traceability": 10
+    },
+    {
+      "correct_file_identification": 10,
+      "correct_tool_timing": 10,
+      "id": "E03",
+      "input_tokens": 25000,
+      "noise_reduction": 8,
+      "source_traceability": 10
+    },
+    {
+      "correct_file_identification": 10,
+      "correct_tool_timing": 10,
+      "id": "E04",
+      "input_tokens": 24200,
+      "noise_reduction": 8,
+      "source_traceability": 10
+    },
+    {
+      "correct_file_identification": 10,
+      "correct_tool_timing": 10,
+      "id": "E05",
+      "input_tokens": 23800,
+      "noise_reduction": 8,
+      "source_traceability": 10
+    },
+    {
+      "correct_file_identification": 10,
+      "correct_tool_timing": 10,
+      "id": "E06",
+      "input_tokens": 23400,
+      "noise_reduction": 8,
+      "source_traceability": 10
+    },
+    {
+      "correct_file_identification": 10,
+      "correct_tool_timing": 10,
+      "id": "E07",
+      "input_tokens": 24600,
+      "noise_reduction": 8,
+      "source_traceability": 10
+    },
+    {
+      "correct_file_identification": 10,
+      "correct_tool_timing": 10,
+      "id": "E08",
+      "input_tokens": 24400,
+      "noise_reduction": 8,
+      "source_traceability": 10
+    },
+    {
+      "correct_file_identification": 10,
+      "correct_tool_timing": 10,
+      "id": "E09",
+      "input_tokens": 25200,
+      "noise_reduction": 8,
+      "source_traceability": 10
+    },
+    {
+      "correct_file_identification": 10,
+      "correct_tool_timing": 10,
+      "id": "E10",
+      "input_tokens": 24000,
+      "noise_reduction": 8,
+      "source_traceability": 10
+    }
+  ],
+  "total_tokens": 242200
+}

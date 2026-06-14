@@ -1,0 +1,41 @@
+{
+  "param": "rate_limit_rpm",
+  "records": [
+    {
+      "config": {
+        "analysis_depth": "structural",
+        "rate_limit_rpm": 10,
+        "similarity_threshold": 0.91,
+        "top_k_pages": 3
+      },
+      "result": {
+        "max_queue_depth": 40,
+        "wait_time_s": 240
+      }
+    },
+    {
+      "config": {
+        "analysis_depth": "structural",
+        "rate_limit_rpm": 30,
+        "similarity_threshold": 0.91,
+        "top_k_pages": 3
+      },
+      "result": {
+        "max_queue_depth": 20,
+        "wait_time_s": 60
+      }
+    },
+    {
+      "config": {
+        "analysis_depth": "structural",
+        "rate_limit_rpm": 60,
+        "similarity_threshold": 0.91,
+        "top_k_pages": 3
+      },
+      "result": {
+        "max_queue_depth": 0,
+        "wait_time_s": 0
+      }
+    }
+  ]
+}

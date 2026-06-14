@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: [main, Sharbel]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Sync dependencies (frozen lockfile)
+        run: uv sync --frozen
+
+      - name: Ruff (zero violations)
+        run: uv run ruff check .
+
+      - name: Coverage gate (fail_under=85)
+        run: uv run pytest --cov=src/archlens --cov-branch
+
+      - name: 150-line cap
+        run: uv run python scripts/check_line_cap.py
+
+      - name: Forbidden tooling
+        run: uv run python scripts/check_forbidden_tools.py
+
+  secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (full history)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Gitleaks secrets scan
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

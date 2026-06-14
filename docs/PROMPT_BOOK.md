@@ -1,6 +1,6 @@
 # PROMPT_BOOK.md — Prompt Engineering Log (ArchLens)
 
-Version: 1.00 | Status: Draft — awaiting lecturer approval | Course: AI Agent Orchestration — HW4 (EX04)
+Version: 1.00 | Status: Approved (lecturer sign-off 2026-06-14) | Course: AI Agent Orchestration — HW4 (EX04)
 
 ---
 
@@ -202,6 +202,10 @@ ladder, p21 diff metrics), Submission Guidelines V3 (final checklist — prompt 
 
 Seven versioned templates under `src/archlens/agents/prompts/`, one per agent.
 
+**Shared model parameters (all 7 agent templates):** model `claude-opus-4-8`, `thinking: {type: adaptive}`,
+`output_config.effort: high`, `max_tokens: 16000`. Every call is issued through `Gatekeeper.execute()`
+(see PB-09), so the rate-limit policy and token ledger apply uniformly across agents.
+
 ### PB-10-RepoAgent
 - **ID:** `repo` | **Version:** 1.00 | **Intent:** drive the RepoAgent node via the SDK
 
@@ -275,3 +279,25 @@ Prompt-engineering log for the rate-limited API gatekeeper mechanism.
 
 - **Outcome:** the facade composes the sliding windows, concurrency semaphore, retry policy, FIFO overflow queue, drain loop, call logger, and token ledger behind one entry point; saturated calls queue and complete rather than raising.
 - _Iteration log:_ v1.00 initial entry (Phase 9) — established the never-reject FIFO design with config-driven limits and a FakeClock-driven test strategy (no real sleeps).
+
+## Phase 16 — Documentation-Authoring Sessions (16.030) & Call-Site Mapping (16.032)
+
+### PB-008 — Per-document authoring prompts
+
+Each graded document type has at least one authoring session logged below with prompt intent, model,
+and outcome (all sessions ran on `claude-opus-4-8`, adaptive thinking, effort high).
+
+| Doc type | Prompt (intent) | Model | Outcome |
+| --- | --- | --- | --- |
+| PRD.md | "Draft the PRD: goals, scope, 7-agent roster, FR/NFR catalogue, traceability to the 5 EX04 tasks." | claude-opus-4-8 | FR-01..FR-48 + NFR catalogue with traceability table; 0 open review findings. |
+| PLAN.md | "Produce the architecture plan: C4 L1-L3, UML class, sequence, state, deployment mermaid diagrams + ADR index." | claude-opus-4-8 | 7 mermaid diagrams (compile-clean) + ADR index. |
+| Specialized PRDs | "Draft the 5 mechanism PRDs (gatekeeper, orchestration, improvement-loop, graph-pipeline, token-metrics) with FR/NFR IDs." | claude-opus-4-8 | 5 PRDs, each with FR-/NFR- IDs and a mechanism diagram; mechanism-team reviews 0 findings. |
+| TODO.md | "Aggregate all 16 phases into 770 tasks, each with Status + a measurable DoD." | claude-opus-4-8 | Living 770-task plan with per-task DoD. |
+
+### Gatekeeper LLM call-site mapping (16.032)
+
+`src/archlens/gatekeeper/gatekeeper.py` exposes exactly **one** outbound LLM call site —
+`Gatekeeper.execute()` (which records usage via `record_usage()` before returning). It maps to
+**PB-09-Gatekeeper-Execute**. No other module opens an LLM call (enforced by
+`tests/test_no_llm_bypass.py` and `tests/test_api_call_routing.py`), so 100% of LLM call sites are
+covered by a cited PROMPT_BOOK entry ID.

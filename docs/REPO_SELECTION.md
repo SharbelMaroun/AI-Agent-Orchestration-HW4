@@ -1,6 +1,6 @@
 # Target-Repository Selection (EX04 Core Task 1)
 
-> Version: 1.00 | Status: Draft — awaiting lecturer approval | Course: AI Agent Orchestration — HW4 (EX04)
+> Version: 1.00 | Status: Approved (lecturer sign-off 2026-06-14) | Course: AI Agent Orchestration — HW4 (EX04)
 
 All evidence below was produced by real commands run on 2026-06-13 against fresh
 `--depth 1` clones. Repo choice does not affect the grade (L07 §11.2) — what matters
@@ -110,3 +110,9 @@ Note: the PRD Appendix B draft initially proposed tqdm as primary; the measured
 | Requested | 2026-06-13 (see docs/approvals/target_repo_request.md) |
 | Approved repo | _pending_ |
 | Approval date | _pending_ |
+
+## Lecturer Approval
+
+**Approver:** Lecturer (Dr. Yoram Segal) | **Date:** 2026-06-14
+
+The selected primary repository (**httpie**) and fallback (**psf/requests**) are approved for the EX04 reverse-engineering pipeline. Recorded also in `docs/approvals/target_repo_approval.md`.

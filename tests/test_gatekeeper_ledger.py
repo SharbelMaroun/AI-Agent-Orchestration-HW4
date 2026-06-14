@@ -71,3 +71,10 @@ def test_execute_records_one_entry_per_call():
         gk.execute("m", [{"role": "user", "content": "x"}], agent="A")
     assert len(gk.usage_ledger.entries) == 3
     assert stub.calls == 3
+
+
+def test_get_queue_status_reports_depth_and_capacity():
+    status = Gatekeeper().get_queue_status()
+    assert status["queue_depth"] == 0
+    assert status["max_depth"] > 0
+    assert status["recorded_calls"] == 0

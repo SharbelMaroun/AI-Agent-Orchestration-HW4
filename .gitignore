@@ -28,3 +28,8 @@ deliverables/ALIGNMENT_AUDIT.md
 reports/junit.xml
 reports/coverage.json
 reports/*.log
+
+# Generated notebook outputs (the source .ipynb is tracked)
+notebooks/*.html
+notebooks/*_executed.ipynb
+notebooks/.ipynb_checkpoints/

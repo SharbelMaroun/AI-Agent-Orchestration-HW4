@@ -82,5 +82,13 @@
     "skills_dir": "skills",
     "eval_task_set": "config/eval_tasks.json",
     "metrics_output": "metrics/out"
+  },
+  "sensitivity": {
+    "run_count": 3,
+    "analysis_depth": ["structural", "semantic"],
+    "top_k_pages": [1, 2, 3, 4, 5],
+    "rate_limit_rpm": [10, 30, 60],
+    "similarity_threshold": [0.85, 0.88, 0.91, 0.94],
+    "baseline": {"analysis_depth": "structural", "top_k_pages": 3, "rate_limit_rpm": 30, "similarity_threshold": 0.91}
   }
 }

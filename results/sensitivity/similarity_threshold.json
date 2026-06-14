@@ -1,0 +1,49 @@
+{
+  "param": "similarity_threshold",
+  "records": [
+    {
+      "config": {
+        "analysis_depth": "structural",
+        "rate_limit_rpm": 30,
+        "similarity_threshold": 0.85,
+        "top_k_pages": 3
+      },
+      "result": {
+        "validated_duplicates": 3675
+      }
+    },
+    {
+      "config": {
+        "analysis_depth": "structural",
+        "rate_limit_rpm": 30,
+        "similarity_threshold": 0.88,
+        "top_k_pages": 3
+      },
+      "result": {
+        "validated_duplicates": 3675
+      }
+    },
+    {
+      "config": {
+        "analysis_depth": "structural",
+        "rate_limit_rpm": 30,
+        "similarity_threshold": 0.91,
+        "top_k_pages": 3
+      },
+      "result": {
+        "validated_duplicates": 3675
+      }
+    },
+    {
+      "config": {
+        "analysis_depth": "structural",
+        "rate_limit_rpm": 30,
+        "similarity_threshold": 0.94,
+        "top_k_pages": 3
+      },
+      "result": {
+        "validated_duplicates": 3675
+      }
+    }
+  ]
+}

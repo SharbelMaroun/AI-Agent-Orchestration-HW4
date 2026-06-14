@@ -126,7 +126,11 @@ def fake_vault_fs(tmp_path):
 
 @pytest.fixture(autouse=True)
 def _no_network(monkeypatch):
-    """Block outbound (non-loopback) socket connects during every test (task 13.014)."""
+    """Block outbound (non-loopback) socket connects during every test (task 13.014).
+
+    Also pins the gatekeeper to mock LLM mode so an ambient credential never makes a live API call.
+    """
+    monkeypatch.setenv("ARCHLENS_LLM_MODE", "mock")
     real_connect = socket.socket.connect
     loopback = {"127.0.0.1", "::1", "localhost", ""}
 

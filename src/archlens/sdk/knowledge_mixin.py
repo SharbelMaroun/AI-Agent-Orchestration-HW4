@@ -20,3 +20,30 @@ class KnowledgeMixin:
         """Route a prompt to a skill name from the configured skills directory."""
         root = skills_dir if skills_dir is not None else self._config().knowledge_assets.skills_dir
         return route(prompt, load_skills(root))
+
+    def build_wiki(self, sources, topics: dict, vault_root):
+        """Run the raw->wiki->index pipeline, journaling one log entry per stage; return the root."""
+        from pathlib import Path
+
+        from ..vault.index_builder import build_index
+        from ..vault.raw_ingest import ingest_with_provenance
+        from ..vault.wiki_builder import build_wiki_pages
+        from ..vault.wiki_log import append_log
+
+        root = Path(vault_root)
+        root.mkdir(parents=True, exist_ok=True)
+        log_path = root / "log.md"
+        ingested = ingest_with_provenance(root / "raw", sources)
+        append_log(log_path, "raw", "ingest", f"{len(ingested)} sources")
+        pages = build_wiki_pages(root / "raw", root / "wiki")
+        append_log(log_path, "wiki", "build", f"{len(pages)} pages")
+        build_index(root / "index.md", topics)
+        append_log(log_path, "index", "build", f"{len(topics)} topics")
+        return root
+
+    def run_knowledge_eval(self, assisted: bool, tasks_path=None) -> dict:
+        """Run the 4-metric knowledge eval in baseline or assisted mode; return the result doc."""
+        from ..metrics.knowledge_eval import load_tasks, run_eval
+
+        path = tasks_path if tasks_path is not None else self._config().knowledge_assets.eval_task_set
+        return run_eval(load_tasks(path), assisted)

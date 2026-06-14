@@ -1,6 +1,6 @@
 # PRD_token_metrics.md — Token Measurement & Cost Analysis (ArchLens)
 
-Version: 1.00 | Status: Draft — awaiting lecturer approval | Course: AI Agent Orchestration — HW4 (EX04)
+Version: 1.00 | Status: Approved (lecturer sign-off 2026-06-14) | Course: AI Agent Orchestration — HW4 (EX04)
 
 ---
 
