@@ -33,6 +33,12 @@ class Gatekeeper:
     def limits(self) -> RateLimitsConfig:
         return self._config
 
+    def get_queue_status(self) -> dict:
+        """Return overflow-queue depth and capacity (the §5.1 gatekeeper monitoring interface)."""
+        depth = self._executor.queue_depth if self._executor is not None else 0
+        return {"queue_depth": depth, "max_depth": self._config.queue.max_depth,
+                "recorded_calls": len(self.usage_ledger)}
+
     def _build_executor(self):
         from .clock import SystemClock
         from .executor import RateLimitedExecutor

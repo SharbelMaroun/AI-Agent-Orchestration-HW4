@@ -2,11 +2,12 @@
 
 ISO_MAPPING = (
     ("Functional Suitability", "all-tests-green flag", "tests_green"),
-    ("Reliability", "branch coverage %", "coverage_pct"),
-    ("Maintainability", "modularity (community count)", "modularity"),
     ("Performance Efficiency", "token savings %", "token_savings_pct"),
-    ("Security", "single-point-of-failure count", "spof_count"),
     ("Compatibility", "uv-only toolchain", "uv_only"),
+    ("Usability", "Nielsen heuristics — severity>=3 findings resolved", "usability_resolved"),
+    ("Reliability", "branch coverage %", "coverage_pct"),
+    ("Security", "single-point-of-failure count", "spof_count"),
+    ("Maintainability", "modularity (community count)", "modularity"),
     ("Portability", "Ruff violation count", "ruff_violations"),
 )
 

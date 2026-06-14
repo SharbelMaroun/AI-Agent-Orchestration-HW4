@@ -162,7 +162,7 @@ from archlens.metrics.iso25010_mapping import iso25010_table
 Markdown(iso25010_table({
     "coverage_pct": 97, "modularity": 138,
     "token_savings_pct": round(savings["savings_pct"], 1), "ruff_violations": 0,
-    "tests_green": True, "spof_count": 1, "uv_only": True}))"""
+    "tests_green": True, "spof_count": 1, "uv_only": True, "usability_resolved": True}))"""
 
 FINDINGS_MD = """## 10. Findings & Threats to Validity
 
