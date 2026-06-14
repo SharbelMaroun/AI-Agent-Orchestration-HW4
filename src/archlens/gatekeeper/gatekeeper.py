@@ -20,12 +20,26 @@ logger = logging.getLogger(f"{LOGGER_NAME}.gatekeeper")
 class Gatekeeper:
     """Loads rate-limit policy at construction; all external calls route through here."""
 
-    def __init__(self, config: RateLimitsConfig | None = None) -> None:
+    def __init__(self, config: RateLimitsConfig | None = None, executor=None) -> None:
         self._config = config if config is not None else load_rate_limits()
+        self._executor = executor
 
     @property
     def limits(self) -> RateLimitsConfig:
         return self._config
+
+    def _build_executor(self):
+        from .clock import SystemClock
+        from .executor import RateLimitedExecutor
+        from .mock_client import MockAnthropicClient
+
+        return RateLimitedExecutor(MockAnthropicClient(), SystemClock(), self._config)
+
+    def execute(self, model, messages, **kwargs):
+        """Single entry point for every outbound LLM call, under the rate_limits.json policy."""
+        if self._executor is None:
+            self._executor = self._build_executor()
+        return self._executor.execute(model, messages, **kwargs)
 
     def git_clone(self, repo: RepoBlock, dest: Path) -> Path:
         """Clone a remote repository under the retry policy from rate_limits.json."""

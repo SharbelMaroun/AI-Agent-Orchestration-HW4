@@ -32,6 +32,15 @@ class SlidingWindowCounter:
         self._events.append(now)
         return True
 
+    def would_allow(self) -> bool:
+        """Check whether an event could be admitted now without recording it."""
+        self._evict(self._clock.now())
+        return len(self._events) < self._capacity
+
+    def record(self) -> None:
+        """Record one admitted event at the current time (pairs with would_allow)."""
+        self._events.append(self._clock.now())
+
     def count(self) -> int:
         """Number of events currently within the window."""
         self._evict(self._clock.now())

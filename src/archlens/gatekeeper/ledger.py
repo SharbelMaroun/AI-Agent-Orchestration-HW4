@@ -4,6 +4,7 @@ Every completed call appends one LedgerEntry (model, input/output tokens, usd_co
 hooks fire on each entry so MetricsAgent can stream usage without polling.
 """
 
+import threading
 from dataclasses import dataclass
 
 
@@ -23,6 +24,7 @@ class TokenLedger:
     def __init__(self):
         self._entries: list[LedgerEntry] = []
         self._hooks: list = []
+        self._lock = threading.Lock()
 
     def register_hook(self, hook) -> None:
         """Register a callback(entry) invoked on every appended entry (e.g. MetricsAgent)."""
@@ -30,10 +32,12 @@ class TokenLedger:
 
     def record(self, model: str, input_tokens: int, output_tokens: int,
                usd_cost: float) -> LedgerEntry:
-        """Append one entry and notify every registered hook."""
+        """Append one entry (thread-safely) and notify every registered hook."""
         entry = LedgerEntry(model, input_tokens, output_tokens, usd_cost)
-        self._entries.append(entry)
-        for hook in self._hooks:
+        with self._lock:
+            self._entries.append(entry)
+            hooks = list(self._hooks)
+        for hook in hooks:
             hook(entry)
         return entry
 
