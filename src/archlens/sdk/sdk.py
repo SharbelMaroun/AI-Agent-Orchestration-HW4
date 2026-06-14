@@ -15,6 +15,7 @@ from ..graphops.orchestrator import run_pipeline
 from ..graphops.parser import Graph, parse_graph
 from ..sdk.analysis_mixin import GraphAnalysisMixin
 from ..sdk.deliverables_mixin import DeliverablesMixin
+from ..sdk.knowledge_mixin import KnowledgeMixin
 from ..sdk.metrics_mixin import MetricsMixin
 from ..sdk.orchestration_mixin import OrchestrationMixin
 from ..sdk.repo_config import select_repo
@@ -26,7 +27,8 @@ from ..vault.builder import build_vault as _build_vault
 from ..vault.layout import VaultLayout
 
 
-class ArchLensSDK(GraphAnalysisMixin, DeliverablesMixin, OrchestrationMixin, MetricsMixin):
+class ArchLensSDK(GraphAnalysisMixin, DeliverablesMixin, OrchestrationMixin, MetricsMixin,
+                  KnowledgeMixin):
     """Facade over all ArchLens capabilities; phase method groups are added via mixins."""
 
     def __init__(self, setup: SetupConfig | None = None, gatekeeper=None) -> None:
