@@ -4,9 +4,20 @@ import argparse
 
 from .sdk.sdk import ArchLensSDK
 
+_EXAMPLES = """Examples:
+  uv run python src/main.py --version
+  uv run python src/main.py vault runs/eval/httpie/graphify-out/graph.json
+  uv run python src/main.py deliverables --graph graph.json --src src --prd docs/PRD.md
+  uv run python src/main.py analyze
+  uv run python src/main.py tokens
+"""
+
 
 def _build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(prog="archlens", description="ArchLens command line")
+    parser = argparse.ArgumentParser(
+        prog="archlens",
+        description="ArchLens — multi-agent, graph-based reverse engineering of Python codebases.",
+        epilog=_EXAMPLES, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--version", action="store_true", help="print the ArchLens version")
     parser.add_argument("--loop", action="store_true", help="run the Phase 11 improvement loop")
     sub = parser.add_subparsers(dest="command")
