@@ -6,6 +6,7 @@ client so recorded token counts reflect real context size.
 
 from pathlib import Path
 
+from ..metrics.assisted_runner import AssistedRunner
 from ..metrics.baseline_runner import BaselineRunner
 from ..metrics.questions import Question, load_questions
 
@@ -34,3 +35,15 @@ class MetricsMixin:
         qs = questions if questions is not None else self.load_questions()
         gk = gatekeeper if gatekeeper is not None else self._metrics_gatekeeper()
         return BaselineRunner(gk, chosen_model).run(Path(repo_path), qs)
+
+    def run_assisted(self, vault_root=None, graph_json=None, model: str | None = None,
+                     questions: list[Question] | None = None, gatekeeper=None,
+                     max_wiki_pages: int | None = None):
+        """Run the Graphify-assisted protocol over the vault; return the usage TokenLedger."""
+        cfg = self._config()
+        chosen_model = model or cfg.metrics.default_model
+        root = vault_root if vault_root is not None else cfg.vault.vault_root
+        cap = max_wiki_pages if max_wiki_pages is not None else cfg.metrics.max_wiki_pages
+        qs = questions if questions is not None else self.load_questions()
+        gk = gatekeeper if gatekeeper is not None else self._metrics_gatekeeper()
+        return AssistedRunner(gk, chosen_model, root, graph_json, cap).run(qs)

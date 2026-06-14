@@ -1,5 +1,7 @@
 """Token ledger and cost analysis (Phase 12)."""
 
+from .assisted_retriever import AssistedRetriever
+from .assisted_runner import AssistedRunner
 from .baseline_context import build_baseline_context, collect_python_sources, estimate_tokens
 from .baseline_runner import BaselineRunner
 from .cost import entry_cost, ledger_cost
@@ -23,4 +25,6 @@ __all__ = [
     "collect_python_sources",
     "estimate_tokens",
     "BaselineRunner",
+    "AssistedRetriever",
+    "AssistedRunner",
 ]
