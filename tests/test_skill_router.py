@@ -1,6 +1,6 @@
 """TDD tests for the skill router (tasks 14.018, 14.020)."""
 
-from archlens.vault.skill_router import Skill, route
+from archlens.vault.skill_router import Skill, load_skills, route
 
 
 def _skills():
@@ -10,6 +10,15 @@ def _skills():
         Skill("refactor",
               ("split god module", "break bottleneck", "merge duplicates", "fix spof"), False),
     ]
+
+
+def test_load_skills_from_directory_and_route(tmp_path):
+    (tmp_path / "SKILL_x.md").write_text(
+        "---\nname: x\ndescription: d\nallowed-tools: [Read]\ntriggers: [foo bar]\n---\n",
+        encoding="utf-8")
+    skills = load_skills(tmp_path)
+    assert [s.name for s in skills] == ["x"]
+    assert route("please do foo bar", skills) == "x"
 
 
 def test_exact_trigger_routes_to_skill():
