@@ -1,0 +1,65 @@
+{
+  "param": "top_k_pages",
+  "records": [
+    {
+      "config": {
+        "analysis_depth": "structural",
+        "rate_limit_rpm": 30,
+        "similarity_threshold": 0.91,
+        "top_k_pages": 1
+      },
+      "result": {
+        "quality": 5,
+        "tokens": 4000
+      }
+    },
+    {
+      "config": {
+        "analysis_depth": "structural",
+        "rate_limit_rpm": 30,
+        "similarity_threshold": 0.91,
+        "top_k_pages": 2
+      },
+      "result": {
+        "quality": 6,
+        "tokens": 8000
+      }
+    },
+    {
+      "config": {
+        "analysis_depth": "structural",
+        "rate_limit_rpm": 30,
+        "similarity_threshold": 0.91,
+        "top_k_pages": 3
+      },
+      "result": {
+        "quality": 7,
+        "tokens": 12000
+      }
+    },
+    {
+      "config": {
+        "analysis_depth": "structural",
+        "rate_limit_rpm": 30,
+        "similarity_threshold": 0.91,
+        "top_k_pages": 4
+      },
+      "result": {
+        "quality": 8,
+        "tokens": 16000
+      }
+    },
+    {
+      "config": {
+        "analysis_depth": "structural",
+        "rate_limit_rpm": 30,
+        "similarity_threshold": 0.91,
+        "top_k_pages": 5
+      },
+      "result": {
+        "quality": 9,
+        "tokens": 20000
+      }
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "param": "analysis_depth",
+  "records": [
+    {
+      "config": {
+        "analysis_depth": "structural",
+        "rate_limit_rpm": 30,
+        "similarity_threshold": 0.91,
+        "top_k_pages": 3
+      },
+      "result": {
+        "quality": 6,
+        "tokens": 50000
+      }
+    },
+    {
+      "config": {
+        "analysis_depth": "semantic",
+        "rate_limit_rpm": 30,
+        "similarity_threshold": 0.91,
+        "top_k_pages": 3
+      },
+      "result": {
+        "quality": 9,
+        "tokens": 120000
+      }
+    }
+  ]
+}
