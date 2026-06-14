@@ -58,6 +58,13 @@ CLI_SUBCOMMANDS = ("analyze", "vault", "loop", "tokens")
 PLUGIN_GROUP = "archlens.agent_plugins"
 EXCEPTION_CODE_PREFIX = "ARCHLENS"
 
+# Phase 12 token-measurement constants (PRD_token_metrics §3, §4)
+SAVINGS_TARGET_PCT = 70.0
+MAX_WIKI_PAGES_PER_QUESTION = 3
+STANDARD_QUESTION_COUNT = 10
+PROTOCOL_BASELINE = "baseline"
+PROTOCOL_ASSISTED = "assisted"
+
 # Phase 9 gatekeeper rate-limit config key names (PRD_api_gatekeeper §3.1 nested schema)
 VERSION_KEY = "version"
 SERVICE_LIMIT_KEYS = (

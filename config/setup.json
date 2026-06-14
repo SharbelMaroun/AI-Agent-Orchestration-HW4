@@ -61,5 +61,13 @@
     "priority_order": ["P1", "P2", "P3", "P4", "P5"],
     "allowed_evidence_levels": ["EXTRACTED", "VALIDATED"],
     "branch_prefix": "fix/iter"
+  },
+  "metrics": {
+    "output_dir": "metrics/out",
+    "baseline_ledger": "baseline_ledger.jsonl",
+    "assisted_ledger": "assisted_ledger.jsonl",
+    "metrics_json": "token_metrics.json",
+    "savings_target_pct": 70.0,
+    "max_wiki_pages": 3
   }
 }

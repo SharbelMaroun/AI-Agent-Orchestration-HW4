@@ -170,6 +170,27 @@ def rate_config_factory(tmp_path):
 
 
 @pytest.fixture()
+def synthetic_ledger():
+    """Factory for a synthetic Phase 12 TokenLedger with configurable entries (task 12.003)."""
+    from archlens.metrics.ledger import TokenLedger
+    from archlens.metrics.ledger_model import TokenLedgerEntry
+
+    def _make(n=10, agents=("RepoAgent", "GraphAgent", "AnalystAgent"),
+              models=("claude-opus-4-8", "claude-haiku-4-5"),
+              protocols=("baseline", "assisted")):
+        ledger = TokenLedger()
+        for i in range(n):
+            ledger.append(TokenLedgerEntry(
+                agent=agents[i % len(agents)], model=models[i % len(models)],
+                protocol=protocols[i % len(protocols)],
+                input_tokens=100 + i * 10, output_tokens=10 + i,
+                question_id=f"Q{i % 10 + 1:02d}"))
+        return ledger
+
+    return _make
+
+
+@pytest.fixture()
 def mock_anthropic():
     """Factory for a deterministic Anthropic client double with canned token usage."""
     def _make(text="canned response", in_tokens=10, out_tokens=5):
