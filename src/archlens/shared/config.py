@@ -116,6 +116,7 @@ class MetricsBlock(BaseModel):
     metrics_json: str = "token_metrics.json"
     savings_target_pct: float = SAVINGS_TARGET_PCT
     max_wiki_pages: int = MAX_WIKI_PAGES_PER_QUESTION
+    default_model: str = "claude-opus-4-8"
 
 
 class ModelPricing(BaseModel):

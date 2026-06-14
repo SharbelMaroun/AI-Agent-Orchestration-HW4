@@ -1,0 +1,15 @@
+{
+  "version": "1.00",
+  "questions": [
+    {"id": "Q01", "text": "Which modules are the most central god nodes or hubs in the architecture?", "expected_evidence": "hub"},
+    {"id": "Q02", "text": "Which components are single points of failure whose removal would disconnect the system?", "expected_evidence": "spof"},
+    {"id": "Q03", "text": "What are the main communities or clusters of tightly coupled modules?", "expected_evidence": "community"},
+    {"id": "Q04", "text": "Which modules are bottlenecks with high betweenness centrality?", "expected_evidence": "bottleneck"},
+    {"id": "Q05", "text": "Which modules act as bridges connecting otherwise separate communities?", "expected_evidence": "bridge"},
+    {"id": "Q06", "text": "Which modules are isolated or orphaned with no incoming dependencies?", "expected_evidence": "isolate"},
+    {"id": "Q07", "text": "Are there dependency cycles, and which modules participate in them?", "expected_evidence": "cycle"},
+    {"id": "Q08", "text": "Which modules have the highest fan-in and fan-out degree?", "expected_evidence": "degree"},
+    {"id": "Q09", "text": "What overall layering or architectural style does the dependency graph reveal?", "expected_evidence": "structure"},
+    {"id": "Q10", "text": "Which source files are most critical to the project's test coverage?", "expected_evidence": "test"}
+  ]
+}

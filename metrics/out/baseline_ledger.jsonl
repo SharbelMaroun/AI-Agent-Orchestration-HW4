@@ -1,0 +1,10 @@
+{"agent": "BaselineRunner", "input_tokens": 148169, "model": "claude-opus-4-8", "output_tokens": 5, "protocol": "baseline", "question_id": "Q01"}
+{"agent": "BaselineRunner", "input_tokens": 148173, "model": "claude-opus-4-8", "output_tokens": 5, "protocol": "baseline", "question_id": "Q02"}
+{"agent": "BaselineRunner", "input_tokens": 148168, "model": "claude-opus-4-8", "output_tokens": 5, "protocol": "baseline", "question_id": "Q03"}
+{"agent": "BaselineRunner", "input_tokens": 148167, "model": "claude-opus-4-8", "output_tokens": 5, "protocol": "baseline", "question_id": "Q04"}
+{"agent": "BaselineRunner", "input_tokens": 148169, "model": "claude-opus-4-8", "output_tokens": 5, "protocol": "baseline", "question_id": "Q05"}
+{"agent": "BaselineRunner", "input_tokens": 148168, "model": "claude-opus-4-8", "output_tokens": 5, "protocol": "baseline", "question_id": "Q06"}
+{"agent": "BaselineRunner", "input_tokens": 148168, "model": "claude-opus-4-8", "output_tokens": 5, "protocol": "baseline", "question_id": "Q07"}
+{"agent": "BaselineRunner", "input_tokens": 148165, "model": "claude-opus-4-8", "output_tokens": 5, "protocol": "baseline", "question_id": "Q08"}
+{"agent": "BaselineRunner", "input_tokens": 148171, "model": "claude-opus-4-8", "output_tokens": 5, "protocol": "baseline", "question_id": "Q09"}
+{"agent": "BaselineRunner", "input_tokens": 148168, "model": "claude-opus-4-8", "output_tokens": 5, "protocol": "baseline", "question_id": "Q10"}
