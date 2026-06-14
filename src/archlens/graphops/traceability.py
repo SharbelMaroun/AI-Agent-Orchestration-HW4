@@ -4,7 +4,7 @@ import json
 from dataclasses import dataclass
 from pathlib import Path
 
-from archlens.graphops.req_matcher import Match
+from ..graphops.req_matcher import Match
 
 
 @dataclass(frozen=True)

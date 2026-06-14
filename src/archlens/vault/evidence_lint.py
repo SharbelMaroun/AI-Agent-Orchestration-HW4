@@ -2,7 +2,7 @@
 
 from collections.abc import Iterable
 
-from archlens.shared.constants import EVIDENCE_TAGS
+from ..shared.constants import EVIDENCE_TAGS
 
 
 class EvidenceLintError(ValueError):

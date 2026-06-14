@@ -7,11 +7,11 @@ may touch the network (enforced by tests/test_no_direct_git.py).
 import logging
 from pathlib import Path
 
-from archlens.gatekeeper.git_ops import clone_with_retry
-from archlens.gatekeeper.graphify_ops import run_command
-from archlens.shared.config import RepoBlock
-from archlens.shared.constants import LOGGER_NAME
-from archlens.shared.rate_limits import RateLimitsConfig, load_rate_limits
+from ..gatekeeper.git_ops import clone_with_retry
+from ..gatekeeper.graphify_ops import run_command
+from ..shared.config import RepoBlock
+from ..shared.constants import LOGGER_NAME
+from ..shared.rate_limits import RateLimitsConfig, load_rate_limits
 
 logger = logging.getLogger(f"{LOGGER_NAME}.gatekeeper")
 

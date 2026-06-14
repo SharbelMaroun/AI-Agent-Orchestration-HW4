@@ -5,8 +5,8 @@ from pathlib import Path
 
 from langgraph.checkpoint.sqlite import SqliteSaver
 
-from archlens.agents.graph_builder import build_orchestration_graph
-from archlens.shared.config import load_setup
+from ..agents.graph_builder import build_orchestration_graph
+from ..shared.config import load_setup
 
 
 def make_checkpointer(db_path: str | None = None) -> SqliteSaver:

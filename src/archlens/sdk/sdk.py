@@ -6,23 +6,23 @@ groups live in mixins (analysis_mixin, deliverables_mixin) to honour the 150-lin
 
 from pathlib import Path
 
-from archlens.graphops.adapter import load_graphify_graph
-from archlens.graphops.cli_wrapper import GraphifyCLI
-from archlens.graphops.diff import GraphDiff, compute_diff
-from archlens.graphops.layout import RunLayout, new_run_id
-from archlens.graphops.manifest import Manifest, save_manifest
-from archlens.graphops.orchestrator import run_pipeline
-from archlens.graphops.parser import Graph, parse_graph
-from archlens.sdk.analysis_mixin import GraphAnalysisMixin
-from archlens.sdk.deliverables_mixin import DeliverablesMixin
-from archlens.sdk.orchestration_mixin import OrchestrationMixin
-from archlens.sdk.repo_config import select_repo
-from archlens.sdk.sandbox import SandboxManager
-from archlens.sdk.validation import ValidationResult, validate_repo
-from archlens.shared.config import SetupConfig, load_setup
-from archlens.shared.version import get_version
-from archlens.vault.builder import build_vault as _build_vault
-from archlens.vault.layout import VaultLayout
+from ..graphops.adapter import load_graphify_graph
+from ..graphops.cli_wrapper import GraphifyCLI
+from ..graphops.diff import GraphDiff, compute_diff
+from ..graphops.layout import RunLayout, new_run_id
+from ..graphops.manifest import Manifest, save_manifest
+from ..graphops.orchestrator import run_pipeline
+from ..graphops.parser import Graph, parse_graph
+from ..sdk.analysis_mixin import GraphAnalysisMixin
+from ..sdk.deliverables_mixin import DeliverablesMixin
+from ..sdk.orchestration_mixin import OrchestrationMixin
+from ..sdk.repo_config import select_repo
+from ..sdk.sandbox import SandboxManager
+from ..sdk.validation import ValidationResult, validate_repo
+from ..shared.config import SetupConfig, load_setup
+from ..shared.version import get_version
+from ..vault.builder import build_vault as _build_vault
+from ..vault.layout import VaultLayout
 
 
 class ArchLensSDK(GraphAnalysisMixin, DeliverablesMixin, OrchestrationMixin):
@@ -39,7 +39,7 @@ class ArchLensSDK(GraphAnalysisMixin, DeliverablesMixin, OrchestrationMixin):
 
     def _gk(self):
         if self._gatekeeper is None:
-            from archlens.gatekeeper.gatekeeper import Gatekeeper
+            from ..gatekeeper.gatekeeper import Gatekeeper
 
             self._gatekeeper = Gatekeeper()
         return self._gatekeeper
@@ -91,8 +91,8 @@ class ArchLensSDK(GraphAnalysisMixin, DeliverablesMixin, OrchestrationMixin):
                         rate_limits_path: str = "config/rate_limits.json",
                         env_example: str = ".env-example") -> bool:
         """Validate the config files; raise ConfigError naming the offending file on any error."""
-        from archlens.shared.exceptions import ConfigError
-        from archlens.shared.rate_limits import load_rate_limits
+        from ..shared.exceptions import ConfigError
+        from ..shared.rate_limits import load_rate_limits
 
         try:
             load_setup(setup_path)

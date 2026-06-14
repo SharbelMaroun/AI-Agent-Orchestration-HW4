@@ -5,8 +5,8 @@ from pathlib import Path
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-from archlens.graphops.config import GraphifyConfig
-from archlens.shared.constants import (
+from ..graphops.config import GraphifyConfig
+from ..shared.constants import (
     ALLOWED_URL_SCHEMES,
     CONFIDENCE_MAX,
     CONFIDENCE_MIN,
@@ -17,8 +17,8 @@ from archlens.shared.constants import (
     DUPLICATE_SIMILARITY_THRESHOLD,
     SETUP_FILE,
 )
-from archlens.shared.version import VERSION
-from archlens.vault.config import VaultConfig
+from ..shared.version import VERSION
+from ..vault.config import VaultConfig
 
 
 class ConfigVersionError(ValueError):

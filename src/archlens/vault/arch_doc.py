@@ -2,11 +2,11 @@
 
 from pathlib import Path
 
-from archlens.graphops.block_model import build_block_model
-from archlens.graphops.communities import load_communities
-from archlens.graphops.mermaid_blocks import render_block_diagram
-from archlens.shared.constants import ARCHITECTURE_MD
-from archlens.vault.evidence_lint import enforce_evidence
+from ..graphops.block_model import build_block_model
+from ..graphops.communities import load_communities
+from ..graphops.mermaid_blocks import render_block_diagram
+from ..shared.constants import ARCHITECTURE_MD
+from ..vault.evidence_lint import enforce_evidence
 
 
 def render_architecture(graph_source, version: str, direction: str = "TD") -> str:

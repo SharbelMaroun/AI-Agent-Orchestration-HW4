@@ -2,8 +2,8 @@
 
 import logging
 
-from archlens.shared.constants import LOGGER_NAME
-from archlens.shared.errors import RepoError
+from ..shared.constants import LOGGER_NAME
+from ..shared.errors import RepoError
 
 logger = logging.getLogger(f"{LOGGER_NAME}.repo_agent")
 

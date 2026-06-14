@@ -2,9 +2,9 @@
 
 import networkx as nx
 
-from archlens.graphops.dto import Citation, TriageItem
-from archlens.graphops.thresholds import thresholds
-from archlens.shared.constants import EvidenceType
+from ..graphops.dto import Citation, TriageItem
+from ..graphops.thresholds import thresholds
+from ..shared.constants import EvidenceType
 
 
 def _citation(data: dict) -> Citation:

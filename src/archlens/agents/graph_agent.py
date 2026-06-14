@@ -2,7 +2,7 @@
 
 import logging
 
-from archlens.shared.constants import LOGGER_NAME
+from ..shared.constants import LOGGER_NAME
 
 logger = logging.getLogger(f"{LOGGER_NAME}.graph_agent")
 

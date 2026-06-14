@@ -4,7 +4,7 @@ import ast
 from dataclasses import dataclass
 from pathlib import Path
 
-from archlens.graphops.class_extractor import ClassInfo, extract_classes
+from ..graphops.class_extractor import ClassInfo, extract_classes
 
 
 @dataclass(frozen=True)

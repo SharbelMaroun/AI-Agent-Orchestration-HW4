@@ -1,6 +1,6 @@
 """BugHunterAgent node — emit only evidence-ladder findings via the SDK (task 10.020)."""
 
-from archlens.agents.evidence import EvidenceFinding
+from ..agents.evidence import EvidenceFinding
 
 
 def _finding(finding_id: str, category: str, source_file: str, relation: str) -> dict:

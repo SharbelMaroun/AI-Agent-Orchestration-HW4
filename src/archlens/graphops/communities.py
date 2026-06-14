@@ -8,7 +8,7 @@ from pathlib import Path
 import networkx as nx
 from networkx.algorithms.community import greedy_modularity_communities
 
-from archlens.graphops.dto import FolderMismatch
+from ..graphops.dto import FolderMismatch
 
 
 @dataclass(frozen=True)

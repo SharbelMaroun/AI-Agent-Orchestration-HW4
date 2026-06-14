@@ -2,8 +2,8 @@
 
 from collections import defaultdict
 
-from archlens.graphops.parser import Graph
-from archlens.shared.constants import LOW_CONFIDENCE_FLOOR, EvidenceType
+from ..graphops.parser import Graph
+from ..shared.constants import LOW_CONFIDENCE_FLOOR, EvidenceType
 
 
 def degree_scores(graph: Graph) -> dict[str, int]:

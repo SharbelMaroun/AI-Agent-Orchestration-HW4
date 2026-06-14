@@ -4,10 +4,10 @@ from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
 
-from archlens.graphops.dto import DuplicatePair
-from archlens.graphops.duplicates import find_duplicates
-from archlens.graphops.loader import load_graph
-from archlens.graphops.req_matcher import Match
+from ..graphops.dto import DuplicatePair
+from ..graphops.duplicates import find_duplicates
+from ..graphops.loader import load_graph
+from ..graphops.req_matcher import Match
 
 
 @dataclass(frozen=True)

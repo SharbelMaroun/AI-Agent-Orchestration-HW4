@@ -4,8 +4,8 @@ import hashlib
 import shutil
 from pathlib import Path
 
-from archlens.vault.layout import VaultLayout
-from archlens.vault.log_journal import append_entry
+from ..vault.layout import VaultLayout
+from ..vault.log_journal import append_entry
 
 
 def _sha256(path) -> str:

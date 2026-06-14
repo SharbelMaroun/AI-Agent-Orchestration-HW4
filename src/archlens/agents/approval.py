@@ -2,7 +2,7 @@
 
 from langgraph.types import interrupt
 
-from archlens.agents.guardrails import requires_approval
+from ..agents.guardrails import requires_approval
 
 
 def make_approval_node():

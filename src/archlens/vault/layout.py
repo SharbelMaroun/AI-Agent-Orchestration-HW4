@@ -3,8 +3,8 @@
 from dataclasses import dataclass
 from pathlib import Path
 
-from archlens.shared.constants import HOT_MD, INDEX_MD, LOG_MD
-from archlens.vault.config import VaultConfig
+from ..shared.constants import HOT_MD, INDEX_MD, LOG_MD
+from ..vault.config import VaultConfig
 
 
 @dataclass

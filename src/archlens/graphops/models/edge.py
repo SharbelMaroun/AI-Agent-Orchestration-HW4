@@ -6,7 +6,7 @@ references, method, ...), so `relation` is a free string rather than a closed en
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from archlens.shared.constants import (
+from ...shared.constants import (
     CONFIDENCE_MAX,
     CONFIDENCE_MIN,
     EXTRACTED_CONFIDENCE,

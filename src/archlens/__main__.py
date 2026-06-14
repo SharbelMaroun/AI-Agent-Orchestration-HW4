@@ -2,7 +2,7 @@
 
 import argparse
 
-from archlens.sdk.sdk import ArchLensSDK
+from .sdk.sdk import ArchLensSDK
 
 
 def _build_parser() -> argparse.ArgumentParser:

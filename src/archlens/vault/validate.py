@@ -3,8 +3,8 @@
 import re
 from dataclasses import dataclass, field
 
-from archlens.vault.layout import VaultLayout
-from archlens.vault.note_lint import NoteLintError, check_one_idea
+from ..vault.layout import VaultLayout
+from ..vault.note_lint import NoteLintError, check_one_idea
 
 _LINK = re.compile(r"\[\[([^\]]+)\]\]")
 _NO_INBOUND_OK = {"index", "log"}

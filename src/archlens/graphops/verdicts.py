@@ -4,7 +4,7 @@ import json
 from dataclasses import dataclass
 from pathlib import Path
 
-from archlens.graphops.traceability import TraceChain
+from ..graphops.traceability import TraceChain
 
 
 @dataclass(frozen=True)

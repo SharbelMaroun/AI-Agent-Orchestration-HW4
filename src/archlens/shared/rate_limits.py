@@ -4,8 +4,8 @@ from pathlib import Path
 
 from pydantic import BaseModel, ConfigDict
 
-from archlens.shared.config import _read_json, check_config_version
-from archlens.shared.constants import RATE_LIMITS_FILE
+from ..shared.config import _read_json, check_config_version
+from ..shared.constants import RATE_LIMITS_FILE
 
 
 class ServiceLimits(BaseModel):

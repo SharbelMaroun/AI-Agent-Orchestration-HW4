@@ -1,6 +1,6 @@
 """Target-repo config accessor — the SDK's only way to pick a repository block."""
 
-from archlens.shared.config import RepoBlock, SetupConfig
+from ..shared.config import RepoBlock, SetupConfig
 
 
 def select_repo(cfg: SetupConfig, use_fallback: bool = False) -> RepoBlock:

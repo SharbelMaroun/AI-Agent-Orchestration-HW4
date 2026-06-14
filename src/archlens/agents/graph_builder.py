@@ -2,16 +2,16 @@
 
 from langgraph.graph import END, START, StateGraph
 
-from archlens.agents.analyst_agent import make_analyst_node
-from archlens.agents.bughunter_agent import make_bughunter_node
-from archlens.agents.graph_agent import make_graph_node
-from archlens.agents.metrics_agent import make_metrics_node
-from archlens.agents.qa_agent import make_qa_node
-from archlens.agents.refactor_agent import make_refactor_node
-from archlens.agents.repo_agent import make_repo_node
-from archlens.agents.routing import route_from_supervisor
-from archlens.agents.state import AgentState
-from archlens.agents.stop_eval import make_stop_eval_node
+from ..agents.analyst_agent import make_analyst_node
+from ..agents.bughunter_agent import make_bughunter_node
+from ..agents.graph_agent import make_graph_node
+from ..agents.metrics_agent import make_metrics_node
+from ..agents.qa_agent import make_qa_node
+from ..agents.refactor_agent import make_refactor_node
+from ..agents.repo_agent import make_repo_node
+from ..agents.routing import route_from_supervisor
+from ..agents.state import AgentState
+from ..agents.stop_eval import make_stop_eval_node
 
 _AGENTS = {
     "RepoAgent": make_repo_node,

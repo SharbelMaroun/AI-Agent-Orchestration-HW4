@@ -2,7 +2,7 @@
 
 import networkx as nx
 
-from archlens.graphops.dto import BridgeReport, Citation
+from ..graphops.dto import BridgeReport, Citation
 
 
 def structural_bridges(graph: nx.DiGraph) -> list[tuple[str, str]]:

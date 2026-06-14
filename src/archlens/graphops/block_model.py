@@ -5,7 +5,7 @@ from collections import Counter
 from dataclasses import dataclass
 from pathlib import Path
 
-from archlens.graphops.communities import load_communities
+from ..graphops.communities import load_communities
 
 
 @dataclass(frozen=True)

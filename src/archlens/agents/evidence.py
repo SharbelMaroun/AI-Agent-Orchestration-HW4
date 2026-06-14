@@ -2,7 +2,7 @@
 
 from pydantic import BaseModel, ConfigDict, field_validator
 
-from archlens.shared.constants import CONFIDENCE_MAX, CONFIDENCE_MIN, EVIDENCE_TAGS
+from ..shared.constants import CONFIDENCE_MAX, CONFIDENCE_MIN, EVIDENCE_TAGS
 
 
 class EvidenceFinding(BaseModel):

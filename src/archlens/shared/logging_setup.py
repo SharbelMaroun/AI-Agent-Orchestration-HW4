@@ -5,7 +5,7 @@ import logging
 import logging.config
 from pathlib import Path
 
-from archlens.shared.constants import LOGGER_NAME, LOGGING_CONFIG_FILE
+from ..shared.constants import LOGGER_NAME, LOGGING_CONFIG_FILE
 
 
 def setup_logging(path: str | Path = LOGGING_CONFIG_FILE) -> logging.Logger:

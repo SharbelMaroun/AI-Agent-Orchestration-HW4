@@ -4,7 +4,7 @@ from enum import Enum
 
 from pydantic import BaseModel, ConfigDict
 
-from archlens.shared.constants import GRAPHIFY_STAGES
+from ..shared.constants import GRAPHIFY_STAGES
 
 
 class PipelineStage(str, Enum):

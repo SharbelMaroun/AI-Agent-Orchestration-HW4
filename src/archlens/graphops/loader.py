@@ -5,8 +5,8 @@ from pathlib import Path
 
 import networkx as nx
 
-from archlens.graphops.errors import GraphSchemaError
-from archlens.shared.constants import Relation
+from ..graphops.errors import GraphSchemaError
+from ..shared.constants import Relation
 
 _KNOWN_RELATIONS = frozenset(r.value for r in Relation)
 

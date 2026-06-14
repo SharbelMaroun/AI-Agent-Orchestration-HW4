@@ -4,10 +4,10 @@ Each section is capped at hot_top_n so hot.md stays within its line budget on la
 a node with no community renders a plain '-' (never an unresolved wikilink).
 """
 
-from archlens.graphops.parser import Graph
-from archlens.vault.config import VaultConfig
-from archlens.vault.graphview import anomalies, community_of, entry_points, ranked_nodes
-from archlens.vault.wikilinks import render_link
+from ..graphops.parser import Graph
+from ..vault.config import VaultConfig
+from ..vault.graphview import anomalies, community_of, entry_points, ranked_nodes
+from ..vault.wikilinks import render_link
 
 
 def _community_cell(of: dict, node_id: str) -> str:

@@ -2,15 +2,15 @@
 
 from pathlib import Path
 
-from archlens.graphops.flow_detector import detect_shared_flows
-from archlens.graphops.gap_detector import detect_gaps
-from archlens.graphops.orphan_detector import detect_orphans
-from archlens.graphops.req_matcher import match_requirements
-from archlens.graphops.req_parser import parse_requirements
-from archlens.graphops.traceability import build_traceability
-from archlens.graphops.verdicts import generate_verdicts
-from archlens.shared.constants import ALIGNMENT_AUDIT_MD
-from archlens.vault.evidence_lint import enforce_evidence
+from ..graphops.flow_detector import detect_shared_flows
+from ..graphops.gap_detector import detect_gaps
+from ..graphops.orphan_detector import detect_orphans
+from ..graphops.req_matcher import match_requirements
+from ..graphops.req_parser import parse_requirements
+from ..graphops.traceability import build_traceability
+from ..graphops.verdicts import generate_verdicts
+from ..shared.constants import ALIGNMENT_AUDIT_MD
+from ..vault.evidence_lint import enforce_evidence
 
 
 def render_audit(prd_source, graph_source, version: str) -> str:

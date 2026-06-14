@@ -2,7 +2,7 @@
 
 import networkx as nx
 
-from archlens.graphops.dto import CentralityRow
+from ..graphops.dto import CentralityRow
 
 
 def betweenness(graph: nx.DiGraph) -> dict[str, float]:

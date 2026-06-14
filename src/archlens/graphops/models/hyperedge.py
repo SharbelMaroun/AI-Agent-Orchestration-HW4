@@ -2,7 +2,7 @@
 
 from pydantic import BaseModel, ConfigDict
 
-from archlens.shared.constants import RationaleSubtype, Relation
+from ...shared.constants import RationaleSubtype, Relation
 
 
 class Hyperedge(BaseModel):

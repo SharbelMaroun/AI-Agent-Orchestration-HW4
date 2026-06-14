@@ -4,8 +4,8 @@ from pathlib import Path
 
 from pydantic import BaseModel, ConfigDict
 
-from archlens.graphops.layout import RunLayout
-from archlens.graphops.stages import StageResult
+from ..graphops.layout import RunLayout
+from ..graphops.stages import StageResult
 
 
 class ArtifactRef(BaseModel):

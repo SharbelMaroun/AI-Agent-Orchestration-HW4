@@ -3,10 +3,10 @@
 These run the LangGraph orchestration built in Phase 10, keeping the SDK the single entry point.
 """
 
-from archlens.agents.metrics_agent import make_metrics_node
-from archlens.agents.runner import make_runner
-from archlens.sdk.dto_core import AnalysisReport
-from archlens.sdk.dto_loop import LoopResult, TokenReport
+from ..agents.metrics_agent import make_metrics_node
+from ..agents.runner import make_runner
+from ..sdk.dto_core import AnalysisReport
+from ..sdk.dto_loop import LoopResult, TokenReport
 
 
 def _analysis_report(state: dict) -> AnalysisReport:

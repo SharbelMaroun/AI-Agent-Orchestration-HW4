@@ -1,6 +1,6 @@
 """YAML frontmatter renderer for vault notes (tasks 5.008-5.009)."""
 
-from archlens.shared.constants import FRONTMATTER_KEYS
+from ..shared.constants import FRONTMATTER_KEYS
 
 
 def render_frontmatter(type_: str, status: str, project: str) -> str:

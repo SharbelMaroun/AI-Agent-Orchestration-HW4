@@ -3,7 +3,7 @@
 import shutil
 from pathlib import Path
 
-from archlens.shared.errors import SandboxViolationError
+from ..shared.errors import SandboxViolationError
 
 
 class SandboxManager:

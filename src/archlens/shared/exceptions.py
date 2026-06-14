@@ -1,6 +1,6 @@
 """ArchLens exception taxonomy with machine-readable codes (task 8.008)."""
 
-from archlens.shared.constants import EXCEPTION_CODE_PREFIX
+from ..shared.constants import EXCEPTION_CODE_PREFIX
 
 
 class ArchLensError(Exception):

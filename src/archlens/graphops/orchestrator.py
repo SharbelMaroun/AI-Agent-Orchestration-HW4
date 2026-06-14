@@ -6,10 +6,10 @@ unchanged files), so ArchLens no longer reimplements stage-level skip logic.
 
 import logging
 
-from archlens.graphops.cli_wrapper import GraphifyCLI
-from archlens.graphops.errors import GraphifyError
-from archlens.graphops.stages import StageResult, StageStatus
-from archlens.shared.constants import LOGGER_NAME
+from ..graphops.cli_wrapper import GraphifyCLI
+from ..graphops.errors import GraphifyError
+from ..graphops.stages import StageResult, StageStatus
+from ..shared.constants import LOGGER_NAME
 
 logger = logging.getLogger(f"{LOGGER_NAME}.graphops")
 

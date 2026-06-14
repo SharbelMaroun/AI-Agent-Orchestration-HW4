@@ -2,7 +2,7 @@
 
 import time
 
-from archlens.shared.rate_limits import load_rate_limits
+from ..shared.rate_limits import load_rate_limits
 
 
 def _config_defaults() -> tuple[int, int]:

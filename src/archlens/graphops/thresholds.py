@@ -1,6 +1,6 @@
 """Analysis thresholds sourced from config/setup.json for cfg.get access (6.034, 6.038)."""
 
-from archlens.shared.config import load_setup
+from ..shared.config import load_setup
 
 
 def thresholds() -> dict:

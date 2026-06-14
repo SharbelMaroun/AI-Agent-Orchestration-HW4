@@ -2,10 +2,10 @@
 
 from pathlib import Path
 
-from archlens.graphops.class_extractor import extract_classes
-from archlens.graphops.class_relations import class_relations
-from archlens.graphops.mermaid_classes import render_class_diagram
-from archlens.shared.constants import CLASS_SCHEMA_MD
+from ..graphops.class_extractor import extract_classes
+from ..graphops.class_relations import class_relations
+from ..graphops.mermaid_classes import render_class_diagram
+from ..shared.constants import CLASS_SCHEMA_MD
 
 
 def render_class_schema(source_root, version: str) -> str:

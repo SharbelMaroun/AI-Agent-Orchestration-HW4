@@ -8,7 +8,7 @@ import json
 import time
 from pathlib import Path
 
-from archlens.shared.constants import LOGGING_CONFIG_FILE
+from ..shared.constants import LOGGING_CONFIG_FILE
 
 
 def _trace_sink() -> str:

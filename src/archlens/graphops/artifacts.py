@@ -4,9 +4,9 @@ import hashlib
 import shutil
 from pathlib import Path
 
-from archlens.graphops.layout import RunLayout
-from archlens.graphops.manifest import ArtifactRef
-from archlens.shared.constants import GRAPH_HTML
+from ..graphops.layout import RunLayout
+from ..graphops.manifest import ArtifactRef
+from ..shared.constants import GRAPH_HTML
 
 
 def sha256_file(path) -> str:

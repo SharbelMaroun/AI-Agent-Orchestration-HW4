@@ -2,7 +2,7 @@
 
 from langgraph.graph import END
 
-from archlens.agents.supervisor import supervise
+from ..agents.supervisor import supervise
 
 
 def route_from_supervisor(state: dict) -> str:

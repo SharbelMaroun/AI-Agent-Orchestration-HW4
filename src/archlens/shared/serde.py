@@ -2,7 +2,7 @@
 
 from dataclasses import asdict, fields
 
-from archlens.shared.constants import DTO_SCHEMA_VERSION
+from ..shared.constants import DTO_SCHEMA_VERSION
 
 
 def to_dict(dto) -> dict:

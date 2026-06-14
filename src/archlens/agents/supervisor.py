@@ -1,6 +1,6 @@
 """Supervisor node: inspect AgentState and decide the next agent (task 10.008)."""
 
-from archlens.shared.constants import MAX_LOOP_ITERATIONS
+from ..shared.constants import MAX_LOOP_ITERATIONS
 
 
 def _decision(node: str, reason: str) -> dict:

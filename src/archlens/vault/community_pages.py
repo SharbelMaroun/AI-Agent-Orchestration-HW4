@@ -2,11 +2,11 @@
 
 from pathlib import Path
 
-from archlens.graphops.parser import Graph
-from archlens.vault.frontmatter import render_frontmatter
-from archlens.vault.graphview import connector_labels
-from archlens.vault.layout import VaultLayout
-from archlens.vault.wikilinks import render_link, slugify
+from ..graphops.parser import Graph
+from ..vault.frontmatter import render_frontmatter
+from ..vault.graphview import connector_labels
+from ..vault.layout import VaultLayout
+from ..vault.wikilinks import render_link, slugify
 
 
 def render_community(label: str, members: list[str], connectors: list[str]) -> str:
