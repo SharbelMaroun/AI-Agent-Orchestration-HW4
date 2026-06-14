@@ -58,6 +58,19 @@ CLI_SUBCOMMANDS = ("analyze", "vault", "loop", "tokens")
 PLUGIN_GROUP = "archlens.agent_plugins"
 EXCEPTION_CODE_PREFIX = "ARCHLENS"
 
+# Phase 9 gatekeeper rate-limit config key names (PRD_api_gatekeeper §3.1 nested schema)
+VERSION_KEY = "version"
+SERVICE_LIMIT_KEYS = (
+    "requests_per_minute",
+    "requests_per_hour",
+    "concurrent_max",
+    "retry_after_seconds",
+    "max_retries",
+)
+QUEUE_KEYS = ("max_depth", "backpressure_warn_ratio")
+RATE_LIMITS_SCHEMA_KEYS = (VERSION_KEY, *SERVICE_LIMIT_KEYS, *QUEUE_KEYS)
+ENV_ANTHROPIC_KEY = "ANTHROPIC_API_KEY"
+
 
 class NodeType(str, Enum):
     """graph.json node kinds (PRD_graph_pipeline §4.1)."""

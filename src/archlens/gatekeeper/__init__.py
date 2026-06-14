@@ -1,3 +1,5 @@
 """API Gatekeeper — the sole path for every external API and network call."""
 
-__all__ = ["gatekeeper", "git_ops"]
+from .gatekeeper import Gatekeeper
+
+__all__ = ["Gatekeeper"]

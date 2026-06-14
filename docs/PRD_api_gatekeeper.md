@@ -14,7 +14,7 @@ Version: 1.00 | Status: Draft — awaiting lecturer approval | Course: AI Agent 
 | Module owner | `src/archlens/gatekeeper/gatekeeper.py` |
 | Source references | Submission Guidelines V3 §5 (API Gatekeeper and Rate Limiting), L07 §11 (EX04), Part A (token-cost reality check) |
 | Approval gate | This document must be approved BEFORE development of the gatekeeper module starts |
-| Change log | 1.00 — initial draft |
+| Change log | 1.00 — initial draft. Mechanism-team review 2026-06-14: version header confirmed; FR/NFR catalogue confirmed (37 FR-/NFR- references, exceeds the 8-ID bar); one fenced mermaid sequenceDiagram of the request lifecycle confirmed present; rate limits, retry policy, and FIFO never-reject queue behaviour all confirmed specified. **0 open findings.** |
 
 ---
 

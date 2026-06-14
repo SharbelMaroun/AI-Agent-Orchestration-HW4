@@ -260,3 +260,18 @@ Seven versioned templates under `src/archlens/agents/prompts/`, one per agent.
 | `baseline_run` | template input |
 | `assisted_run` | template input |
 - _Iteration log:_ v1.00 initial template (Phase 10).
+
+## Phase 9 — Gatekeeper (9.003)
+
+Prompt-engineering log for the rate-limited API gatekeeper mechanism.
+
+### PB-09-Gatekeeper-Execute
+- **ID:** `gatekeeper-execute` | **Version:** 1.00 | **Model:** claude-opus-4-8 | **Intent:** route every outbound LLM call through `Gatekeeper.execute()` under the `config/rate_limits.json` limits (30 req/min, 500 req/hr, 5 concurrent), queueing on saturation and never rejecting.
+
+| Variable | Role |
+| --- | --- |
+| `model` | the Claude model id requested for the call |
+| `messages` | the message payload forwarded to the Anthropic client |
+
+- **Outcome:** the facade composes the sliding windows, concurrency semaphore, retry policy, FIFO overflow queue, drain loop, call logger, and token ledger behind one entry point; saturated calls queue and complete rather than raising.
+- _Iteration log:_ v1.00 initial entry (Phase 9) — established the never-reject FIFO design with config-driven limits and a FakeClock-driven test strategy (no real sleeps).
