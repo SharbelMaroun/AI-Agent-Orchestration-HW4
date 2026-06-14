@@ -31,3 +31,7 @@ class SandboxViolationError(RepoError):
 
 class RepoValidationError(RepoError):
     """The cloned repository failed validation checks."""
+
+
+class GitCommandError(RepoError):
+    """A local git command (branch/revert/inspect) returned non-zero or timed out."""

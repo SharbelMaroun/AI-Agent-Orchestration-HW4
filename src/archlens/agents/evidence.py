@@ -2,7 +2,8 @@
 
 from pydantic import BaseModel, ConfigDict, field_validator
 
-from ..shared.constants import CONFIDENCE_MAX, CONFIDENCE_MIN, EVIDENCE_TAGS
+from ..shared.constants import EVIDENCE_TAGS
+from ..shared.validators import bounded_confidence
 
 
 class EvidenceFinding(BaseModel):
@@ -27,6 +28,4 @@ class EvidenceFinding(BaseModel):
     @field_validator("confidence")
     @classmethod
     def _bounded_confidence(cls, value: float) -> float:
-        if not CONFIDENCE_MIN <= value <= CONFIDENCE_MAX:
-            raise ValueError(f"confidence {value} outside [{CONFIDENCE_MIN}, {CONFIDENCE_MAX}]")
-        return value
+        return bounded_confidence(value)

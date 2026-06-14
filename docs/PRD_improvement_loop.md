@@ -15,6 +15,7 @@ Version: 1.00 | Status: Draft — awaiting lecturer approval | Course: AI Agent 
 | Source course material | L07 section 11; Part C p21 (graph diff metrics); Guidelines V3 sections 3.2, 6 |
 | Owner agents | RefactorAgent (apply), QAAgent (verify), GraphAgent (re-graph), AnalystAgent (diff), MetricsAgent (report) |
 | Approval gate | This PRD must be approved BEFORE development of the loop begins |
+| Change log | 1.00 — initial draft for lecturer approval. Mechanism-team review 2026-06-14: "Version: 1.00" header confirmed present; FR catalogue confirmed (12 FR-IL IDs, FR-IL-01..12, exceeds the 8-ID bar); loop controller, P1-P5 fix taxonomy, the 5 stop conditions, and the rollback/evidence policy all confirmed specified. **0 open findings.** |
 
 ---
 

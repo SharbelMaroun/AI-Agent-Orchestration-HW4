@@ -8,6 +8,7 @@ from .sdk.sdk import ArchLensSDK
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="archlens", description="ArchLens command line")
     parser.add_argument("--version", action="store_true", help="print the ArchLens version")
+    parser.add_argument("--loop", action="store_true", help="run the Phase 11 improvement loop")
     sub = parser.add_subparsers(dest="command")
     vault = sub.add_parser("vault", help="build the Obsidian vault from a graph.json")
     vault.add_argument("graph", help="path to a Graphify graph.json")
@@ -27,6 +28,9 @@ def main(argv: list[str] | None = None, sdk=None) -> int:
     sdk = sdk or ArchLensSDK()
     if args.version:
         print(sdk.version())
+        return 0
+    if args.loop:
+        print(sdk.run_improvement_loop())
         return 0
     if args.command == "vault":
         print(sdk.build_vault(args.graph).root)

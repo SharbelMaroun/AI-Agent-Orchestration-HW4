@@ -7,10 +7,11 @@ may touch the network (enforced by tests/test_no_direct_git.py).
 import logging
 from pathlib import Path
 
-from ..gatekeeper.git_ops import clone_with_retry
+from ..gatekeeper.git_ops import clone_with_retry, run_local_git
 from ..gatekeeper.graphify_ops import run_command
+from ..gatekeeper.proc import run_capture
 from ..shared.config import RepoBlock
-from ..shared.constants import LOGGER_NAME
+from ..shared.constants import DEFAULT_TIMEOUT_S, LOGGER_NAME
 from ..shared.rate_limits import RateLimitsConfig, load_rate_limits
 
 logger = logging.getLogger(f"{LOGGER_NAME}.gatekeeper")
@@ -36,3 +37,15 @@ class Gatekeeper:
         """Execute a Graphify command (e.g. update/extract) through the gatekeeper egress."""
         logger.info("graphify %s: %s", label, " ".join(argv[:2]))
         return run_command(argv, label, timeout_s)
+
+    def git_local(self, args: list[str], cwd: Path, timeout_s: int | None = None) -> str:
+        """Run a local git command (branch/revert/inspect) through the gatekeeper egress."""
+        timeout = timeout_s if timeout_s is not None else DEFAULT_TIMEOUT_S
+        logger.info("git local %s in %s", args[:2], cwd)
+        return run_local_git(args, cwd, timeout)
+
+    def run_subprocess(self, argv: list[str], cwd, timeout_s: int | None = None):
+        """Run a non-network command (e.g. the target repo's test suite) through the egress."""
+        timeout = timeout_s if timeout_s is not None else DEFAULT_TIMEOUT_S
+        logger.info("subprocess %s in %s", argv[:3], cwd)
+        return run_capture(argv, cwd, timeout)

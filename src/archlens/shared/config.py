@@ -15,6 +15,7 @@ from ..shared.constants import (
     DEFAULT_TIMEOUT_S,
     DELIVERABLES_DIR,
     DUPLICATE_SIMILARITY_THRESHOLD,
+    MAX_LOOP_ITERATIONS,
     SETUP_FILE,
 )
 from ..shared.version import VERSION
@@ -91,6 +92,17 @@ class SdkBlock(BaseModel):
     checkpoint_db: str = "runs/checkpoints.sqlite"
 
 
+class ImprovementLoopBlock(BaseModel):
+    """Phase 11 improvement-loop settings (priority order, evidence gate, branch naming)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    max_iterations: int = MAX_LOOP_ITERATIONS
+    priority_order: list[str] = Field(default_factory=lambda: ["P1", "P2", "P3", "P4", "P5"])
+    allowed_evidence_levels: list[str] = Field(default_factory=lambda: ["EXTRACTED", "VALIDATED"])
+    branch_prefix: str = "fix/iter"
+
+
 class SetupConfig(BaseModel):
     """Typed view of config/setup.json; unknown keys are rejected."""
 
@@ -107,6 +119,7 @@ class SetupConfig(BaseModel):
     analysis: AnalysisBlock = Field(default_factory=AnalysisBlock)
     deliverables: DeliverablesBlock = Field(default_factory=DeliverablesBlock)
     sdk: SdkBlock = Field(default_factory=SdkBlock)
+    improvement_loop: ImprovementLoopBlock = Field(default_factory=ImprovementLoopBlock)
 
 
 def _read_json(path: Path) -> dict:
