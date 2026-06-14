@@ -33,7 +33,7 @@ ignore = ["E501"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "-q --strict-markers --strict-config"
+addopts = "-q --strict-markers --strict-config --junitxml=reports/junit.xml"
 
 [tool.coverage.run]
 source = ["archlens"]

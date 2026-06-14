@@ -23,3 +23,8 @@ graphify-out/
 deliverables/ARCHITECTURE.md
 deliverables/CLASS_SCHEMA.md
 deliverables/ALIGNMENT_AUDIT.md
+
+# Volatile test reports (regenerated each run); curated .md reports stay tracked
+reports/junit.xml
+reports/coverage.json
+reports/*.log

@@ -20,3 +20,8 @@ def test_setup_logging_configures_archlens_logger(
     assert logger.level == logging.INFO
     assert logger.handlers
     logger.info("bootstrap smoke message")
+
+
+def test_setup_logging_missing_file_raises(tmp_path: Path):
+    with pytest.raises(FileNotFoundError):
+        setup_logging(tmp_path / "nope.json")

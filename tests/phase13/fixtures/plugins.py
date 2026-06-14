@@ -5,6 +5,7 @@ Lives under a ``fixtures`` path component so it is exempt from the 150-line cap,
 Phase 13 testing fixtures (repo trees, graph samples, mocks, vault layout, autouse no-network).
 """
 
+import datetime
 import hashlib
 import json
 import socket
@@ -12,6 +13,17 @@ from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
+
+_REPORTS = Path(__file__).resolve().parents[3] / "reports"
+
+
+def pytest_sessionfinish(session, exitstatus):
+    """Write a timestamped run log into reports/ after every session (task 13.048)."""
+    _REPORTS.mkdir(parents=True, exist_ok=True)
+    stamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    (_REPORTS / f"pytest_{stamp}.log").write_text(
+        f"pytest session finished\nexitstatus={exitstatus}\n"
+        f"collected={session.testscollected}\n", encoding="utf-8")
 
 
 @pytest.fixture()
