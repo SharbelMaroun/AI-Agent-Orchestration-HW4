@@ -5,36 +5,41 @@ import networkx as nx
 from ..graphops.centrality import betweenness
 from ..graphops.dto import HubBottleneckVerdict
 
+# Surviving redundancy reported for a non-cut node. A non-articulation node sits in a biconnected
+# block, so >=2 node-disjoint paths connect its neighbours after removal; the exact count above 2
+# is cosmetic (the verdict turns only on 0-vs-nonzero) and computing it is all-pairs max-flow.
+_REDUNDANCY_FLOOR = 2
 
-def alternative_paths(graph: nx.DiGraph, node: str) -> int:
-    """Minimum node-disjoint paths between any two of ``node``'s neighbours once it is removed.
 
-    Zero means the node is a cut vertex (a mandatory bottleneck); a higher value quantifies how
-    much redundancy survives its removal.
+def alternative_paths(graph: nx.DiGraph, node: str, undirected=None, articulation=None) -> int:
+    """Node-disjoint bypass paths between ``node``'s neighbours once it is removed.
+
+    Zero means the node is a cut vertex (a mandatory bottleneck / single point of failure); a
+    positive value means redundancy survives its removal. Removing a node disconnects two of its
+    neighbours **iff** that node is an articulation point, so the cut-vertex test is the exact
+    O(V+E) ``articulation_points`` membership check — not all-pairs max-flow per node, which is
+    intractable on real graphs whose hubs reach hundreds of edges (it hung on a 2033-node httpie
+    graph). The surviving-redundancy count is reported as ``_REDUNDANCY_FLOOR`` (only 0 vs >=2
+    drives the verdict, and the agent consumes the verdict, not the count).
     """
-    undirected = graph.to_undirected()
-    neighbours = sorted(undirected.neighbors(node))
-    if len(neighbours) < 2:
+    undirected = undirected if undirected is not None else graph.to_undirected()
+    if undirected.degree(node) < 2:
         return 0
-    pruned = undirected.copy()
-    pruned.remove_node(node)
-    best: int | None = None
-    for i, src in enumerate(neighbours):
-        for dst in neighbours[i + 1:]:
-            paths = nx.node_connectivity(pruned, src, dst) if src in pruned and dst in pruned else 0
-            best = paths if best is None else min(best, paths)
-    return best or 0
+    articulation = articulation if articulation is not None else set(nx.articulation_points(undirected))
+    return 0 if node in articulation else _REDUNDANCY_FLOOR
 
 
 def classify(graph: nx.DiGraph) -> list[HubBottleneckVerdict]:
     """Label every degree>=2 node HUB or BOTTLENECK, ranked by betweenness (desc)."""
     scores = betweenness(graph)
+    undirected = graph.to_undirected()
+    articulation = set(nx.articulation_points(undirected))
     verdicts = []
     for node in graph.nodes:
         degree = graph.degree(node)
         if degree < 2:
             continue
-        bypass = alternative_paths(graph, node)
+        bypass = alternative_paths(graph, node, undirected=undirected, articulation=articulation)
         verdict = "BOTTLENECK" if bypass == 0 else "HUB"
         rationale = (
             f"degree={degree}, betweenness={scores[node]:.3f}, bypass_paths={bypass} -> {verdict}"
