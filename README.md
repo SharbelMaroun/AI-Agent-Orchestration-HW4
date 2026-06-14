@@ -39,8 +39,8 @@ This writes to your per-machine `~/.claude/` (a `SKILL.md`, its `references/`, a
 
 ## Report
 
-What was actually done on branch `Sharbel` (commits `ef5e993` → `f359c08`,
-2026-06-12/13), including the real failures hit along the way. Everything below is
+What was actually done on branch `Sharbel` (commits `ef5e993` → `7ad35d0`,
+2026-06-12..14), including the real failures hit along the way. Everything below is
 reproducible from the repo.
 
 ### Timeline of work
@@ -55,15 +55,21 @@ reproducible from the repo.
 | `6b1b8d1` | **Phase 5 — Obsidian vault & navigation** (48/50; 5.002 + 5.046 blocked) | layout, frontmatter, wikilinks, hot.md/index.md/wiki pages, append-only log, raw ingest, orphan/broken-link validation, deterministic builder, `archlens vault` CLI + GraphAgent |
 | `77658a0` | **Graphify correction — real CLI + adapter, run for real** | rebuilt the wrapper to real `graphify update`/`extract`, added a node-link adapter, ran on httpie (2033 nodes / 4306 edges / 138 communities), built + validated a real vault |
 | `f359c08` | Pin prerequisite `graphifyy==0.8.39` | reproducible external-tool version |
+| `743a383` | **Phase 6 — Graph analysis engine** (55/55) | centrality, community detection (COMMUNITY≠FOLDER), bridges, critical paths/SPOF, edge triage + confidence policy, review queue, duplicates, macro/meso/micro views + query/path/explain/diff |
+| `8b9ad6b` | **Phase 7 — Reverse-engineering deliverables** (44/45) | architecture block diagram, OOP class schema (AST→classDiagram), PRD↔code alignment audit, traceability + evidence-ladder linter, deliverable generators + CLI |
+| `d93a776` | **Phase 8 — SDK layer & core architecture** (49/50) | constants/exceptions, frozen DTOs + serde, gatekeeper protocol, SDK orchestration facade (analyze/run_loop/measure_tokens), plugin registry, thin CLI subcommands, DRY + thread-safety audits |
+| `41efe45` | **Phase 10 — Multi-agent orchestration (LangGraph)** (55/55) | AgentState + per-key reducers, supervisor + conditional routing, 7 agent nodes, compiled StateGraph, SqliteSaver checkpointing + resume, guardrail tiers + human-approval interrupt, per-node retries, run trace, 7 prompt templates |
+| `4f6be68` | **Phase 11 — Improvement loop & stop conditions** (49/50) | fix priority policy + evidence gate + queue, iteration brancher + revert rollback, refactor fixes (split/bottleneck/duplicate/SPOF), test gate→rollback, graph-diff metrics + load-shift SC-1, StopConditionEvaluator (5 SCs + 5-iter cap), LoopController subgraph + `--loop` CLI + E2E convergence |
+| `7ad35d0` | **Phase 9 — API gatekeeper & rate limiting** (49/50) | sliding-window limiters (30/min, 500/hr), concurrency semaphore, retry policy, FIFO overflow queue + blocking backpressure, drain loop, structured call log + key redaction, token-ledger hooks, Anthropic client + offline mock mode, `execute()` facade (saturation / never-reject / thread-safety) |
 
-Task ledger after Phase 5 + the Graphify correction: **228 DONE · 7 IN_PROGRESS · 14 BLOCKED · 521 TODO** of 770. (BLOCKED = lecturer-approval gates plus 5.046, which needs the Obsidian GUI.)
+Task ledger after Phases 1–11 (the skipped Phase 9 now also complete): **528 DONE · 6 IN_PROGRESS · 14 BLOCKED · 222 TODO** of 770. (BLOCKED = lecturer-approval gates plus 5.046, which needs the Obsidian GUI. The remaining TODO are Phases 12–16.)
 
 ### Quality-gate evidence (final state)
 
 ```text
 $ uv run pytest --cov=archlens --cov-branch
-177 passed in 1.70s
-Required test coverage of 85.0% reached. Total coverage: 96.33%
+649 passed in 6.12s
+Required test coverage of 85.0% reached. Total coverage: 97.11%
 
 $ uv run ruff check .
 All checks passed!
@@ -86,6 +92,23 @@ All seven mermaid diagrams are machine-verified (mermaid-cli exit 0) and rendere
 | ![Improvement-loop sequence](docs/diagrams/plan_05.svg) | ![Supervisor state machine](docs/diagrams/plan_06.svg) |
 
 ![Deployment diagram](docs/diagrams/plan_07.svg)
+
+### Analysis of a real graph (httpie — 2033 nodes / 4306 edges / 138 communities)
+
+Generated from the real `runs/eval/httpie/graphify-out/graph.json` by
+`uv run python scripts/visualize_graph.py` (structural `graphify update` pass, no LLM):
+
+| | |
+|---|---|
+| ![Top 15 hubs by degree](docs/diagrams/analysis_hubs.png) | ![Top 20 communities by size](docs/diagrams/analysis_communities.png) |
+| ![Node file-type mix](docs/diagrams/analysis_filetypes.png) | ![Top-hub neighbourhood subgraph](docs/diagrams/analysis_subgraph.png) |
+
+The hub chart surfaces httpie's real architecture: `http()` dominates at degree ~343 — a
+genuine god-node / single-point-of-failure candidate — followed by `Environment`,
+`MockEnvironment`, and `ExitStatus`. This is exactly the signal the AnalystAgent and
+BugHunterAgent consume to drive the improvement loop. (An interactive `graph.html` exists
+alongside the JSON; rendering it to a static screenshot needs a browser/GUI — see "Not yet
+captured" below — so these matplotlib charts are the headless-reproducible substitute.)
 
 ### Errors actually encountered (and what they taught)
 
@@ -160,11 +183,15 @@ the system temp directory. Full honest log trail: `docs/REPO_SELECTION.md` §3.
 
 ### What is verifiable right now
 
-- `uv run pytest` — 177 tests across the repo module, the Graphify pipeline (models,
-  validating parser, node-link adapter, diff engine, orchestrator), and the Obsidian
-  vault generator (hot.md golden file, broken-link/orphan validation, deterministic
-  rebuild), plus a guard test proving no module outside `gatekeeper/` touches
-  subprocess/git.
+- `uv run pytest` — 649 tests across the repo module, the Graphify pipeline (models,
+  validating parser, node-link adapter, diff engine, orchestrator), the graph-analysis
+  engine, the Obsidian vault generator (hot.md golden file, broken-link/orphan validation,
+  deterministic rebuild), the LangGraph multi-agent orchestration (supervisor + 7 agents +
+  SqliteSaver checkpointing + human-approval interrupts), the improvement loop (fix
+  selection, graph-diff stop conditions, end-to-end convergence in ≤5 iterations), and the
+  rate-limited gatekeeper (sliding windows, FIFO never-reject queue, 50×20-thread safety) —
+  plus guard tests proving no module outside `gatekeeper/` touches subprocess/git or imports
+  an API client.
 - A **real Graphify run** on the httpie clone (`graphify update`, no LLM): 2033 nodes,
   4306 edges, 138 communities → ArchLens built a 138-page Obsidian vault that passes
   validation (0 broken links, 0 orphans). See the correction note below.
@@ -177,10 +204,12 @@ the system temp directory. Full honest log trail: `docs/REPO_SELECTION.md` §3.
 ### Not yet captured
 
 Real `graph.json` / `graph.html` / `GRAPH_REPORT.md` now exist (httpie, under the
-git-ignored `runs/`), and a real Obsidian vault was generated and validated. Still open:
-`graph.html`/vault **screenshots** (need a GUI), the **semantic** `graphify extract` pass
-(needs an LLM API key), and the **token-economics** before/after tables (Phase 12, via
-`graphify benchmark`).
+git-ignored `runs/`), a real Obsidian vault was generated and validated, and the real graph
+is now charted in the **Analysis** section above (hubs, communities, file-type mix, subgraph).
+Still open: interactive `graph.html` / Obsidian-vault **screenshots** (this environment has no
+headless browser, so vis.js can't be rendered here — the matplotlib charts are the substitute);
+the **semantic** `graphify extract` pass (needs an LLM API key); and the **token-economics**
+before/after tables (Phase 12).
 
 ### Correction (2026-06-13): Graphify integration rebuilt against the real CLI, then run for real
 

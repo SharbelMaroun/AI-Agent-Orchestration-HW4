@@ -45,6 +45,7 @@ show_missing = true
 
 [dependency-groups]
 dev = [
+    "matplotlib>=3.10.9",
     "pre-commit>=4.6.0",
     "pytest>=9.0.3",
     "pytest-cov>=7.1.0",
