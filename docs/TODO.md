@@ -759,8 +759,8 @@ Version: 1.00 | Status: Living document | Course: AI Agent Orchestration — HW4
 - [x] 14.041 Execute the assisted (after) measurement run and generate the before/after comparison table | **Status:** DONE | **DoD:** metrics/knowledge_assisted.json exists and the comparison table shows a delta for each of the 4 metrics.
 - [x] 14.042 Implement the iterate cycle in src/archlens/metrics/knowledge_iterate.py (score -> select weakest metric -> apply targeted wiki/skill correction -> re-measure, journaled to log.md, stopping when all metrics meet target or after 3 cycles) | **Status:** DONE | **DoD:** Cycle unit tests pass including both stop conditions.
 - [x] 14.043 Execute at least one correction iteration on the live vault and verify the outcome | **Status:** DONE | **DoD:** Re-measured weakest metric strictly improves (or a written rationale is journaled) and log.md contains the full cycle entry.
-- [ ] 14.044 Verify Ruff compliance and the 150-line limit across all Phase 14 modules and tests | **Status:** TODO | **DoD:** `uv run ruff check src/archlens/vault src/archlens/metrics tests` exits 0 and the line-count check reports 0 files over 150 code lines.
-- [ ] 14.045 Verify the full knowledge-asset validation suite and the global coverage gate after Phase 14 integration | **Status:** TODO | **DoD:** `uv run pytest --cov` passes with fail_under=85 and zero failing knowledge-asset tests.
+- [x] 14.044 Verify Ruff compliance and the 150-line limit across all Phase 14 modules and tests | **Status:** DONE | **DoD:** `uv run ruff check src/archlens/vault src/archlens/metrics tests` exits 0 and the line-count check reports 0 files over 150 code lines.
+- [x] 14.045 Verify the full knowledge-asset validation suite and the global coverage gate after Phase 14 integration | **Status:** DONE | **DoD:** `uv run pytest --cov` passes with fail_under=85 and zero failing knowledge-asset tests.
 
 ## Phase 15 — Research, Visualization & Sensitivity Analysis
 
