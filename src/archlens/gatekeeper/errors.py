@@ -11,6 +11,9 @@ __all__ = [
     "GatekeeperError",
     "ConfigVersionError",
     "UpstreamAPIError",
+    "RateLimitedError",
+    "ServerError",
+    "UpstreamTimeoutError",
     "RetryExhaustedSignal",
     "QueueSaturationSignal",
 ]
@@ -22,6 +25,18 @@ class GatekeeperError(Exception):
 
 class UpstreamAPIError(GatekeeperError):
     """The upstream API returned an error (429 / 5xx / timeout) mapped from the client."""
+
+
+class RateLimitedError(UpstreamAPIError):
+    """The upstream API returned 429 — transient, retried then queued."""
+
+
+class ServerError(UpstreamAPIError):
+    """The upstream API returned 5xx — transient, retried then queued."""
+
+
+class UpstreamTimeoutError(UpstreamAPIError):
+    """The upstream request timed out — transient, retried then queued."""
 
 
 class RetryExhaustedSignal(GatekeeperError):  # noqa: N818 — internal signal, name fixed by spec
