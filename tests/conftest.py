@@ -14,6 +14,7 @@ CONFIG_DIR = PROJECT_ROOT / "config"
 FIXTURES = Path(__file__).resolve().parent / "fixtures"
 
 collect_ignore_glob = ["fixtures/*"]
+pytest_plugins = ["phase13.fixtures.plugins"]
 
 
 @pytest.fixture()
