@@ -14,6 +14,7 @@ Version: 1.00 | Status: Draft — awaiting lecturer approval | Course: AI Agent 
 | Owner components | `src/archlens/metrics/` (MetricsAgent), `src/archlens/gatekeeper/gatekeeper.py` |
 | Sources | Lecture 07 §11; Part A (reality check / amortization); Part B (knowledge-quality metrics, 5.1x report); Part C (graph diff metrics); Submission Guidelines V3 §11 (Table 4 cost analysis) |
 | Approval gate | Per Guidelines V3 workflow: PRD approved first; ALL docs approved before development starts |
+| Change log | 1.00 — initial draft. Mechanism-team review 2026-06-14: version header confirmed; FR catalogue confirmed (FR-TM-01..10, exceeds the 5-ID bar) plus NFR-TM-01..02; savings formula confirmed verbatim (`savings_pct = 100 × (T_baseline − T_assisted) / T_baseline`), with amortization and break-even formulas; ledger model and ≥70% target confirmed specified. **0 open findings.** |
 
 ---
 

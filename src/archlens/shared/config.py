@@ -16,6 +16,8 @@ from ..shared.constants import (
     DELIVERABLES_DIR,
     DUPLICATE_SIMILARITY_THRESHOLD,
     MAX_LOOP_ITERATIONS,
+    MAX_WIKI_PAGES_PER_QUESTION,
+    SAVINGS_TARGET_PCT,
     SETUP_FILE,
 )
 from ..shared.version import VERSION
@@ -103,6 +105,41 @@ class ImprovementLoopBlock(BaseModel):
     branch_prefix: str = "fix/iter"
 
 
+class MetricsBlock(BaseModel):
+    """Phase 12 token-measurement settings (output paths, savings target, retrieval cap)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    output_dir: str = "metrics/out"
+    baseline_ledger: str = "baseline_ledger.jsonl"
+    assisted_ledger: str = "assisted_ledger.jsonl"
+    metrics_json: str = "token_metrics.json"
+    savings_target_pct: float = SAVINGS_TARGET_PCT
+    max_wiki_pages: int = MAX_WIKI_PAGES_PER_QUESTION
+    default_model: str = "claude-opus-4-8"
+
+
+class ModelPricing(BaseModel):
+    """Per-million-token USD pricing for one model (Phase 12, task 12.011)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    input_per_mtok: float
+    output_per_mtok: float
+
+
+class KnowledgeAssetsBlock(BaseModel):
+    """Phase 14 knowledge-asset settings (vault raw/wiki dirs, skills, eval task set, metrics out)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    raw_dir: str = "raw"
+    wiki_dir: str = "wiki"
+    skills_dir: str = "skills"
+    eval_task_set: str = "config/eval_tasks.json"
+    metrics_output: str = "metrics/out"
+
+
 class SetupConfig(BaseModel):
     """Typed view of config/setup.json; unknown keys are rejected."""
 
@@ -120,6 +157,9 @@ class SetupConfig(BaseModel):
     deliverables: DeliverablesBlock = Field(default_factory=DeliverablesBlock)
     sdk: SdkBlock = Field(default_factory=SdkBlock)
     improvement_loop: ImprovementLoopBlock = Field(default_factory=ImprovementLoopBlock)
+    metrics: MetricsBlock = Field(default_factory=MetricsBlock)
+    pricing: dict[str, ModelPricing] = Field(default_factory=dict)
+    knowledge_assets: KnowledgeAssetsBlock = Field(default_factory=KnowledgeAssetsBlock)
 
 
 def _read_json(path: Path) -> dict:

@@ -14,5 +14,9 @@
   "queue": {
     "max_depth": 100,
     "backpressure_warn_ratio": 0.8
+  },
+  "budget": {
+    "token_budget": 2000000,
+    "alert_ratio": 0.8
   }
 }

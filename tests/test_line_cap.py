@@ -33,3 +33,9 @@ def test_151_effective_lines_fail(tmp_path: Path):
     )
     over = mod.scan([tmp_path])
     assert [(p.name, n) for p, n in over] == [("bad.py", 151)]
+
+
+def test_real_src_and_tests_within_cap():
+    mod = _load_checker()
+    root = Path(__file__).resolve().parents[1]
+    assert mod.scan([root / "src", root / "tests"]) == []

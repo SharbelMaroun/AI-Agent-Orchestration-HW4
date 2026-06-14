@@ -1,5 +1,6 @@
 """Shared fixtures: temp config copies, environment stubs, git fixture factory."""
 
+import json
 import shutil
 import socket
 import subprocess
@@ -13,6 +14,7 @@ CONFIG_DIR = PROJECT_ROOT / "config"
 FIXTURES = Path(__file__).resolve().parent / "fixtures"
 
 collect_ignore_glob = ["fixtures/*"]
+pytest_plugins = ["phase13.fixtures.plugins"]
 
 
 @pytest.fixture()
@@ -142,3 +144,61 @@ def blocked_sockets(monkeypatch):
 
     monkeypatch.setattr(socket.socket, "connect", _blocked)
     return True
+
+
+@pytest.fixture()
+def fake_clock():
+    """A deterministic FakeClock for gatekeeper window/retry/drain tests (task 9.007)."""
+    from archlens.gatekeeper.clock import FakeClock
+
+    return FakeClock()
+
+
+@pytest.fixture()
+def rate_config_factory(tmp_path):
+    """Write a temp rate_limits.json with overridable version/limits; return its path."""
+    def _make(version="1.00", **overrides):
+        default = {"requests_per_minute": 30, "requests_per_hour": 500, "concurrent_max": 5,
+                   "retry_after_seconds": 30, "max_retries": 3}
+        default.update({k: v for k, v in overrides.items() if k in default})
+        data = {"version": version, "rate_limits": {"services": {"default": default}},
+                "queue": {"max_depth": 100, "backpressure_warn_ratio": 0.8}}
+        path = tmp_path / "rate_limits.json"
+        path.write_text(json.dumps(data), encoding="utf-8")
+        return path
+
+    return _make
+
+
+@pytest.fixture()
+def synthetic_ledger():
+    """Factory for a synthetic Phase 12 TokenLedger with configurable entries (task 12.003)."""
+    from archlens.metrics.ledger import TokenLedger
+    from archlens.metrics.ledger_model import TokenLedgerEntry
+
+    def _make(n=10, agents=("RepoAgent", "GraphAgent", "AnalystAgent"),
+              models=("claude-opus-4-8", "claude-haiku-4-5"),
+              protocols=("baseline", "assisted")):
+        ledger = TokenLedger()
+        for i in range(n):
+            ledger.append(TokenLedgerEntry(
+                agent=agents[i % len(agents)], model=models[i % len(models)],
+                protocol=protocols[i % len(protocols)],
+                input_tokens=100 + i * 10, output_tokens=10 + i,
+                question_id=f"Q{i % 10 + 1:02d}"))
+        return ledger
+
+    return _make
+
+
+@pytest.fixture()
+def mock_anthropic():
+    """Factory for a deterministic Anthropic client double with canned token usage."""
+    def _make(text="canned response", in_tokens=10, out_tokens=5):
+        def create(model, messages, **kwargs):
+            usage = SimpleNamespace(input_tokens=in_tokens, output_tokens=out_tokens)
+            return SimpleNamespace(text=text, model=model, usage=usage)
+
+        return SimpleNamespace(create=create)
+
+    return _make

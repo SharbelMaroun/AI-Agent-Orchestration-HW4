@@ -7,6 +7,7 @@ CONFIG_DIR = Path("config")
 SETUP_FILE = CONFIG_DIR / "setup.json"
 RATE_LIMITS_FILE = CONFIG_DIR / "rate_limits.json"
 LOGGING_CONFIG_FILE = CONFIG_DIR / "logging_config.json"
+QUESTIONS_FILE = CONFIG_DIR / "questions.json"
 
 LINE_CAP = 150
 MAX_LOOP_ITERATIONS = 5
@@ -57,6 +58,40 @@ DTO_SCHEMA_VERSION = "1.00"
 CLI_SUBCOMMANDS = ("analyze", "vault", "loop", "tokens")
 PLUGIN_GROUP = "archlens.agent_plugins"
 EXCEPTION_CODE_PREFIX = "ARCHLENS"
+
+# Phase 14 knowledge-asset constants (Part B; SKILL.md, raw->wiki, 4-metric rubric)
+SKILLS_DIR = "skills"
+INDEX_FILE = INDEX_MD
+LOG_FILE = LOG_MD
+RUBRIC_MIN_SCORE = 0
+RUBRIC_MAX_SCORE = 10
+RUBRIC_METRICS = (
+    "source_traceability",
+    "noise_reduction",
+    "correct_file_identification",
+    "correct_tool_timing",
+)
+GUARDRAIL_LEVELS = ("auto", "reversible", "irreversible", "human_only")
+
+# Phase 12 token-measurement constants (PRD_token_metrics §3, §4)
+SAVINGS_TARGET_PCT = 70.0
+MAX_WIKI_PAGES_PER_QUESTION = 3
+STANDARD_QUESTION_COUNT = 10
+PROTOCOL_BASELINE = "baseline"
+PROTOCOL_ASSISTED = "assisted"
+
+# Phase 9 gatekeeper rate-limit config key names (PRD_api_gatekeeper §3.1 nested schema)
+VERSION_KEY = "version"
+SERVICE_LIMIT_KEYS = (
+    "requests_per_minute",
+    "requests_per_hour",
+    "concurrent_max",
+    "retry_after_seconds",
+    "max_retries",
+)
+QUEUE_KEYS = ("max_depth", "backpressure_warn_ratio")
+RATE_LIMITS_SCHEMA_KEYS = (VERSION_KEY, *SERVICE_LIMIT_KEYS, *QUEUE_KEYS)
+ENV_ANTHROPIC_KEY = "ANTHROPIC_API_KEY"
 
 
 class NodeType(str, Enum):

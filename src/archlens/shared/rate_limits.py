@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 from ..shared.config import _read_json, check_config_version
 from ..shared.constants import RATE_LIMITS_FILE
@@ -37,6 +37,15 @@ class QueueConfig(BaseModel):
     backpressure_warn_ratio: float
 
 
+class BudgetConfig(BaseModel):
+    """Token budget and alert threshold for gatekeeper budget warnings (task 12.036)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    token_budget: int = 0
+    alert_ratio: float = 0.8
+
+
 class RateLimitsConfig(BaseModel):
     """Typed view of config/rate_limits.json; unknown keys are rejected."""
 
@@ -45,6 +54,7 @@ class RateLimitsConfig(BaseModel):
     version: str
     rate_limits: RateLimitsBlock
     queue: QueueConfig
+    budget: BudgetConfig = Field(default_factory=BudgetConfig)
 
 
 def load_rate_limits(path: str | Path = RATE_LIMITS_FILE) -> RateLimitsConfig:

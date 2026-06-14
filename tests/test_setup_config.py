@@ -27,6 +27,12 @@ def test_target_and_fallback_blocks_carry_identical_key_sets(setup_json: Path):
     assert set(data["fallback_repo"]) == REPO_KEYS
 
 
+def test_knowledge_assets_block_present_and_non_empty(setup_json: Path):
+    ka = load_setup(setup_json).knowledge_assets
+    for value in (ka.raw_dir, ka.wiki_dir, ka.skills_dir, ka.eval_task_set, ka.metrics_output):
+        assert value
+
+
 def test_missing_file_raises(tmp_path: Path):
     with pytest.raises(FileNotFoundError):
         load_setup(tmp_path / "does_not_exist.json")
