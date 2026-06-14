@@ -118,6 +118,15 @@ class MetricsBlock(BaseModel):
     max_wiki_pages: int = MAX_WIKI_PAGES_PER_QUESTION
 
 
+class ModelPricing(BaseModel):
+    """Per-million-token USD pricing for one model (Phase 12, task 12.011)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    input_per_mtok: float
+    output_per_mtok: float
+
+
 class SetupConfig(BaseModel):
     """Typed view of config/setup.json; unknown keys are rejected."""
 
@@ -136,6 +145,7 @@ class SetupConfig(BaseModel):
     sdk: SdkBlock = Field(default_factory=SdkBlock)
     improvement_loop: ImprovementLoopBlock = Field(default_factory=ImprovementLoopBlock)
     metrics: MetricsBlock = Field(default_factory=MetricsBlock)
+    pricing: dict[str, ModelPricing] = Field(default_factory=dict)
 
 
 def _read_json(path: Path) -> dict:
