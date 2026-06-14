@@ -45,6 +45,7 @@ class ArchLensSDK(GraphAnalysisMixin, DeliverablesMixin, OrchestrationMixin):
         return self._gatekeeper
 
     def version(self) -> str:
+        """Return the ArchLens version string."""
         return get_version()
 
     def clone_target_repo(self, run_id: str, use_fallback: bool = False) -> Path:
