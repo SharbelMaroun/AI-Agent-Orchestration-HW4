@@ -84,3 +84,22 @@ class ArchLensSDK(GraphAnalysisMixin, DeliverablesMixin):
         """
         graph = graph_source if isinstance(graph_source, Graph) else load_graphify_graph(graph_source)
         return _build_vault(graph, self._config().vault, raw_sources)
+
+    def validate_config(self, setup_path: str = "config/setup.json",
+                        rate_limits_path: str = "config/rate_limits.json",
+                        env_example: str = ".env-example") -> bool:
+        """Validate the config files; raise ConfigError naming the offending file on any error."""
+        from archlens.shared.exceptions import ConfigError
+        from archlens.shared.rate_limits import load_rate_limits
+
+        try:
+            load_setup(setup_path)
+        except Exception as exc:
+            raise ConfigError(f"setup.json: {exc}", source_context="config/setup.json") from exc
+        try:
+            load_rate_limits(rate_limits_path)
+        except Exception as exc:
+            raise ConfigError(f"rate_limits.json: {exc}", source_context="config/rate_limits.json") from exc
+        if not Path(env_example).is_file():
+            raise ConfigError(".env-example missing", source_context=".env-example")
+        return True
