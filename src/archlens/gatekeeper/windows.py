@@ -37,6 +37,11 @@ class SlidingWindowCounter:
         self._evict(self._clock.now())
         return len(self._events)
 
+    @property
+    def window_seconds(self) -> float:
+        """The trailing window length in seconds (used by the drain loop to wait out saturation)."""
+        return self._window
+
 
 def minute_window(limits, clock) -> SlidingWindowCounter:
     """Per-minute window sized from limits.requests_per_minute."""
