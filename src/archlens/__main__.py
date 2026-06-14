@@ -3,6 +3,7 @@
 import argparse
 
 from .sdk.sdk import ArchLensSDK
+from .shared.dotenv import load_dotenv
 
 _EXAMPLES = """Examples:
   uv run python src/main.py --version
@@ -35,6 +36,7 @@ def _build_parser() -> argparse.ArgumentParser:
 
 
 def main(argv: list[str] | None = None, sdk=None) -> int:
+    load_dotenv()  # read .env so a pasted API key enables live LLM mode without extra flags
     args = _build_parser().parse_args(argv)
     sdk = sdk or ArchLensSDK()
     if args.version:
