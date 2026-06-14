@@ -1,0 +1,15 @@
+{
+  "version": "1.00",
+  "tasks": [
+    {"id": "E01", "question": "Which module is the central god node?", "ground_truth_files": ["core/client.py"], "expected_claims": 3, "expected_tools": ["read_index", "read_wiki", "graph_query"], "context_tokens": 120000},
+    {"id": "E02", "question": "Which component is a single point of failure?", "ground_truth_files": ["auth/session.py"], "expected_claims": 2, "expected_tools": ["read_index", "read_hot", "graph_query"], "context_tokens": 118000},
+    {"id": "E03", "question": "What are the main communities?", "ground_truth_files": ["cli/__init__.py", "core/client.py"], "expected_claims": 4, "expected_tools": ["read_index", "read_wiki"], "context_tokens": 125000},
+    {"id": "E04", "question": "Which module is the worst bottleneck?", "ground_truth_files": ["core/request.py"], "expected_claims": 2, "expected_tools": ["read_index", "graph_query"], "context_tokens": 121000},
+    {"id": "E05", "question": "Which modules bridge communities?", "ground_truth_files": ["plugins/registry.py"], "expected_claims": 3, "expected_tools": ["read_index", "read_wiki", "graph_query"], "context_tokens": 119000},
+    {"id": "E06", "question": "Which modules are isolated?", "ground_truth_files": ["utils/compat.py"], "expected_claims": 1, "expected_tools": ["read_index", "graph_query"], "context_tokens": 117000},
+    {"id": "E07", "question": "Are there dependency cycles?", "ground_truth_files": ["core/client.py", "core/request.py"], "expected_claims": 2, "expected_tools": ["read_index", "graph_query"], "context_tokens": 123000},
+    {"id": "E08", "question": "Which modules have the highest fan-in?", "ground_truth_files": ["core/models.py"], "expected_claims": 3, "expected_tools": ["read_index", "read_wiki", "graph_query"], "context_tokens": 122000},
+    {"id": "E09", "question": "What is the overall layering?", "ground_truth_files": ["cli/__init__.py", "core/client.py", "core/models.py"], "expected_claims": 4, "expected_tools": ["read_index", "read_wiki"], "context_tokens": 126000},
+    {"id": "E10", "question": "Which files are most critical to tests?", "ground_truth_files": ["tests/test_client.py"], "expected_claims": 2, "expected_tools": ["read_index", "read_wiki", "graph_query"], "context_tokens": 120000}
+  ]
+}

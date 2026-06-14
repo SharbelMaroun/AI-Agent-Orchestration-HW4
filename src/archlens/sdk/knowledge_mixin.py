@@ -40,3 +40,10 @@ class KnowledgeMixin:
         build_index(root / "index.md", topics)
         append_log(log_path, "index", "build", f"{len(topics)} topics")
         return root
+
+    def run_knowledge_eval(self, assisted: bool, tasks_path=None) -> dict:
+        """Run the 4-metric knowledge eval in baseline or assisted mode; return the result doc."""
+        from ..metrics.knowledge_eval import load_tasks, run_eval
+
+        path = tasks_path if tasks_path is not None else self._config().knowledge_assets.eval_task_set
+        return run_eval(load_tasks(path), assisted)
