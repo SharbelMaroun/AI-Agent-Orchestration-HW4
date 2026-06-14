@@ -16,22 +16,33 @@ def _build_parser() -> argparse.ArgumentParser:
     deliv.add_argument("--src", default="src", help="target source root for the class schema")
     deliv.add_argument("--prd", default="docs/PRD.md", help="PRD markdown for the alignment audit")
     deliv.add_argument("--out", default=None, help="output directory (defaults to config)")
+    sub.add_parser("analyze", help="run Repo->Graph->Analyst and print the analysis report")
+    sub.add_parser("loop", help="run the improvement loop and print the result")
+    sub.add_parser("tokens", help="print the token-savings report")
     return parser
 
 
-def main(argv: list[str] | None = None) -> int:
+def main(argv: list[str] | None = None, sdk=None) -> int:
     args = _build_parser().parse_args(argv)
+    sdk = sdk or ArchLensSDK()
     if args.version:
-        print(ArchLensSDK().version())
+        print(sdk.version())
         return 0
     if args.command == "vault":
-        layout = ArchLensSDK().build_vault(args.graph)
-        print(layout.root)
+        print(sdk.build_vault(args.graph).root)
         return 0
     if args.command == "deliverables":
-        paths = ArchLensSDK().generate_deliverables(args.graph, args.src, args.prd, args.out)
-        for path in paths:
+        for path in sdk.generate_deliverables(args.graph, args.src, args.prd, args.out):
             print(path)
+        return 0
+    if args.command == "analyze":
+        print(sdk.analyze())
+        return 0
+    if args.command == "loop":
+        print(sdk.run_loop())
+        return 0
+    if args.command == "tokens":
+        print(sdk.measure_tokens())
         return 0
     _build_parser().print_help()
     return 0
