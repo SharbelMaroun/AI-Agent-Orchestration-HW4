@@ -36,6 +36,13 @@ def test_metrics_gatekeeper_is_constructed():
     assert isinstance(ArchLensSDK()._metrics_gatekeeper(), Gatekeeper)
 
 
+def test_metrics_gatekeeper_live_builds_real_mode_gatekeeper():
+    """Expected: live=True yields a real-API-mode gatekeeper (no network until a call is made)."""
+    from archlens.gatekeeper.gatekeeper import Gatekeeper
+    gk = ArchLensSDK()._metrics_gatekeeper(live=True)
+    assert isinstance(gk, Gatekeeper)
+
+
 def test_export_token_metrics_writes_and_returns(tmp_path, fake_vault_fs):
     """Expected: export_token_metrics writes the json file and returns the full schema dict."""
     sdk = ArchLensSDK()

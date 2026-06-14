@@ -383,6 +383,32 @@ All behaviour is config-driven (no hardcoded values). The three config files and
 | `handlers.console`, `handlers.file` | `class`, `level`, `formatter`, (`filename`, `delay`) | console + file handlers |
 | `loggers.archlens` | `level`, `handlers`, `propagate` | the `archlens` logger config |
 
+## LLM modes (live API vs offline mock)
+
+Every LLM call routes through the gatekeeper, which picks its client automatically:
+
+| `ARCHLENS_LLM_MODE` | Behaviour |
+| --- | --- |
+| `auto` (default) | **Live** Anthropic API when a credential resolves, else the offline mock |
+| `live` | Always the real API (errors if no credential) |
+| `mock` | Always the offline mock (deterministic, no network) |
+
+A credential is any of `ANTHROPIC_API_KEY`, `ANTHROPIC_AUTH_TOKEN`, or an `ant auth login` profile —
+the official `anthropic` SDK resolves it; no key is ever read or stored directly in the code. So:
+
+```bash
+# Live: set a key (or `ant auth login`) and run — the gatekeeper uses the real API automatically
+export ANTHROPIC_API_KEY=sk-ant-...        # PowerShell: $env:ANTHROPIC_API_KEY="sk-ant-..."
+uv run python src/main.py analyze          # agents now call the real Claude API
+
+# Force offline (no network, canned responses with estimated token counts)
+ARCHLENS_LLM_MODE=mock uv run python src/main.py analyze
+```
+
+The measurement protocols accept `live=True` (`sdk.run_baseline(..., live=True)`); note the naive
+baseline sends ~148k tokens per question, so a full live baseline run costs real tokens. The tests
+always run in `mock` mode (pinned by an autouse fixture) so the suite stays offline and free.
+
 ## Token economics
 
 Measured on the real httpie checkout (133 `.py` files), 10 standard architecture questions:

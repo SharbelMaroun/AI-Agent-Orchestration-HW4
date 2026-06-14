@@ -23,9 +23,10 @@ class Gatekeeper:
     """Loads rate-limit policy at construction; all external calls route through here."""
 
     def __init__(self, config: RateLimitsConfig | None = None, executor=None,
-                 usage_ledger: TokenLedger | None = None) -> None:
+                 usage_ledger: TokenLedger | None = None, mode: str | None = None) -> None:
         self._config = config if config is not None else load_rate_limits()
         self._executor = executor
+        self._mode = mode
         self.usage_ledger = usage_ledger if usage_ledger is not None else TokenLedger()
         self.budget_alerts: list[dict] = []
 
@@ -42,9 +43,9 @@ class Gatekeeper:
     def _build_executor(self):
         from .clock import SystemClock
         from .executor import RateLimitedExecutor
-        from .mock_client import MockAnthropicClient
+        from .llm_client import select_llm_client
 
-        return RateLimitedExecutor(MockAnthropicClient(), SystemClock(), self._config)
+        return RateLimitedExecutor(select_llm_client(self._mode), SystemClock(), self._config)
 
     def execute(self, model, messages, *, agent: str = "orchestrator",
                 protocol: str = PROTOCOL_BASELINE, question_id: str = "", **kwargs):
