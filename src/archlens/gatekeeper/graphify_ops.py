@@ -2,7 +2,7 @@
 
 import subprocess
 
-from archlens.graphops.errors import GraphifyNotFoundError, GraphifyStageError
+from ..graphops.errors import GraphifyNotFoundError, GraphifyStageError
 
 
 def run_command(argv: list[str], label: str, timeout_s: int) -> str:

@@ -6,7 +6,7 @@ so a normalized Graphify node round-trips without loss.
 
 from pydantic import BaseModel, ConfigDict
 
-from archlens.shared.constants import NodeType
+from ...shared.constants import NodeType
 
 
 class Node(BaseModel):

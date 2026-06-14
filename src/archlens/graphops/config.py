@@ -5,8 +5,8 @@ from pathlib import Path
 
 from pydantic import BaseModel, ConfigDict, field_validator
 
-from archlens.graphops.errors import TokenBudgetExceededError
-from archlens.shared.constants import ANALYSIS_DEPTHS, GRAPHIFY_STAGES, SETUP_FILE
+from ..graphops.errors import TokenBudgetExceededError
+from ..shared.constants import ANALYSIS_DEPTHS, GRAPHIFY_STAGES, SETUP_FILE
 
 _SEMANTIC_DEPTHS = ("semantic", "full")
 

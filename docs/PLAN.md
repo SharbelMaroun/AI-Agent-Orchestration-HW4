@@ -13,7 +13,7 @@ Version: 1.00 | Status: Draft — awaiting lecturer approval | Course: AI Agent 
 | Owner | HW4 submission team |
 | Source references | Lecture 07 §11 (EX04 tasks), Part A (token-economics reality check), Part B (knowledge assets, guardrails), Part C p21 (diff metrics / stop conditions), Software Submission Guidelines V3 |
 | Related docs | `docs/PRD.md`, `docs/PRD_agent_orchestration.md`, `docs/PRD_api_gatekeeper.md`, `docs/PRD_graph_pipeline.md`, `docs/PRD_improvement_loop.md`, `docs/PRD_token_metrics.md`, `docs/TODO.md`, `docs/PROMPT_BOOK.md` |
-| Change log | 1.00 — initial draft |
+| Change log | 1.00 — initial draft. Phase 8 review: §3 SDK-facade architecture (facade requirements + Level-2 mermaid component diagram) reviewed and confirmed against the implemented mixin facade; ADR-003 expanded to cover facade pattern, gatekeeper dependency injection, and the plugin registry, with a Status field; §3.4 plugin authoring contract added. |
 
 **Approval gate (Guidelines V3):** this PLAN can be approved only AFTER `docs/PRD.md` is approved, and ALL docs (PRD, PLAN, TODO, specialized PRDs, PROMPT_BOOK) must be approved before any development starts. TDD red-green-refactor begins only after that gate.
 
@@ -114,6 +114,26 @@ flowchart TB
 ```
 
 Workers never call each other; handoffs are state deltas routed by the Supervisor (PRD_agent_orchestration FR-AO-05). Responsibilities: RepoAgent (clone/validate, uv env), GraphAgent (Graphify pipeline + vault), AnalystAgent (degree/betweenness centrality, community detection, hub-vs-bottleneck, bridges, edge triage EXTRACTED/INFERRED/AMBIGUOUS with confidence 0.55–0.95), BugHunterAgent (evidence ladder OBSERVED → INFERRED → EXTRACTED → VALIDATED; every claim cites relation → confidence → source_file), RefactorAgent (split > 150-line modules, break bottlenecks, merge duplicates ≥ 0.91 — irreversible ⇒ human approval), QAAgent (`uv run pytest` coverage ≥ 85, `uv run ruff` 0), MetricsAgent (token ledger, cost tables, Part C p21 diff verdicts).
+
+### 3.4 Plugin authoring contract (extension point)
+
+New agents extend the system through the registry in `src/archlens/sdk/plugins.py` — the single `AgentPlugin` extension point.
+
+- **Interface.** A plugin is a node factory `make_<name>_node(sdk)` returning a callable `node(state) -> state-delta` (the same contract as the built-in agents); all I/O goes through the injected `sdk`.
+- **Lifecycle.** `register_agent_plugin(name, factory)` registers a plugin once; duplicate names raise `ValueError`. Registration is thread-safe (lock-guarded).
+- **Allowlist behaviour.** When `config/setup.json → sdk.plugin_allowlist` is non-empty, only listed names are registered; others are silently skipped (filtered out, never raised), so production deployments pin their plugin set.
+
+```python
+# AgentPlugin skeleton
+def make_security_node(sdk):
+    """Plugin node: delegate all logic to the SDK; return a state delta."""
+    def security_node(state: dict) -> dict:
+        findings = sdk.scan_secrets(state["graph_snapshot"]["graph_json"])
+        return {"findings": findings}
+    return security_node
+
+registry.register_agent_plugin("security", make_security_node)  # honours the allowlist
+```
 
 ---
 
@@ -389,10 +409,11 @@ Every code file (tests included) respects the 150-code-line cap (blank/comment l
 **Decision.** uv exclusively: `uv sync` for envs, `uv run` for every execution (`uv run pytest`, `uv run ruff check`), `pyproject.toml` + committed `uv.lock` as the single dependency source; no `requirements.txt` anywhere.
 **Consequences.** + Reproducible env, machine-checkable compliance, fast installs. − Contributors must install uv first; documented in README. Any pip mention in docs is a graded violation, so docs are linted by grep in CI.
 
-### ADR-003 — SDK single entry point
-**Context.** Guidelines V3: ALL business logic only via the SDK; the CLI must be thin.
-**Decision.** `src/archlens/sdk/sdk.py` exposes the complete public surface (§4 class diagram). CLI and agent nodes contain zero business logic; agents are prompt+contract shells delegating to SDK methods.
-**Consequences.** + One seam to mock in tests; import-boundary test (`agents/`/`main.py` may not import `graphops/`, `vault/`, `metrics/` directly) enforces it. − SDK facade risks exceeding 150 lines; it delegates to internal modules and keeps only dispatch.
+### ADR-003 — SDK single entry point (facade, gatekeeper DI, plugin registry)
+**Status.** Accepted (Phase 8).
+**Context.** Guidelines V3: ALL business logic only via the SDK; the CLI must be thin. Three coupled decisions: the facade pattern, how the gatekeeper is supplied to agents, and how agents are extended.
+**Decision.** (1) **Facade** — `src/archlens/sdk/sdk.py` exposes the complete public surface (§4 class diagram); CLI and agent nodes contain zero business logic. To honour the 150-line cap the facade is split into mixins (`analysis_mixin`, `deliverables_mixin`, `orchestration_mixin`). (2) **Gatekeeper dependency injection** — the SDK builds exactly one gatekeeper and injects it (via itself) into each agent node factory `make_<agent>_node(sdk)`; no module-level client instantiation. (3) **Plugin registry** — new agents register through `sdk/plugins.py` (`register_agent_plugin`, duplicate rejection, config allowlist filtering).
+**Consequences.** + One seam to mock in tests; import-boundary test (`agents/`/`main.py` may not import `graphops/`, `vault/`, `metrics/` directly) enforces it; one gatekeeper, so rate limits and the token ledger are centralized. − SDK facade risks exceeding 150 lines; mitigated by mixins that keep `sdk.py` to dispatch only.
 
 ### ADR-004 — Gatekeeper FIFO queue, never reject
 **Context.** Rate limits (30 req/min, 500 req/hr, 5 concurrent) with retry_after 30 s and max_retries 3; the system must never crash or reject on overflow.

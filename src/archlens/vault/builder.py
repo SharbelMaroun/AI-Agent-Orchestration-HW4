@@ -1,13 +1,13 @@
 """VaultBuilder — orchestrates every generator behind build_vault (tasks 5.037-5.040)."""
 
-from archlens.graphops.parser import Graph
-from archlens.vault.community_pages import write_community_pages
-from archlens.vault.config import VaultConfig
-from archlens.vault.hot_page import render_hot
-from archlens.vault.index_page import render_index
-from archlens.vault.layout import VaultLayout
-from archlens.vault.log_journal import append_entry
-from archlens.vault.raw_ingest import ingest_raw
+from ..graphops.parser import Graph
+from ..vault.community_pages import write_community_pages
+from ..vault.config import VaultConfig
+from ..vault.hot_page import render_hot
+from ..vault.index_page import render_index
+from ..vault.layout import VaultLayout
+from ..vault.log_journal import append_entry
+from ..vault.raw_ingest import ingest_raw
 
 
 def build_vault(graph: Graph, cfg: VaultConfig, raw_sources: list | None = None) -> VaultLayout:

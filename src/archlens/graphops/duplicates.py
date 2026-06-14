@@ -2,10 +2,10 @@
 
 import networkx as nx
 
-from archlens.graphops.dto import Citation, DuplicatePair, ReviewItem
-from archlens.graphops.review_queue import ReviewQueue
-from archlens.graphops.thresholds import thresholds
-from archlens.shared.constants import Relation
+from ..graphops.dto import Citation, DuplicatePair, ReviewItem
+from ..graphops.review_queue import ReviewQueue
+from ..graphops.thresholds import thresholds
+from ..shared.constants import Relation
 
 
 def find_duplicates(graph: nx.DiGraph, cfg: dict | None = None) -> list[DuplicatePair]:

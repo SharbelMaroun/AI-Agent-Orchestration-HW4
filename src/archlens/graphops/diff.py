@@ -2,7 +2,7 @@
 
 from pydantic import BaseModel, ConfigDict
 
-from archlens.graphops.parser import Graph
+from ..graphops.parser import Graph
 
 
 class GraphDiff(BaseModel):

@@ -2,7 +2,7 @@
 
 import re
 
-from archlens.graphops.block_model import BlockModel
+from ..graphops.block_model import BlockModel
 
 
 def _node_id(name: str) -> str:

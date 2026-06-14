@@ -6,7 +6,7 @@ Graphify writes its artifacts (graph.json, graph.html, GRAPH_REPORT.md) to <repo
 
 from pathlib import Path
 
-from archlens.graphops.config import GraphifyConfig
+from ..graphops.config import GraphifyConfig
 
 
 def build_argv(cfg: GraphifyConfig, command: str, repo_path: Path) -> list[str]:

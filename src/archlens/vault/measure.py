@@ -2,8 +2,8 @@
 
 from pathlib import Path
 
-from archlens.graphops.parser import Graph
-from archlens.vault.config import VaultConfig
+from ..graphops.parser import Graph
+from ..vault.config import VaultConfig
 
 
 def knowledge_asset_metrics(graph: Graph, cfg: VaultConfig) -> dict[str, tuple]:

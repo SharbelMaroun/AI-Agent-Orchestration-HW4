@@ -7,8 +7,8 @@ import subprocess
 import time
 from pathlib import Path
 
-from archlens.shared.config import RepoBlock
-from archlens.shared.errors import (
+from ..shared.config import RepoBlock
+from ..shared.errors import (
     CloneAuthError,
     CloneNetworkError,
     CloneTimeoutError,
@@ -16,7 +16,7 @@ from archlens.shared.errors import (
     RepoError,
     RetryExhaustedError,
 )
-from archlens.shared.rate_limits import ServiceLimits
+from ..shared.rate_limits import ServiceLimits
 
 _AUTH_MARKERS = ("authentication", "permission denied", "403", "could not read username")
 _DISK_MARKERS = ("no space left", "disk full")

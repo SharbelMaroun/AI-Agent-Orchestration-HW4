@@ -8,12 +8,12 @@ as well as our own canonical `from`/`to` schema used by the test fixtures.
 import json
 from pathlib import Path
 
-from archlens.graphops.models.community import Community
-from archlens.graphops.models.edge import Edge
-from archlens.graphops.models.hyperedge import Hyperedge
-from archlens.graphops.models.node import Node
-from archlens.graphops.parser import Graph
-from archlens.shared.constants import (
+from ..graphops.models.community import Community
+from ..graphops.models.edge import Edge
+from ..graphops.models.hyperedge import Hyperedge
+from ..graphops.models.node import Node
+from ..graphops.parser import Graph
+from ..shared.constants import (
     CONFIDENCE_MAX,
     CONFIDENCE_MIN,
     EXTRACTED_CONFIDENCE,

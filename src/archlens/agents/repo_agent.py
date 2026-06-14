@@ -2,8 +2,8 @@
 
 import logging
 
-from archlens.shared.constants import LOGGER_NAME
-from archlens.shared.errors import RepoError
+from ..shared.constants import LOGGER_NAME
+from ..shared.errors import RepoError
 
 logger = logging.getLogger(f"{LOGGER_NAME}.repo_agent")
 
@@ -36,3 +36,15 @@ def make_repo_agent(sdk):
         return outcome
 
     return repo_agent
+
+
+def make_repo_node(sdk):
+    """Orchestration node: clone+validate via the SDK and write a target_repo payload (10.014)."""
+
+    def repo_node(state: dict) -> dict:
+        run_id = state.get("run_id", "run")
+        path = sdk.clone_target_repo(run_id)
+        result = sdk.validate_repo(path)
+        return {"target_repo": {"local_path": str(path), "validated": bool(result.passed)}}
+
+    return repo_node

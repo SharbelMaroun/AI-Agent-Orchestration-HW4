@@ -2,9 +2,9 @@
 
 import networkx as nx
 
-from archlens.graphops.communities import detect_communities
-from archlens.graphops.dto import Citation, DiffReport
-from archlens.graphops.graph_metrics import inter_community_edge_count
+from ..graphops.communities import detect_communities
+from ..graphops.dto import Citation, DiffReport
+from ..graphops.graph_metrics import inter_community_edge_count
 
 
 def _matches(data: dict, filters: dict) -> bool:

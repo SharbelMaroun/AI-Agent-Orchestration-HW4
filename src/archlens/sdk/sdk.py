@@ -6,25 +6,26 @@ groups live in mixins (analysis_mixin, deliverables_mixin) to honour the 150-lin
 
 from pathlib import Path
 
-from archlens.graphops.adapter import load_graphify_graph
-from archlens.graphops.cli_wrapper import GraphifyCLI
-from archlens.graphops.diff import GraphDiff, compute_diff
-from archlens.graphops.layout import RunLayout, new_run_id
-from archlens.graphops.manifest import Manifest, save_manifest
-from archlens.graphops.orchestrator import run_pipeline
-from archlens.graphops.parser import Graph, parse_graph
-from archlens.sdk.analysis_mixin import GraphAnalysisMixin
-from archlens.sdk.deliverables_mixin import DeliverablesMixin
-from archlens.sdk.repo_config import select_repo
-from archlens.sdk.sandbox import SandboxManager
-from archlens.sdk.validation import ValidationResult, validate_repo
-from archlens.shared.config import SetupConfig, load_setup
-from archlens.shared.version import get_version
-from archlens.vault.builder import build_vault as _build_vault
-from archlens.vault.layout import VaultLayout
+from ..graphops.adapter import load_graphify_graph
+from ..graphops.cli_wrapper import GraphifyCLI
+from ..graphops.diff import GraphDiff, compute_diff
+from ..graphops.layout import RunLayout, new_run_id
+from ..graphops.manifest import Manifest, save_manifest
+from ..graphops.orchestrator import run_pipeline
+from ..graphops.parser import Graph, parse_graph
+from ..sdk.analysis_mixin import GraphAnalysisMixin
+from ..sdk.deliverables_mixin import DeliverablesMixin
+from ..sdk.orchestration_mixin import OrchestrationMixin
+from ..sdk.repo_config import select_repo
+from ..sdk.sandbox import SandboxManager
+from ..sdk.validation import ValidationResult, validate_repo
+from ..shared.config import SetupConfig, load_setup
+from ..shared.version import get_version
+from ..vault.builder import build_vault as _build_vault
+from ..vault.layout import VaultLayout
 
 
-class ArchLensSDK(GraphAnalysisMixin, DeliverablesMixin):
+class ArchLensSDK(GraphAnalysisMixin, DeliverablesMixin, OrchestrationMixin):
     """Facade over all ArchLens capabilities; phase method groups are added via mixins."""
 
     def __init__(self, setup: SetupConfig | None = None, gatekeeper=None) -> None:
@@ -38,12 +39,13 @@ class ArchLensSDK(GraphAnalysisMixin, DeliverablesMixin):
 
     def _gk(self):
         if self._gatekeeper is None:
-            from archlens.gatekeeper.gatekeeper import Gatekeeper
+            from ..gatekeeper.gatekeeper import Gatekeeper
 
             self._gatekeeper = Gatekeeper()
         return self._gatekeeper
 
     def version(self) -> str:
+        """Return the ArchLens version string."""
         return get_version()
 
     def clone_target_repo(self, run_id: str, use_fallback: bool = False) -> Path:
@@ -84,3 +86,26 @@ class ArchLensSDK(GraphAnalysisMixin, DeliverablesMixin):
         """
         graph = graph_source if isinstance(graph_source, Graph) else load_graphify_graph(graph_source)
         return _build_vault(graph, self._config().vault, raw_sources)
+
+    def validate_config(self, setup_path: str = "config/setup.json",
+                        rate_limits_path: str = "config/rate_limits.json",
+                        env_example: str = ".env-example") -> bool:
+        """Validate the config files; raise ConfigError naming the offending file on any error."""
+        from ..shared.exceptions import ConfigError
+        from ..shared.rate_limits import load_rate_limits
+
+        try:
+            load_setup(setup_path)
+        except Exception as exc:
+            raise ConfigError(f"setup.json: {exc}", source_context="config/setup.json") from exc
+        try:
+            load_rate_limits(rate_limits_path)
+        except Exception as exc:
+            raise ConfigError(f"rate_limits.json: {exc}", source_context="config/rate_limits.json") from exc
+        if not Path(env_example).is_file():
+            raise ConfigError(".env-example missing", source_context=".env-example")
+        return True
+
+    def token_usage(self) -> dict:
+        """Token usage records for MetricsAgent (gatekeeper-aggregated; zeros until a run)."""
+        return {"baseline": 0, "assisted": 0, "rows": []}

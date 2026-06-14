@@ -1,7 +1,7 @@
 """Render extracted classes and relations as a fenced mermaid classDiagram (task 7.016)."""
 
-from archlens.graphops.class_extractor import ClassInfo
-from archlens.graphops.class_relations import ClassRelation
+from ..graphops.class_extractor import ClassInfo
+from ..graphops.class_relations import ClassRelation
 
 _ARROW = {"inheritance": "<|--", "composition": "*--"}
 

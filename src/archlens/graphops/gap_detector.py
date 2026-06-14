@@ -2,8 +2,8 @@
 
 from dataclasses import dataclass
 
-from archlens.graphops.req_matcher import Match, keywords
-from archlens.graphops.req_parser import Requirement
+from ..graphops.req_matcher import Match, keywords
+from ..graphops.req_parser import Requirement
 
 
 @dataclass(frozen=True)

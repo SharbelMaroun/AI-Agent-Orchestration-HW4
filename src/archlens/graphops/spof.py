@@ -2,8 +2,8 @@
 
 import networkx as nx
 
-from archlens.graphops.dto import Citation, SpofFinding
-from archlens.shared.constants import CriticalRelation
+from ..graphops.dto import Citation, SpofFinding
+from ..shared.constants import CriticalRelation
 
 _CRITICAL = frozenset(relation.value for relation in CriticalRelation)
 

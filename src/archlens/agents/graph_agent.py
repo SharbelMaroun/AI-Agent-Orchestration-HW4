@@ -2,7 +2,7 @@
 
 import logging
 
-from archlens.shared.constants import LOGGER_NAME
+from ..shared.constants import LOGGER_NAME
 
 logger = logging.getLogger(f"{LOGGER_NAME}.graph_agent")
 
@@ -21,3 +21,23 @@ def make_graph_agent(sdk):
         }
 
     return graph_agent
+
+
+def make_graph_node(sdk):
+    """Orchestration node: run Graphify via the SDK and store a graph_snapshot (10.016)."""
+
+    def graph_node(state: dict) -> dict:
+        repo = state["target_repo"]["local_path"]
+        result = sdk.run_graphify_pipeline(repo)
+        previous = state.get("graph_snapshot") or {}
+        return {"graph_snapshot": {
+            "graph_json": getattr(result, "graph_json", "graph.json"),
+            "node_count": getattr(result, "node_count", 0),
+            "edge_count": getattr(result, "edge_count", 0),
+            "report_md": getattr(result, "report_md", "REPORT.md"),
+            "snapshot_id": previous.get("snapshot_id", 0) + 1,
+            "post_fix": bool(state.get("findings")),
+            "diff": getattr(result, "diff", {}),
+        }}
+
+    return graph_node

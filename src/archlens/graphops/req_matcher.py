@@ -5,8 +5,8 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 
-from archlens.graphops.req_parser import Requirement
-from archlens.shared.config import load_setup
+from ..graphops.req_parser import Requirement
+from ..shared.config import load_setup
 
 _STOP = {
     "the", "and", "for", "with", "that", "this", "from", "into", "every",

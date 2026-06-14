@@ -1,8 +1,8 @@
 """index.md hub generator — read-first banner + curated next reads (tasks 5.021-5.022, PRD §7.2)."""
 
-from archlens.graphops.parser import Graph
-from archlens.vault.config import VaultConfig
-from archlens.vault.wikilinks import render_link
+from ..graphops.parser import Graph
+from ..vault.config import VaultConfig
+from ..vault.wikilinks import render_link
 
 
 def render_index(graph: Graph, cfg: VaultConfig, project: str = "archlens-target") -> str:

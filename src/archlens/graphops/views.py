@@ -2,9 +2,9 @@
 
 import networkx as nx
 
-from archlens.graphops.bridges import community_connectors
-from archlens.graphops.centrality import degree_centrality
-from archlens.graphops.dto import Citation, CommunitySummary, MacroView, Neighborhood
+from ..graphops.bridges import community_connectors
+from ..graphops.centrality import degree_centrality
+from ..graphops.dto import Citation, CommunitySummary, MacroView, Neighborhood
 
 
 def macro_view(graph: nx.DiGraph) -> MacroView:

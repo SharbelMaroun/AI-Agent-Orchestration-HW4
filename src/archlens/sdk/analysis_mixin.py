@@ -3,17 +3,17 @@
 The mixin delegates to graphops modules so external callers never import graphops directly.
 """
 
-from archlens.graphops import commands as _commands
-from archlens.graphops.bridges import bridge_report
-from archlens.graphops.centrality import degree_centrality
-from archlens.graphops.classify import classify
-from archlens.graphops.communities import community_folder_mismatches, detect_communities
-from archlens.graphops.duplicates import route_duplicates_to_review
-from archlens.graphops.graph_metrics import modularity
-from archlens.graphops.loader import load_graph
-from archlens.graphops.spof import critical_paths, spof_detect
-from archlens.graphops.triage import triage_edges
-from archlens.graphops.views import macro_view, meso_view, micro_view
+from ..graphops import commands as _commands
+from ..graphops.bridges import bridge_report
+from ..graphops.centrality import degree_centrality
+from ..graphops.classify import classify
+from ..graphops.communities import community_folder_mismatches, detect_communities
+from ..graphops.duplicates import route_duplicates_to_review
+from ..graphops.graph_metrics import modularity
+from ..graphops.loader import load_graph
+from ..graphops.spof import critical_paths, spof_detect
+from ..graphops.triage import triage_edges
+from ..graphops.views import macro_view, meso_view, micro_view
 
 
 class GraphAnalysisMixin:

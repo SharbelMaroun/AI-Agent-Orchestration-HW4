@@ -5,7 +5,7 @@ import time
 from dataclasses import dataclass
 from pathlib import Path
 
-from archlens.shared.constants import GRAPH_HTML, GRAPH_JSON, MANIFEST_JSON, REPORT_MD
+from ..shared.constants import GRAPH_HTML, GRAPH_JSON, MANIFEST_JSON, REPORT_MD
 
 _counter = itertools.count()
 

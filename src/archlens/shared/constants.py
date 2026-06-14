@@ -48,6 +48,12 @@ CLASS_SCHEMA_MD = "CLASS_SCHEMA.md"
 ALIGNMENT_AUDIT_MD = "ALIGNMENT_AUDIT.md"
 EVIDENCE_TAGS = ("OBSERVED", "INFERRED", "EXTRACTED", "VALIDATED")
 
+# Phase 8 SDK-layer constants
+DTO_SCHEMA_VERSION = "1.00"
+CLI_SUBCOMMANDS = ("analyze", "vault", "loop", "tokens")
+PLUGIN_GROUP = "archlens.agent_plugins"
+EXCEPTION_CODE_PREFIX = "ARCHLENS"
+
 
 class NodeType(str, Enum):
     """graph.json node kinds (PRD_graph_pipeline §4.1)."""

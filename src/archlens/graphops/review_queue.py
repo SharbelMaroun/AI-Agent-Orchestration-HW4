@@ -5,9 +5,9 @@ from pathlib import Path
 
 import networkx as nx
 
-from archlens.graphops.dto import Citation, ReviewItem
-from archlens.graphops.thresholds import thresholds
-from archlens.shared.constants import EvidenceType
+from ..graphops.dto import Citation, ReviewItem
+from ..graphops.thresholds import thresholds
+from ..shared.constants import EvidenceType
 
 
 class ReviewQueue:

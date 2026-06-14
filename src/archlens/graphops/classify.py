@@ -2,8 +2,8 @@
 
 import networkx as nx
 
-from archlens.graphops.centrality import betweenness
-from archlens.graphops.dto import HubBottleneckVerdict
+from ..graphops.centrality import betweenness
+from ..graphops.dto import HubBottleneckVerdict
 
 
 def alternative_paths(graph: nx.DiGraph, node: str) -> int:

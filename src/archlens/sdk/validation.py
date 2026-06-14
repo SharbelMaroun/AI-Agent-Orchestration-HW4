@@ -3,7 +3,7 @@
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from archlens.shared.config import ValidationBlock
+from ..shared.config import ValidationBlock
 
 LICENSE_MARKERS = ("MIT", "Apache", "BSD", "GPL", "MPL", "ISC", "Unlicense")
 LICENSE_FILENAMES = ("LICENSE", "LICENSE.txt", "LICENSE.md", "COPYING")
