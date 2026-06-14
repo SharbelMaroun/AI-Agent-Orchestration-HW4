@@ -107,3 +107,39 @@ class CriticalRelation(str, Enum):
     VALIDATES = "validates"
     WRITES_SESSION = "writes_session"
     CHECKS_POLICY = "checks_policy"
+
+
+class FixPriority(str, Enum):
+    """Fix-priority taxonomy P1-P5 (PRD_improvement_loop §4, ADR-010); sorts by value."""
+
+    P1 = "P1"
+    P2 = "P2"
+    P3 = "P3"
+    P4 = "P4"
+    P5 = "P5"
+
+
+class EvidenceLevel(str, Enum):
+    """The four-rung evidence ladder of rising certainty (Part C p6)."""
+
+    OBSERVED = "OBSERVED"
+    INFERRED = "INFERRED"
+    EXTRACTED = "EXTRACTED"
+    VALIDATED = "VALIDATED"
+
+
+class StopCondition(str, Enum):
+    """The five Part C p21 stop conditions (PRD_improvement_loop §6)."""
+
+    DEPENDENCIES_LOST = "SC-1"
+    MODULARITY_IMPROVED = "SC-2"
+    NO_NEW_ISOLATES = "SC-3"
+    TESTS_GREEN = "SC-4"
+    RUFF_ZERO = "SC-5"
+
+
+class LoopVerdict(str, Enum):
+    """StopConditionEvaluator outcome (PRD_improvement_loop §6, task 11.042)."""
+
+    CONTINUE = "CONTINUE"
+    STOP = "STOP"

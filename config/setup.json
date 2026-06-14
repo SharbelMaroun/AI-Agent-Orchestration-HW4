@@ -55,5 +55,11 @@
     "plugin_allowlist": [],
     "vault_output_root": "runs/vault",
     "checkpoint_db": "runs/checkpoints.sqlite"
+  },
+  "improvement_loop": {
+    "max_iterations": 5,
+    "priority_order": ["P1", "P2", "P3", "P4", "P5"],
+    "allowed_evidence_levels": ["EXTRACTED", "VALIDATED"],
+    "branch_prefix": "fix/iter"
   }
 }
