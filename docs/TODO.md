@@ -610,7 +610,7 @@ Version: 1.00 | Status: Living document | Course: AI Agent Orchestration — HW4
 
 ## Phase 12 — Token Measurement & Cost Analysis
 
-- [ ] 12.001 Mechanism-team review of docs/PRD_token_metrics.md (ledger model, savings formula, >= 70% target, amortization, FR-xx/NFR-xx ids, house-style header) | **Status:** TODO | **DoD:** Review findings recorded in the PRD_token_metrics.md change log with 0 open findings; version header, at least 5 FR ids, and the savings formula confirmed verbatim
+- [x] 12.001 Mechanism-team review of docs/PRD_token_metrics.md (ledger model, savings formula, >= 70% target, amortization, FR-xx/NFR-xx ids, house-style header) | **Status:** DONE | **DoD:** Review findings recorded in the PRD_token_metrics.md change log with 0 open findings; version header, at least 5 FR ids, and the savings formula confirmed verbatim
 - [ ] 12.002 Obtain lecturer approval for docs/PRD_token_metrics.md before Phase 12 implementation starts | **Status:** BLOCKED | **DoD:** Doc header status changed from "Draft — awaiting lecturer approval" to "Approved" with approval date
 - [x] 12.003 Create synthetic-ledger fixture factory in tests/conftest.py generating configurable TokenLedger entries (agent, model, protocol, in/out tokens) | **Status:** DONE | **DoD:** uv run pytest tests/test_fixture_smoke.py passes asserting a 10-entry synthetic ledger is produced
 - [x] 12.004 Write failing unit tests for TokenLedgerEntry and TokenLedger (field validation, append, totals, filter by agent/model/protocol/question_id) in tests/test_ledger.py | **Status:** DONE | **DoD:** uv run pytest tests/test_ledger.py exits non-zero (red) before implementation
