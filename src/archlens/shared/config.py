@@ -140,6 +140,21 @@ class KnowledgeAssetsBlock(BaseModel):
     metrics_output: str = "metrics/out"
 
 
+class SensitivityBlock(BaseModel):
+    """Phase 15 OAT sensitivity ranges, baseline values, and repeat-run count."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    run_count: int = 3
+    analysis_depth: list[str] = Field(default_factory=lambda: ["structural", "semantic"])
+    top_k_pages: list[int] = Field(default_factory=lambda: [1, 2, 3, 4, 5])
+    rate_limit_rpm: list[int] = Field(default_factory=lambda: [10, 30, 60])
+    similarity_threshold: list[float] = Field(default_factory=lambda: [0.85, 0.88, 0.91, 0.94])
+    baseline: dict = Field(default_factory=lambda: {
+        "analysis_depth": "structural", "top_k_pages": 3,
+        "rate_limit_rpm": 30, "similarity_threshold": 0.91})
+
+
 class SetupConfig(BaseModel):
     """Typed view of config/setup.json; unknown keys are rejected."""
 
@@ -160,6 +175,7 @@ class SetupConfig(BaseModel):
     metrics: MetricsBlock = Field(default_factory=MetricsBlock)
     pricing: dict[str, ModelPricing] = Field(default_factory=dict)
     knowledge_assets: KnowledgeAssetsBlock = Field(default_factory=KnowledgeAssetsBlock)
+    sensitivity: SensitivityBlock = Field(default_factory=SensitivityBlock)
 
 
 def _read_json(path: Path) -> dict:

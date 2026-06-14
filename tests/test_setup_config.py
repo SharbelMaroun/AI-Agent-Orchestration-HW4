@@ -33,6 +33,13 @@ def test_knowledge_assets_block_present_and_non_empty(setup_json: Path):
         assert value
 
 
+def test_sensitivity_block_has_four_list_ranges_and_run_count(setup_json: Path):
+    sens = load_setup(setup_json).sensitivity
+    assert sens.run_count >= 3
+    for param in ("analysis_depth", "top_k_pages", "rate_limit_rpm", "similarity_threshold"):
+        assert isinstance(getattr(sens, param), list) and getattr(sens, param)
+
+
 def test_missing_file_raises(tmp_path: Path):
     with pytest.raises(FileNotFoundError):
         load_setup(tmp_path / "does_not_exist.json")
