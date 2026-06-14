@@ -6,9 +6,13 @@ client so recorded token counts reflect real context size.
 
 from pathlib import Path
 
+from ..metrics.amortization import compute_amortization
 from ..metrics.assisted_runner import AssistedRunner
 from ..metrics.baseline_runner import BaselineRunner
+from ..metrics.export import build_metrics, write_metrics_json
+from ..metrics.ledger_io import ledger_path
 from ..metrics.questions import Question, load_questions
+from ..metrics.savings import compute_savings
 
 
 class MetricsMixin:
@@ -47,3 +51,18 @@ class MetricsMixin:
         qs = questions if questions is not None else self.load_questions()
         gk = gatekeeper if gatekeeper is not None else self._metrics_gatekeeper()
         return AssistedRunner(gk, chosen_model, root, graph_json, cap).run(qs)
+
+    def export_token_metrics(self, baseline_ledger, assisted_ledger, graph_build_tokens: int,
+                             path=None) -> dict:
+        """Build and persist metrics/out/token_metrics.json; return the metrics document."""
+        cfg = self._config()
+        baseline_tokens, assisted_tokens = (baseline_ledger.total_tokens(),
+                                            assisted_ledger.total_tokens())
+        savings = compute_savings(baseline_tokens, assisted_tokens, cfg.metrics.savings_target_pct)
+        answered = len(assisted_ledger.entries)
+        per_query = (baseline_tokens - assisted_tokens) // answered if answered else 0
+        amortization = compute_amortization(graph_build_tokens, per_query)
+        metrics = build_metrics(baseline_ledger, assisted_ledger, savings, amortization, cfg)
+        target = Path(path) if path is not None else ledger_path(cfg.metrics.metrics_json)
+        write_metrics_json(metrics, target)
+        return metrics

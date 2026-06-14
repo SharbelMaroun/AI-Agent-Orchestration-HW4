@@ -8,6 +8,8 @@ from .baseline_context import build_baseline_context, collect_python_sources, es
 from .baseline_runner import BaselineRunner
 from .cost import entry_cost, ledger_cost
 from .cost_tables import render_cost_table, write_cost_table
+from .explanation import render_explanation, write_explanation_if_needed
+from .export import build_metrics, write_metrics_json
 from .ledger import TokenLedger
 from .ledger_io import LedgerCorruptionError, ledger_path, load_ledger, save_ledger
 from .ledger_model import TokenLedgerEntry
@@ -41,4 +43,8 @@ __all__ = [
     "compute_amortization",
     "render_cost_table",
     "write_cost_table",
+    "render_explanation",
+    "write_explanation_if_needed",
+    "build_metrics",
+    "write_metrics_json",
 ]
