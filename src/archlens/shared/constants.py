@@ -19,6 +19,10 @@ DEFAULT_CLONE_DEPTH = 1
 DEFAULT_TIMEOUT_S = 300
 DEFAULT_MAX_SIZE_MB = 200
 
+# Automated-commit identity for loop rollback/revert commits (Phase 11)
+GIT_BOT_NAME = "ArchLens Loop"
+GIT_BOT_EMAIL = "loop@archlens.local"
+
 # Graphify pipeline constants (Phase 4)
 GRAPH_JSON = "graph.json"
 GRAPH_HTML = "graph.html"

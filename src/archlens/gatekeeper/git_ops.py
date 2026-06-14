@@ -8,11 +8,13 @@ import time
 from pathlib import Path
 
 from ..shared.config import RepoBlock
+from ..shared.constants import GIT_BOT_EMAIL, GIT_BOT_NAME
 from ..shared.errors import (
     CloneAuthError,
     CloneNetworkError,
     CloneTimeoutError,
     DiskFullError,
+    GitCommandError,
     RepoError,
     RetryExhaustedError,
 )
@@ -20,6 +22,19 @@ from ..shared.rate_limits import ServiceLimits
 
 _AUTH_MARKERS = ("authentication", "permission denied", "403", "could not read username")
 _DISK_MARKERS = ("no space left", "disk full")
+_GIT_IDENT = ["-c", f"user.email={GIT_BOT_EMAIL}", "-c", f"user.name={GIT_BOT_NAME}"]
+
+
+def run_local_git(args: list[str], cwd: Path, timeout_s: int) -> str:
+    """Run a local (non-network) git command in cwd with a bot identity; return stdout."""
+    cmd = ["git", "-C", str(cwd), *_GIT_IDENT, *args]
+    try:
+        proc = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout_s)
+    except subprocess.TimeoutExpired as exc:
+        raise GitCommandError(f"git timed out after {timeout_s}s: {args[:2]}") from exc
+    if proc.returncode != 0:
+        raise GitCommandError(f"git {args[:2]} failed: {proc.stderr.strip() or proc.stdout.strip()}")
+    return proc.stdout
 
 
 def classify_git_failure(stderr: str) -> RepoError:
