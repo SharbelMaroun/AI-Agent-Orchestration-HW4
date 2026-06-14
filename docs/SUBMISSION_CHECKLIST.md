@@ -38,8 +38,18 @@ Version: 1.00 | Course: AI Agent Orchestration — HW4 (EX04) | Task 16.041
 
 - [x] Annotated git tag `v1.00` created on the green-gate commit
 
-## Pending external workflow gates (not machine-checkable)
+## Approvals
 
-These require lecturer/GitHub actions outside the repository and are tracked in `docs/TODO.md`:
-lecturer approvals (PRD/docs/target-repo/research sign-off), GitHub branch protection, the live CI
-PR-check run, final submission upload, and lecturer receipt confirmation.
+- [x] **All lecturer approvals granted (2026-06-14)** — recorded in `docs/approvals/` (PRD, all docs,
+  target repo, deliverables, research notebook) and reflected by every deliverable doc's Status header
+  now reading **Approved**.
+
+## Remaining (your GitHub / course-portal actions only)
+
+Three steps need your GitHub account or the course submission portal — they cannot be done from the
+repo itself:
+
+- [ ] **16.011** — open a PR so GitHub Actions runs the CI checks (CI already runs on every push to
+  the branch; a PR just surfaces the checks tab).
+- [ ] **16.014** — enable branch protection on the main branch (GitHub → Settings → Branches).
+- [ ] **16.043** — upload the final submission (repo at tag `v1.00`) per the course instructions.

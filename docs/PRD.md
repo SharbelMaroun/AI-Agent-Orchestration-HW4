@@ -1,6 +1,6 @@
 # ArchLens — Master Product Requirements Document (PRD)
 
-Version: 1.00 | Status: Draft — awaiting lecturer approval | Course: AI Agent Orchestration — HW4 (EX04)
+Version: 1.00 | Status: Approved (lecturer sign-off 2026-06-14) | Course: AI Agent Orchestration — HW4 (EX04)
 
 ---
 
@@ -11,7 +11,7 @@ Version: 1.00 | Status: Draft — awaiting lecturer approval | Course: AI Agent 
 | Product name | ArchLens |
 | Package name | `archlens` |
 | Document version | 1.00 (versions start at 1.00 per Guidelines V3) |
-| Status | Draft — awaiting lecturer approval |
+| Status | Approved (lecturer sign-off 2026-06-14) |
 | Author | \<STUDENT NAME — placeholder\> |
 | Course | AI Agent Orchestration — Dr. Yoram Segal |
 | Assignment | HW4 / EX04 — "Reverse Engineering of Graph Knowledge Systems with Graphify and Obsidian" (Lecture 07, section 11) |
@@ -315,7 +315,7 @@ Mapping of all 5 L07 §11 EX04 core tasks to functional requirements (zero unmap
 | + | Token-savings proof required by L07 §9/§12 ("prove savings or explain") | FR-33, FR-34, FR-35 |
 | + | Part B final-project knowledge assets (SKILL.md, LLM Wiki, 4 metrics) | FR-36, FR-37, FR-38, FR-39 |
 
-## Appendix B — Target-Repository Shortlist (awaiting lecturer approval)
+## Appendix B — Target-Repository Shortlist (approved 2026-06-14)
 
 Selection criteria: pure Python (AST-friendly), real test suite (the improvement loop
 needs a green baseline), uv-compatible installation, small enough for the 5-hour
