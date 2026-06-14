@@ -1,6 +1,10 @@
-"""TDD tests for SKILL.md schema validation (task 14.005)."""
+"""TDD tests for SKILL.md schema validation (tasks 14.005, 14.009, 14.013)."""
 
-from archlens.vault.skill_schema import parse_frontmatter, validate_skill_text
+from pathlib import Path
+
+from archlens.vault.skill_schema import parse_frontmatter, validate_skill, validate_skill_text
+
+SKILLS_DIR = Path(__file__).resolve().parents[1] / "skills"
 
 VALID = """---
 name: graph-reading
@@ -37,3 +41,13 @@ def test_parse_frontmatter_reads_lists_and_scalars():
     fields = parse_frontmatter(VALID)
     assert fields["name"] == "graph-reading"
     assert fields["allowed-tools"] == ["Read", "Grep", "Glob"]
+
+
+def test_shipped_skill_files_validate():
+    assert validate_skill(SKILLS_DIR / "SKILL_graph_reading.md") == []
+    assert validate_skill(SKILLS_DIR / "SKILL_refactor.md") == []
+
+
+def test_refactor_skill_sets_disable_model_invocation():
+    fields = parse_frontmatter((SKILLS_DIR / "SKILL_refactor.md").read_text(encoding="utf-8"))
+    assert fields.get("disable-model-invocation") is True

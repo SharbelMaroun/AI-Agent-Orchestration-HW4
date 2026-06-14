@@ -51,3 +51,19 @@ def test_classify_reads_from_disk(tmp_path):
     path = Path(tmp_path) / "SKILL_x.md"
     path.write_text(READONLY, encoding="utf-8")
     assert classify(path) == "auto"
+
+
+_SKILLS_DIR = Path(__file__).resolve().parents[1] / "skills"
+
+
+def test_graph_reading_skill_file_is_auto():
+    """Expected: the shipped SKILL_graph_reading.md classifies as auto / read-only (task 14.012)."""
+    assert classify(_SKILLS_DIR / "SKILL_graph_reading.md") == "auto"
+
+
+def test_refactor_skill_file_guardrails():
+    """Expected: SKILL_refactor.md is human-only with undo paths + approval markers (task 14.017)."""
+    text = (_SKILLS_DIR / "SKILL_refactor.md").read_text(encoding="utf-8")
+    assert classify_text(text) == "human_only"
+    assert reversible_steps_missing_undo(text) == []
+    assert irreversible_steps_missing_approval(text) == []
