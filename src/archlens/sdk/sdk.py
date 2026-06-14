@@ -15,6 +15,7 @@ from archlens.graphops.orchestrator import run_pipeline
 from archlens.graphops.parser import Graph, parse_graph
 from archlens.sdk.analysis_mixin import GraphAnalysisMixin
 from archlens.sdk.deliverables_mixin import DeliverablesMixin
+from archlens.sdk.orchestration_mixin import OrchestrationMixin
 from archlens.sdk.repo_config import select_repo
 from archlens.sdk.sandbox import SandboxManager
 from archlens.sdk.validation import ValidationResult, validate_repo
@@ -24,7 +25,7 @@ from archlens.vault.builder import build_vault as _build_vault
 from archlens.vault.layout import VaultLayout
 
 
-class ArchLensSDK(GraphAnalysisMixin, DeliverablesMixin):
+class ArchLensSDK(GraphAnalysisMixin, DeliverablesMixin, OrchestrationMixin):
     """Facade over all ArchLens capabilities; phase method groups are added via mixins."""
 
     def __init__(self, setup: SetupConfig | None = None, gatekeeper=None) -> None:
@@ -103,3 +104,7 @@ class ArchLensSDK(GraphAnalysisMixin, DeliverablesMixin):
         if not Path(env_example).is_file():
             raise ConfigError(".env-example missing", source_context=".env-example")
         return True
+
+    def token_usage(self) -> dict:
+        """Token usage records for MetricsAgent (gatekeeper-aggregated; zeros until a run)."""
+        return {"baseline": 0, "assisted": 0, "rows": []}
