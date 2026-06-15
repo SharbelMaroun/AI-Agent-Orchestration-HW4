@@ -1,6 +1,11 @@
 """Tests for LLM client selection — real API when a credential exists, else the offline mock."""
 
-from archlens.gatekeeper.llm_client import credential_available, resolve_mode, select_llm_client
+from archlens.gatekeeper.llm_client import (
+    credential_available,
+    resolve_mode,
+    resolve_provider,
+    select_llm_client,
+)
 from archlens.gatekeeper.mock_client import MockAnthropicClient
 
 
@@ -11,8 +16,40 @@ def test_mock_mode_returns_mock():
 def test_auto_without_credential_is_mock(monkeypatch):
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
     monkeypatch.delenv("ANTHROPIC_AUTH_TOKEN", raising=False)
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
     assert resolve_mode("auto") == "mock"
     assert isinstance(select_llm_client("auto"), MockAnthropicClient)
+
+
+def test_openai_key_is_a_credential(monkeypatch):
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    monkeypatch.delenv("ANTHROPIC_AUTH_TOKEN", raising=False)
+    monkeypatch.setenv("OPENAI_API_KEY", "sk-openai-real1234567890")
+    assert credential_available()
+    assert resolve_mode("auto") == "live"
+
+
+def test_openai_only_key_selects_openai_provider(monkeypatch):
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    monkeypatch.delenv("ANTHROPIC_AUTH_TOKEN", raising=False)
+    monkeypatch.delenv("ARCHLENS_LLM_PROVIDER", raising=False)
+    monkeypatch.setenv("OPENAI_API_KEY", "sk-openai-real1234567890")
+    assert resolve_provider() == "openai"
+    from archlens.gatekeeper.openai_client import OpenAIClient
+    assert isinstance(select_llm_client("live"), OpenAIClient)
+
+
+def test_anthropic_wins_on_tie(monkeypatch):
+    monkeypatch.delenv("ARCHLENS_LLM_PROVIDER", raising=False)
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-ant-real1234567890")
+    monkeypatch.setenv("OPENAI_API_KEY", "sk-openai-real1234567890")
+    assert resolve_provider() == "anthropic"
+
+
+def test_provider_env_override_forces_openai(monkeypatch):
+    monkeypatch.setenv("ARCHLENS_LLM_PROVIDER", "openai")
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-ant-real1234567890")
+    assert resolve_provider() == "openai"
 
 
 def test_real_key_makes_auto_go_live(monkeypatch):
