@@ -53,8 +53,8 @@ This writes to your per-machine `~/.claude/` (a `SKILL.md`, its `references/`, a
 
 ## Report
 
-What was actually done on branch `Sharbel` (commits `ef5e993` → `7ad35d0`,
-2026-06-12..14), including the real failures hit along the way. Everything below is
+What was actually done on branch `Sharbel` (commits `ef5e993` → `88c33d8`,
+2026-06-12..15), including the real failures hit along the way. Everything below is
 reproducible from the repo.
 
 ### Timeline of work
@@ -75,15 +75,21 @@ reproducible from the repo.
 | `41efe45` | **Phase 10 — Multi-agent orchestration (LangGraph)** (55/55) | AgentState + per-key reducers, supervisor + conditional routing, 7 agent nodes, compiled StateGraph, SqliteSaver checkpointing + resume, guardrail tiers + human-approval interrupt, per-node retries, run trace, 7 prompt templates |
 | `4f6be68` | **Phase 11 — Improvement loop & stop conditions** (49/50) | fix priority policy + evidence gate + queue, iteration brancher + revert rollback, refactor fixes (split/bottleneck/duplicate/SPOF), test gate→rollback, graph-diff metrics + load-shift SC-1, StopConditionEvaluator (5 SCs + 5-iter cap), LoopController subgraph + `--loop` CLI + E2E convergence |
 | `7ad35d0` | **Phase 9 — API gatekeeper & rate limiting** (49/50) | sliding-window limiters (30/min, 500/hr), concurrency semaphore, retry policy, FIFO overflow queue + blocking backpressure, drain loop, structured call log + key redaction, token-ledger hooks, Anthropic client + offline mock mode, `execute()` facade (saturation / never-reject / thread-safety) |
+| `…`→`209e0d4` | **Phases 12–15 — token economics, knowledge wiki, research** | baseline-vs-assisted token measurement (97.65% savings, cost tables), LLM raw→wiki→index→log + SKILL guardrails + 4 knowledge-quality metrics, research notebook + OAT sensitivity sweeps + charts |
+| `d75debe`→`ae9b40b` | **Phase 16 — packaging, CI, compliance** | gate scripts (line-cap + forbidden-tooling), CI workflow + CONTRIBUTING + PR template, README + LICENSE + screenshots, PROMPT_BOOK, Nielsen UX eval, Guidelines-V3 compliance sweep, annotated tag `v1.00`, live-LLM mode + `.env`, all approval gates closed |
+| `00e06ae`→`88c33d8` | **Ran it for real — 6 live-execution bug fixes (2026-06-15)** | loader node-link format, real graph.json path resolution, idempotent sandbox + Windows rmtree, O(V+E) hub/bottleneck classification, QAAgent quality gate — `analyze` and `loop` now complete end-to-end on a live httpie clone (see "Running the full pipeline live" below) |
 
-Task ledger after Phases 1–11 (the skipped Phase 9 now also complete): **528 DONE · 6 IN_PROGRESS · 14 BLOCKED · 222 TODO** of 770. (BLOCKED = lecturer-approval gates plus 5.046, which needs the Obsidian GUI. The remaining TODO are Phases 12–16.)
+Task ledger after Phases 1–16: **769 / 770 DONE** (the lone open task, `16.043`, is the course-portal
+upload, which only the submitter can do). All lecturer-approval gates were granted on 2026-06-14
+(`docs/approvals/`). The orchestration is then proven not just by the mocked suite but by real
+`analyze`/`loop` runs on a live clone.
 
 ### Quality-gate evidence (final state)
 
 ```text
 $ uv run pytest --cov=archlens --cov-branch
-649 passed in 6.12s
-Required test coverage of 85.0% reached. Total coverage: 97.11%
+851 passed in 15.41s
+Required test coverage of 85.0% reached. Total coverage: 97.33%
 
 $ uv run ruff check .
 All checks passed!
@@ -123,6 +129,62 @@ genuine god-node / single-point-of-failure candidate — followed by `Environmen
 BugHunterAgent consume to drive the improvement loop. (An interactive `graph.html` exists
 alongside the JSON; rendering it to a static screenshot needs a browser/GUI — see "Not yet
 captured" below — so these matplotlib charts are the headless-reproducible substitute.)
+
+### Running the full pipeline live (2026-06-15)
+
+Up to this point the multi-agent orchestration had been exercised only against *mocked* SDK
+fakes. We then ran it for real, end to end, on a freshly cloned + Graphify'd httpie — no mocks
+in the structural path. Both entry points now complete (delete `runs/checkpoints.sqlite` between
+fresh runs — LangGraph resumes a completed thread otherwise):
+
+```text
+$ uv run python src/main.py analyze
+AnalysisReport(node_count=2033, edge_count=4306, community_count=69,
+               hubs=(utils_init_http, httpie_context_environment, utils_init_mockenvironment,
+                     httpie_status_exitstatus, tests_test_httpie),
+               bottlenecks=(... 380 articulation points ...), spofs=())
+
+$ uv run python src/main.py loop
+LoopResult(iterations=5, stop_reason='hard_cap',
+           metric_diffs=(bottleneck_deps_lost=False, modularity_improved=False,
+                         no_new_isolates=True, tests_green=True, ruff_zero=True))
+```
+
+`analyze` drives Repo → Graph → Analyst; `loop` drives all seven agents through the improvement
+loop. On 2026-06-15 the loop was **plan-only** and stopped at the hard cap. Since then RefactorAgent
+has been wired to **apply a real fix** — for a bottleneck it inserts an interface **seam**
+(`sdk.apply_fix` → `RefactorFixes.break_bottleneck`) and rewires the dependents off it (package-aware
+imports) — GraphAgent computes a **real before/after diff**, and the loop reaches `stop_conditions_met`
+whenever an applied fix genuinely lowers inter-community edges and the tree still parses (proven by the
+integration + diff tests).
+
+**Honest finding on a real run.** On the live httpie clone the seam fix really applied — `context.py`
+got a `context_interface.py` seam and **26 dependent files were rewired onto it** — yet the loop still
+hit the cap: the *global* inter-community edge count went **+20** (one new seam node, 27 new edges),
+not down. A single localized refactor is tiny against a 4306-edge graph, and Graphify re-detects
+communities from scratch each run, so the strict "global inter-community edges strictly decreased"
+condition (SC-2) is essentially unreachable from one automated local change. The machinery is fully
+real and **does** converge when a fix genuinely improves the metric (the integration test proves it);
+reliable convergence on a large real repo needs either a coarser modularity-score metric or many
+coordinated edits — which is precisely why the lecturer pairs the loop with a 5-iteration cap and a
+human in the loop.
+
+**The six bugs the first live run surfaced.** Running against fakes had proven the wiring but not
+the execution; each gap below is a real defect that made the automation non-functional live, now
+fixed (commits `00e06ae`, `12bef7c`, `88c33d8`) with tests:
+
+| # | Bug | Fix |
+|---|---|---|
+| 1 | Loader ignored Graphify's real node-link output (`links`/`source`/`target`, string tiers) — 0 of 4306 edges loaded | normalize the native format in `graphops/loader.py` |
+| 2 | `graph_node` emitted the literal `"graph.json"` (the real Manifest lacks that attr) → AnalystAgent `FileNotFoundError` | resolve the real `<repo>/graphify-out/graph.json` path + node/edge counts |
+| 3 | Re-runs collided on the leftover clone directory (`destination ... already exists`) | idempotent `SandboxManager.fresh_target()` |
+| 4 | Windows `shutil.rmtree` failed on git's read-only pack files (`WinError 5`) | `onexc` handler clears the read-only bit and retries |
+| 5 | `classify` ran all-pairs node-connectivity max-flow per node → **hung indefinitely** on the degree-343 hub | exact O(V+E) articulation-points test (hang → 1.04s) |
+| 6 | `run_quality_gates()` existed only on the test fakes → `loop` crashed at QAAgent (`AttributeError`) | dependency-free AST-parse gate in `agents/quality_gates.py` |
+
+The lesson is the lecture's own: a green *mocked* suite proves the wiring, not the product. Only
+running the orchestration against a real clone exposed these — "the architect checks the product
+after it is completed, not while writing."
 
 ### Errors actually encountered (and what they taught)
 
@@ -197,7 +259,7 @@ the system temp directory. Full honest log trail: `docs/REPO_SELECTION.md` §3.
 
 ### What is verifiable right now
 
-- `uv run pytest` — 649 tests across the repo module, the Graphify pipeline (models,
+- `uv run pytest` — 851 tests across the repo module, the Graphify pipeline (models,
   validating parser, node-link adapter, diff engine, orchestrator), the graph-analysis
   engine, the Obsidian vault generator (hot.md golden file, broken-link/orphan validation,
   deterministic rebuild), the LangGraph multi-agent orchestration (supervisor + 7 agents +
@@ -206,6 +268,11 @@ the system temp directory. Full honest log trail: `docs/REPO_SELECTION.md` §3.
   rate-limited gatekeeper (sliding windows, FIFO never-reject queue, 50×20-thread safety) —
   plus guard tests proving no module outside `gatekeeper/` touches subprocess/git or imports
   an API client.
+- **The full pipeline run live, end to end, on a real clone** (no mocks in the structural
+  path): `uv run python src/main.py analyze` returns a real `AnalysisReport`
+  (2033 nodes / 4306 edges / 69 communities, real hubs + ~380 bottlenecks) and
+  `uv run python src/main.py loop` runs all seven agents to the 5-iteration hard cap with
+  4/5 stop conditions green. See "Running the full pipeline live" above.
 - A **real Graphify run** on the httpie clone (`graphify update`, no LLM): 2033 nodes,
   4306 edges, 138 communities → ArchLens built a 138-page Obsidian vault that passes
   validation (0 broken links, 0 orphans). See the correction note below.
@@ -217,13 +284,17 @@ the system temp directory. Full honest log trail: `docs/REPO_SELECTION.md` §3.
 
 ### Not yet captured
 
-Real `graph.json` / `graph.html` / `GRAPH_REPORT.md` now exist (httpie, under the
-git-ignored `runs/`), a real Obsidian vault was generated and validated, and the real graph
-is now charted in the **Analysis** section above (hubs, communities, file-type mix, subgraph).
-Still open: interactive `graph.html` / Obsidian-vault **screenshots** (this environment has no
-headless browser, so vis.js can't be rendered here — the matplotlib charts are the substitute);
-the **semantic** `graphify extract` pass (needs an LLM API key); and the **token-economics**
-before/after tables (Phase 12).
+Real `graph.json` / `graph.html` / `GRAPH_REPORT.md` exist (httpie, under the git-ignored
+`runs/`), a real Obsidian vault was generated and validated, the real graph is charted in the
+**Analysis** section above, the **token-economics** before/after tables are measured (97.65%
+savings — see the Token economics section), and the full `analyze`/`loop` pipeline now runs
+end-to-end on a live clone (above). Still open: interactive `graph.html` / Obsidian-vault
+**screenshots** (this environment has no headless browser, so vis.js can't be rendered here —
+the matplotlib charts are the substitute); the **semantic** `graphify extract` pass (needs an
+LLM API key). The applied, code-mutating refactor is now wired — RefactorAgent calls
+`sdk.apply_fix` and the loop reaches "stop conditions met" when the fix genuinely improves
+modularity — so the remaining gap is reliable convergence on arbitrary large repos (a smarter,
+behaviour-preserving transform than the current module split).
 
 ### Correction (2026-06-13): Graphify integration rebuilt against the real CLI, then run for real
 
@@ -383,29 +454,56 @@ All behaviour is config-driven (no hardcoded values). The three config files and
 | `handlers.console`, `handlers.file` | `class`, `level`, `formatter`, (`filename`, `delay`) | console + file handlers |
 | `loggers.archlens` | `level`, `handlers`, `propagate` | the `archlens` logger config |
 
-## LLM modes (live API vs offline mock)
+## LLM modes (provider-agnostic live API vs offline mock)
 
-Every LLM call routes through the gatekeeper, which picks its client automatically:
+Every LLM call routes through the gatekeeper, which is **provider-agnostic** — it picks a client by
+*mode* (live/mock) and *provider* (Anthropic/OpenAI). The same `create(model, messages)` interface
+backs all three, so nothing downstream cares which provider answered.
 
 | `ARCHLENS_LLM_MODE` | Behaviour |
 | --- | --- |
-| `auto` (default) | **Live** Anthropic API when a credential resolves, else the offline mock |
+| `auto` (default) | **Live** API when any credential resolves, else the offline mock |
 | `live` | Always the real API (errors if no credential) |
 | `mock` | Always the offline mock (deterministic, no network) |
 
-A credential is any of `ANTHROPIC_API_KEY`, `ANTHROPIC_AUTH_TOKEN`, or an `ant auth login` profile —
-the official `anthropic` SDK resolves it; no key is ever read or stored directly in the code. So:
+| `ARCHLENS_LLM_PROVIDER` | Provider chosen |
+| --- | --- |
+| `auto` (default) | OpenAI when `OPENAI_API_KEY` is the key present; Anthropic otherwise (wins ties) |
+| `anthropic` | Force the Anthropic client (`ANTHROPIC_API_KEY` / `ANTHROPIC_AUTH_TOKEN`) |
+| `openai` | Force the OpenAI client (`OPENAI_API_KEY`) |
+
+A credential is detected from the **environment** only — `ANTHROPIC_API_KEY` / `ANTHROPIC_AUTH_TOKEN`
+**or** `OPENAI_API_KEY` (a real, non-`dummy` key) — typically via the git-ignored `.env`. No key is
+ever stored in code; the official SDK resolves it at call time.
 
 ```bash
-# Live: set a key (or `ant auth login`) and run — the gatekeeper uses the real API automatically
-export ANTHROPIC_API_KEY=sk-ant-...        # PowerShell: $env:ANTHROPIC_API_KEY="sk-ant-..."
-uv run python src/main.py analyze          # agents now call the real Claude API
+# Use OpenAI (provider auto-detected from the key); pick a matching model:
+#   .env:  OPENAI_API_KEY=sk-...
+#          ARCHLENS_LLM_MODEL=gpt-4o
+uv run python src/main.py analyze          # AnalystAgent now calls GPT-4o for its read of the graph
 
-# Force offline (no network, canned responses with estimated token counts)
+# Use Anthropic instead:
+#   .env:  ANTHROPIC_API_KEY=sk-ant-...     (ARCHLENS_LLM_MODEL defaults to the Anthropic model)
+uv run python src/main.py analyze          # AnalystAgent calls Claude
+
+# Force offline (no network, deterministic canned reply)
 ARCHLENS_LLM_MODE=mock uv run python src/main.py analyze
 ```
 
-The measurement protocols accept `live=True` (`sdk.run_baseline(..., live=True)`); note the naive
+`ARCHLENS_LLM_MODEL` selects the model (so it matches your provider); it defaults to
+`config/setup.json` → `metrics.default_model`. Pricing rows for both providers' models live in the
+`pricing` block. Three agents now reason via the LLM through `sdk.ask_llm`: **AnalystAgent**
+(interprets the top hubs), **BugHunterAgent** (validates the worst bottleneck as a refactor target),
+and **RefactorAgent** (authors the fix rationale) — so `analyze`/`loop` genuinely invoke the active
+provider end to end. RefactorAgent also **applies** the fix: `sdk.apply_fix` →
+`RefactorFixes.split_module` rewrites the target module on disk, GraphAgent re-graphifies and
+computes a real before/after diff, and `loop` reaches "stop conditions met" when the fix reduces
+inter-community edges. (Verified on httpie: `httpie/context.py` was really split into
+`context_part1/2.py`, re-graphified, diffed — `modularity_improved` came back False, so the loop
+honestly hit the cap; the remaining target is a smarter behaviour-preserving transform than a raw
+split, plus the semantic `graphify extract` pass.)
+
+The measurement protocols also accept `live=True` (`sdk.run_baseline(..., live=True)`); the naive
 baseline sends ~148k tokens per question, so a full live baseline run costs real tokens. The tests
 always run in `mock` mode (pinned by an autouse fixture) so the suite stays offline and free.
 

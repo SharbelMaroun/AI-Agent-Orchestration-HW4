@@ -49,6 +49,16 @@ class RepoBlock(BaseModel):
         return value
 
 
+class SuggestedRepo(BaseModel):
+    """A repository offered in the interactive `start` picker (lecturer's suggestions + approved)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    name: str
+    url: str
+    note: str = ""
+
+
 class ValidationBlock(BaseModel):
     """Thresholds for target-repo validation checks."""
 
@@ -176,6 +186,7 @@ class SetupConfig(BaseModel):
     pricing: dict[str, ModelPricing] = Field(default_factory=dict)
     knowledge_assets: KnowledgeAssetsBlock = Field(default_factory=KnowledgeAssetsBlock)
     sensitivity: SensitivityBlock = Field(default_factory=SensitivityBlock)
+    suggested_repos: list[SuggestedRepo] = Field(default_factory=list)
 
 
 def _read_json(path: Path) -> dict:

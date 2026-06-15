@@ -41,6 +41,13 @@ def test_decision_carries_a_reason():
     assert supervise({})["reason"]
 
 
+def test_validated_bug_already_selected_is_not_rerouted_to_refactor():
+    # RefactorAgent appended a "selected" copy; the original "open" record must not re-trigger it.
+    bug = {**_bug(), "id": "validated-gate"}
+    state = {**_ANALYZE, "findings": [bug, {**bug, "status": "selected"}]}
+    assert supervise(state)["next"] == "QAAgent"
+
+
 @pytest.mark.parametrize("state,expected", CASES)
 def test_routing_maps_decision_to_node_or_end(state, expected):
     assert route_from_supervisor(state) == (END if expected == "END" else expected)

@@ -3,10 +3,16 @@
 These run the LangGraph orchestration built in Phase 10, keeping the SDK the single entry point.
 """
 
+from pathlib import Path
+
+from ..agents.contracts import QAReport
 from ..agents.metrics_agent import make_metrics_node
+from ..agents.quality_gates import run_quality_gates
 from ..agents.runner import make_runner
 from ..sdk.dto_core import AnalysisReport
 from ..sdk.dto_loop import LoopResult, TokenReport
+from ..sdk.sandbox import SandboxManager
+from ..shared.config import RepoBlock
 
 
 def _analysis_report(state: dict) -> AnalysisReport:
@@ -24,12 +30,38 @@ def _analysis_report(state: dict) -> AnalysisReport:
 class OrchestrationMixin:
     """Single-entry SDK methods that drive the multi-agent orchestration graph."""
 
-    def analyze(self, db_path: str | None = None, thread_id: str = "analyze") -> AnalysisReport:
-        """Run RepoAgent -> GraphAgent -> AnalystAgent and return an AnalysisReport."""
+    def analyze(self, db_path: str | None = None, thread_id: str = "analyze",
+                repo_path: str | None = None) -> AnalysisReport:
+        """Run RepoAgent -> GraphAgent -> AnalystAgent and return an AnalysisReport.
+
+        ``repo_path`` injects an already-cloned checkout so the run skips RepoAgent and graphs that
+        repo directly (used by the interactive ``start`` flow after the user picked + cloned a repo).
+        """
         graph = make_runner(self, db_path=db_path, interrupt_after=["AnalystAgent"])
         config = {"configurable": {"thread_id": thread_id}}
-        graph.invoke({}, config)
+        initial = {"target_repo": {"local_path": repo_path, "validated": True}} if repo_path else {}
+        graph.invoke(initial, config)
         return _analysis_report(graph.get_state(config).values)
+
+    def suggested_repos(self) -> list:
+        """Repos offered in the interactive picker (lecturer's suggestions + approved targets)."""
+        return self._config().suggested_repos
+
+    def clone_url(self, url: str, run_id: str = "manual") -> Path:
+        """Clone an arbitrary git URL (default branch) into the sandbox; raise RepoError on failure."""
+        base = self._config().target_repo
+        repo = RepoBlock(url=url, branch="", pinned_commit="", workdir_root=base.workdir_root,
+                         clone_depth=base.clone_depth, timeout_s=base.timeout_s,
+                         max_size_mb=base.max_size_mb)
+        sandbox = SandboxManager(repo.workdir_root)
+        sandbox.create_run_dir(run_id)
+        return self._gk().git_clone(repo, sandbox.fresh_target(run_id))
+
+    def reset_run_state(self) -> None:
+        """Delete the LangGraph checkpoint DB so a fresh interactive run does not resume a prior one."""
+        db = Path(self._config().sdk.checkpoint_db)
+        if db.exists():
+            db.unlink()
 
     def run_loop(self, db_path: str | None = None, thread_id: str = "loop") -> LoopResult:
         """Run the full improvement loop under the Part C stop conditions and 5-iteration cap."""
@@ -48,6 +80,10 @@ class OrchestrationMixin:
         from ..agents.loop_wiring import build_loop_deps
         loop_deps = deps if deps is not None else build_loop_deps(self)
         return LoopController(loop_deps).run(candidates or [])
+
+    def run_quality_gates(self, repo_path=None) -> QAReport:
+        """Run the dependency-free QA gate over a cloned repo (parse every module)."""
+        return run_quality_gates(repo_path)
 
     def measure_tokens(self) -> TokenReport:
         """Delegate to MetricsAgent token accounting; flag explanation when savings < 70%."""

@@ -1,9 +1,20 @@
 """Sandbox workdir manager — per-run isolated directories with strict containment."""
 
+import os
 import shutil
+import stat
 from pathlib import Path
 
 from ..shared.errors import SandboxViolationError
+
+
+def _force_rmtree(path: Path) -> None:
+    """rmtree that clears read-only bits (Windows marks git pack files read-only) and retries."""
+    def _clear_readonly(func, target, _exc):
+        os.chmod(target, stat.S_IWRITE)
+        func(target)
+
+    shutil.rmtree(path, onexc=_clear_readonly)
 
 
 class SandboxManager:
@@ -36,11 +47,18 @@ class SandboxManager:
         """Clone destination inside the run dir; intentionally NOT pre-created (git clone needs it absent)."""
         return self.contain(self._root / self._check_run_id(run_id) / "target")
 
+    def fresh_target(self, run_id: str) -> Path:
+        """Absent clone destination: remove any leftover clone so a re-run never collides."""
+        target = self.target_path(run_id)
+        if target.exists():
+            _force_rmtree(target)
+        return target
+
     def cleanup_run(self, run_id: str) -> None:
         """Idempotent: removing a missing run dir is a no-op, never an error."""
         run_dir = self.contain(self._root / self._check_run_id(run_id))
         if run_dir.exists():
-            shutil.rmtree(run_dir)
+            _force_rmtree(run_dir)
 
     def cleanup_stale(self, keep: set[str]) -> list[str]:
         """Remove every run dir whose name is not in `keep`; return removed names sorted."""
@@ -49,6 +67,6 @@ class SandboxManager:
             return removed
         for child in sorted(self._root.iterdir()):
             if child.is_dir() and child.name not in keep:
-                shutil.rmtree(self.contain(child))
+                _force_rmtree(self.contain(child))
                 removed.append(child.name)
         return removed

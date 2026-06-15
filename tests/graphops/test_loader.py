@@ -94,6 +94,38 @@ def test_rejects_unknown_relation():
         load_graph(bad)
 
 
+def _native(links: list[dict]) -> dict:
+    """A Graphify networkx node-link export (edges under ``links``, no strict ``edges``)."""
+    return {
+        "directed": False, "multigraph": False, "graph": {}, "hyperedges": [],
+        "nodes": [{"id": "a", "file_type": "code", "source_file": "a.py", "community": 1},
+                  {"id": "b", "file_type": "document", "source_file": "b.md", "community": 1}],
+        "links": links,
+    }
+
+
+def test_loads_real_graphify_node_link_format():
+    # Graphify emits source/target, a string evidence tier, and a wider relation vocab
+    # ("contains") that the canonical strict schema would reject — it must load anyway.
+    graph = load_graph(_native([
+        {"source": "a", "target": "b", "relation": "contains",
+         "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "a.py"},
+    ]))
+    assert (graph.number_of_nodes(), graph.number_of_edges()) == (2, 1)
+    edge = graph.edges["a", "b"]
+    assert edge["relation"] == "contains"      # wider vocab preserved, not rejected
+    assert edge["type"] == "EXTRACTED"          # tier -> triage bucket
+    assert edge["confidence"] == 1.0            # numeric confidence_score
+
+
+def test_native_unknown_tier_falls_back_to_ambiguous():
+    graph = load_graph(_native([
+        {"source": "a", "target": "b", "relation": "calls", "confidence": "WEIRD",
+         "source_file": "a.py"},
+    ]))
+    assert graph.edges["a", "b"]["type"] == "AMBIGUOUS"
+
+
 def test_error_lists_every_offending_edge():
     nodes = _two_nodes() + [
         {"id": "c.py", "type": "code", "source_file": "c.py"},

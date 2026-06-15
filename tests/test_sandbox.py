@@ -1,10 +1,13 @@
 """TDD tests for the sandbox workdir manager (tasks 3.015, 3.017, 3.018)."""
 
+import os
+import stat
 from pathlib import Path
 
 import pytest
 
-from archlens.sdk.sandbox import SandboxManager
+from archlens.sdk import sandbox as sandbox_mod
+from archlens.sdk.sandbox import SandboxManager, _force_rmtree
 from archlens.shared.config import load_setup
 from archlens.shared.errors import SandboxViolationError
 
@@ -29,6 +32,35 @@ def test_target_path_is_inside_run_dir_and_not_precreated(sandbox: SandboxManage
     assert target.parent == sandbox.create_run_dir("run1")
     assert target.name == "target"
     assert not target.exists()
+
+
+def test_fresh_target_removes_a_leftover_clone_so_reruns_never_collide(sandbox: SandboxManager):
+    sandbox.create_run_dir("run1")
+    stale = sandbox.target_path("run1")
+    stale.mkdir(parents=True)
+    (stale / "leftover.py").write_text("old", encoding="utf-8")  # a prior clone
+    fresh = sandbox.fresh_target("run1")
+    assert fresh == stale and not fresh.exists()  # absent again -> git clone can proceed
+
+
+def test_fresh_target_on_clean_run_is_a_noop(sandbox: SandboxManager):
+    sandbox.create_run_dir("run1")
+    assert not sandbox.fresh_target("run1").exists()
+
+
+def test_force_rmtree_clears_readonly_pack_files(tmp_path: Path, monkeypatch):
+    # Reproduces Windows: git marks pack files read-only and the first unlink raises;
+    # the onexc handler must chmod +w and retry. Driven deterministically on any OS.
+    victim = tmp_path / "pack.idx"
+    victim.write_text("x", encoding="utf-8")
+    victim.chmod(stat.S_IREAD)
+
+    def fake_rmtree(path, onexc):
+        onexc(os.unlink, str(victim), PermissionError())
+
+    monkeypatch.setattr(sandbox_mod.shutil, "rmtree", fake_rmtree)
+    _force_rmtree(tmp_path)
+    assert not victim.exists()
 
 
 def test_containment_rejects_paths_outside_root(sandbox: SandboxManager, tmp_path: Path):

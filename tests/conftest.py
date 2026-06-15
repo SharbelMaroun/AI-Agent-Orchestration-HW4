@@ -119,11 +119,17 @@ class _MockSDK:
     def single_points_of_failure(self, graph):
         return [SimpleNamespace(node_id="ss", citations=[SimpleNamespace(source_file="ss.py")])]
 
-    def run_quality_gates(self):
+    def run_quality_gates(self, repo_path=None):
         return SimpleNamespace(tests_green=True, coverage_pct=97.0, ruff_violations=0)
 
     def token_usage(self):
         return {"baseline": 100, "assisted": 30, "rows": [{"model": "x", "in": 10}]}
+
+    def ask_llm(self, prompt, *, agent="orchestrator", max_tokens=512):
+        return "canned llm reply"
+
+    def apply_fix(self, finding, repo_path, graph_json=None):
+        return True
 
 
 @pytest.fixture()

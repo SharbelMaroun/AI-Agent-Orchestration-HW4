@@ -31,6 +31,9 @@ class _MockSDK:
     def triage_edges(self, graph):
         return {"EXTRACTED": [1], "INFERRED": [], "AMBIGUOUS": []}
 
+    def ask_llm(self, prompt, *, agent="orchestrator", max_tokens=512):
+        return "canned llm reply"
+
 
 def test_saver_uses_the_configured_db_path(tmp_path):
     saver = make_checkpointer(str(tmp_path / "db.sqlite"))

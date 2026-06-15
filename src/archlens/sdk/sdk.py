@@ -16,8 +16,10 @@ from ..graphops.parser import Graph, parse_graph
 from ..sdk.analysis_mixin import GraphAnalysisMixin
 from ..sdk.deliverables_mixin import DeliverablesMixin
 from ..sdk.knowledge_mixin import KnowledgeMixin
+from ..sdk.llm_mixin import LLMMixin
 from ..sdk.metrics_mixin import MetricsMixin
 from ..sdk.orchestration_mixin import OrchestrationMixin
+from ..sdk.refactor_mixin import RefactorMixin
 from ..sdk.repo_config import select_repo
 from ..sdk.research_mixin import ResearchMixin
 from ..sdk.sandbox import SandboxManager
@@ -30,7 +32,7 @@ from ..vault.layout import VaultLayout
 
 
 class ArchLensSDK(GraphAnalysisMixin, DeliverablesMixin, OrchestrationMixin, MetricsMixin,
-                  KnowledgeMixin, ResearchMixin):
+                  KnowledgeMixin, ResearchMixin, LLMMixin, RefactorMixin):
     """Facade over all ArchLens capabilities; phase method groups are added via mixins."""
 
     def __init__(self, setup: SetupConfig | None = None, gatekeeper=None) -> None:
@@ -59,7 +61,7 @@ class ArchLensSDK(GraphAnalysisMixin, DeliverablesMixin, OrchestrationMixin, Met
         repo = select_repo(self._config(), use_fallback)
         sandbox = SandboxManager(repo.workdir_root)
         sandbox.create_run_dir(run_id)
-        return self._gk().git_clone(repo, sandbox.target_path(run_id))
+        return self._gk().git_clone(repo, sandbox.fresh_target(run_id))
 
     def validate_repo(self, repo_dir: Path, use_fallback: bool = False) -> ValidationResult:
         """Run the four validation checks against a cloned checkout."""

@@ -16,8 +16,12 @@ def _bug_findings(state: dict) -> list:
 
 
 def _open_validated(state: dict) -> list:
+    # Exclude findings already picked up by RefactorAgent (the append reducer keeps the original
+    # "open" record around), so each validated bug is routed to a refactor exactly once.
+    handled = {f.get("id") for f in _findings(state) if f.get("status") in ("selected", "fixed")}
     return [f for f in _bug_findings(state)
-            if f.get("level") == "VALIDATED" and f.get("status") == "open"]
+            if f.get("level") == "VALIDATED" and f.get("status") == "open"
+            and f.get("id") not in handled]
 
 
 def supervise(state: dict) -> dict:
