@@ -10,6 +10,9 @@ class _SDK:
     def apply_patch(self, *args, **kwargs):
         self.writes += 1
 
+    def ask_llm(self, prompt, *, agent="orchestrator", max_tokens=512):
+        return "extract the request-routing helper into its own module"
+
 
 def _validated_bug():
     return {"from": "bughunter", "level": "VALIDATED", "status": "open", "category": "SPOF",
@@ -32,3 +35,8 @@ def test_refactor_produces_plan_without_writing():
 
 def test_refactor_is_noop_without_a_validated_finding():
     assert make_refactor_node(_SDK())({"findings": []}) == {}
+
+
+def test_refactor_rationale_is_authored_by_the_llm():
+    out = make_refactor_node(_SDK())({"findings": [_validated_bug()]})
+    assert out["findings"][0]["plan"]["rationale"].startswith("extract the request-routing")

@@ -15,11 +15,10 @@ def make_refactor_node(sdk):
         if not candidates:
             return {}
         target = candidates[0]
-        plan = {
-            "target": target["source_file"],
-            "action": "split_module",
-            "rationale": f"address {target['category']} at {target['source_file']}",
-        }
+        rationale = sdk.ask_llm(
+            f"Propose one concrete, safe refactor to relieve the {target['category']} at "
+            f"{target['source_file']}, in one sentence.", agent="RefactorAgent")
+        plan = {"target": target["source_file"], "action": "split_module", "rationale": rationale}
         return {"findings": [{**target, "status": "selected", "plan": plan}]}
 
     return refactor_node

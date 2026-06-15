@@ -16,6 +16,9 @@ class _SDK:
     def classify_nodes(self, graph):
         return [SimpleNamespace(node_id="gate", verdict="BOTTLENECK", source_file="gate.py")]
 
+    def ask_llm(self, prompt, *, agent="orchestrator", max_tokens=512):
+        return "the gate node funnels every request — a real bottleneck"
+
 
 def _findings():
     return make_bughunter_node(_SDK())({"graph_snapshot": {"graph_json": "g.json"}})["findings"]
@@ -33,3 +36,10 @@ def test_bughunter_reports_spof_and_god_node():
     categories = {f["category"] for f in _findings()}
     assert "SPOF" in categories
     assert "god_node" in categories
+
+
+def test_bughunter_escalates_the_top_bottleneck_to_a_validated_llm_review():
+    validated = [f for f in _findings() if f["level"] == "VALIDATED"]
+    assert len(validated) == 1                       # exactly one refactor target
+    assert validated[0]["status"] == "open"
+    assert validated[0]["text"].startswith("the gate node")  # the LLM's review is attached
