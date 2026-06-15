@@ -11,9 +11,17 @@ from ..gatekeeper.llm_client import extract_text, resolve_model
 class LLMMixin:
     """Single-entry free-form LLM access for the agents."""
 
-    def ask_llm(self, prompt: str, *, agent: str = "orchestrator", max_tokens: int = 512) -> str:
-        """Send one free-form prompt to the active provider via the gatekeeper; return the reply text."""
-        messages = [{"role": "user", "content": prompt}]
+    def ask_llm(self, prompt: str, *, system: str | None = None,
+               agent: str = "orchestrator", max_tokens: int = 512) -> str:
+        """Send one prompt (optional system role) to the active provider via the gatekeeper.
+
+        The system message is provider-agnostic: OpenAI/mock consume the ``system`` role directly,
+        and LiveAnthropicClient lifts it into the SDK's top-level ``system`` parameter.
+        """
+        messages = []
+        if system:
+            messages.append({"role": "system", "content": system})
+        messages.append({"role": "user", "content": prompt})
         model = resolve_model(self._config())
         response = self._gk().execute(model, messages, agent=agent, max_tokens=max_tokens)
         return extract_text(response)

@@ -125,7 +125,7 @@ class _MockSDK:
     def token_usage(self):
         return {"baseline": 100, "assisted": 30, "rows": [{"model": "x", "in": 10}]}
 
-    def ask_llm(self, prompt, *, agent="orchestrator", max_tokens=512):
+    def ask_llm(self, prompt, *, system=None, agent="orchestrator", max_tokens=512):
         return "canned llm reply"
 
     def apply_fix(self, finding, repo_path, graph_json=None):

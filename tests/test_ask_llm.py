@@ -12,6 +12,11 @@ def test_ask_llm_returns_text_via_the_gatekeeper_in_mock_mode():
     assert reply == "canned response"
 
 
+def test_ask_llm_accepts_a_system_prompt(monkeypatch):
+    # The system role must be threaded without error (provider-agnostic); mock returns its canned text.
+    assert ArchLensSDK().ask_llm("analyze", system="You are an architect.") == "canned response"
+
+
 def test_extract_text_reads_dot_text_shape():
     assert extract_text(SimpleNamespace(text="hello")) == "hello"
 

@@ -12,8 +12,10 @@ def _interpretation(sdk, top_rows, communities: int) -> dict:
         "You are a software architect reverse-engineering a codebase from its dependency graph. "
         f"It has {communities} communities; the highest-degree hubs are: {hubs}. In 2-3 sentences, "
         "explain the architectural risk these hubs pose and what to investigate first.")
+    system = ("You are a software architect reading a dependency graph during reverse engineering; "
+              "be concrete about coupling and single-points-of-failure risk.")
     return {"from": "analyst", "category": "llm_summary",
-            "text": sdk.ask_llm(prompt, agent="AnalystAgent")}
+            "text": sdk.ask_llm(prompt, system=system, agent="AnalystAgent")}
 
 
 def make_analyst_node(sdk):

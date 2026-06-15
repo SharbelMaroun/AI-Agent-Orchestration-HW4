@@ -23,10 +23,14 @@ class LiveAnthropicClient:
         """Send one request to the live API, mapping upstream errors to retryable gatekeeper types."""
         import anthropic
 
+        system = " ".join(m["content"] for m in messages if m.get("role") == "system")
+        convo = [m for m in messages if m.get("role") != "system"]
+        params = {"model": model, "messages": convo,
+                  "max_tokens": kwargs.get("max_tokens", self._max_tokens)}
+        if system:
+            params["system"] = system  # Anthropic takes system as a top-level param, not a message
         try:
-            return self._client.messages.create(
-                model=model, messages=messages,
-                max_tokens=kwargs.get("max_tokens", self._max_tokens))
+            return self._client.messages.create(**params)
         except anthropic.APITimeoutError as exc:
             raise UpstreamTimeoutError(str(exc)) from exc
         except anthropic.RateLimitError as exc:

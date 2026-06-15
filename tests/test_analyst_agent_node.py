@@ -21,7 +21,7 @@ class _SDK:
     def triage_edges(self, graph):
         return {"EXTRACTED": [1, 2], "INFERRED": [], "AMBIGUOUS": [1]}
 
-    def ask_llm(self, prompt, *, agent="orchestrator", max_tokens=512):
+    def ask_llm(self, prompt, *, system=None, agent="orchestrator", max_tokens=512):
         return "llm interpretation of the hubs"
 
 
