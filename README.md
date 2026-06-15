@@ -151,13 +151,23 @@ LoopResult(iterations=5, stop_reason='hard_cap',
 ```
 
 `analyze` drives Repo → Graph → Analyst; `loop` drives all seven agents through the improvement
-loop. On 2026-06-15 the loop was **plan-only** and stopped at the 5-iteration hard cap (four of
-five Part-C stop conditions green; `modularity_improved` False because nothing was written). Since
-then RefactorAgent has been wired to **apply a real fix** (`sdk.apply_fix` → `RefactorFixes.split_module`),
-GraphAgent computes a **real before/after diff**, and the loop reaches `stop_conditions_met` whenever
-an applied fix genuinely reduces inter-community edges and the tree still parses (proven by the
-integration + diff tests). A naive split won't improve global modularity on every large repo, so a
-big target can still hit the cap honestly — which is exactly what the lecturer's 5-iteration cap is for.
+loop. On 2026-06-15 the loop was **plan-only** and stopped at the hard cap. Since then RefactorAgent
+has been wired to **apply a real fix** — for a bottleneck it inserts an interface **seam**
+(`sdk.apply_fix` → `RefactorFixes.break_bottleneck`) and rewires the dependents off it (package-aware
+imports) — GraphAgent computes a **real before/after diff**, and the loop reaches `stop_conditions_met`
+whenever an applied fix genuinely lowers inter-community edges and the tree still parses (proven by the
+integration + diff tests).
+
+**Honest finding on a real run.** On the live httpie clone the seam fix really applied — `context.py`
+got a `context_interface.py` seam and **26 dependent files were rewired onto it** — yet the loop still
+hit the cap: the *global* inter-community edge count went **+20** (one new seam node, 27 new edges),
+not down. A single localized refactor is tiny against a 4306-edge graph, and Graphify re-detects
+communities from scratch each run, so the strict "global inter-community edges strictly decreased"
+condition (SC-2) is essentially unreachable from one automated local change. The machinery is fully
+real and **does** converge when a fix genuinely improves the metric (the integration test proves it);
+reliable convergence on a large real repo needs either a coarser modularity-score metric or many
+coordinated edits — which is precisely why the lecturer pairs the loop with a 5-iteration cap and a
+human in the loop.
 
 **The six bugs the first live run surfaced.** Running against fakes had proven the wiring but not
 the execution; each gap below is a real defect that made the automation non-functional live, now
