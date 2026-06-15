@@ -61,4 +61,4 @@ def test_semantic_also_labels_with_the_configured_gemini_model():
     label_argv = gk.calls[1][0]
     assert label_argv[:3] == ["graphify", "label", str(Path("/repo"))]
     assert "--backend" in label_argv and "gemini" in label_argv
-    assert "gemini-2.0-flash-lite" in label_argv
+    assert "gemini-3-flash-preview" in label_argv

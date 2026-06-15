@@ -33,7 +33,7 @@
     "analysis_depth": "structural",
     "token_budget": 100000,
     "llm_backend": "gemini",
-    "llm_model": "gemini-2.0-flash-lite"
+    "llm_model": "gemini-3-flash-preview"
   },
   "vault": {
     "vault_root": "runs/vault",

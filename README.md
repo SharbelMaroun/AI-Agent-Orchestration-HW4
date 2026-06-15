@@ -45,9 +45,9 @@ which gives communities readable names. So:
 
 - **`analysis_depth: "structural"` (default)** — runs `graphify update` only. No LLM, no key, free.
 - **`analysis_depth: "semantic"`** — *additionally* runs `graphify label` to name communities via
-  `llm_backend`/`llm_model` (default **Gemini `gemini-2.0-flash-lite`**, the lightest/cheapest, to
-  respect the free-tier quota). Graphify supports **Gemini, not OpenAI**, so this needs a
-  `GEMINI_API_KEY`; if the quota is exhausted Graphify falls back to `Community N` placeholders.
+  `llm_backend`/`llm_model` (default **Gemini `gemini-3-flash-preview`** — the Gemini 3 flash/light
+  tier). Graphify supports **Gemini, not OpenAI**, so this needs a `GEMINI_API_KEY`; if the quota is
+  exhausted Graphify falls back to `Community N` placeholders.
 
 The **actual semantic reverse engineering** — finding the architectural problems — is done by the
 ArchLens **LLM agents reasoning over the graph** (with your OpenAI key), not by Graphify. See the
@@ -442,7 +442,7 @@ All behaviour is config-driven (no hardcoded values). The three config files and
 | (top) | `version`, `graphify_output_dir`, `obsidian_vault_dir` | config schema version + default Graphify/vault output roots |
 | `target_repo`, `fallback_repo` | `url`, `branch`, `pinned_commit`, `workdir_root`, `clone_depth`, `timeout_s`, `max_size_mb` | primary + fallback repo to clone, with sandbox root and size/time bounds |
 | `validation` | `python_min_share`, `min_file_count`, `max_file_count` | target-repo acceptance thresholds |
-| `graphify` | `binary`, `stages`, `output_root`, `timeout_s`, `analysis_depth`, `token_budget`, `llm_backend`, `llm_model` | Graphify CLI invocation; `analysis_depth=semantic` adds a `graphify label` community-naming pass via `llm_backend`/`llm_model` (default Gemini `gemini-2.0-flash-lite`) |
+| `graphify` | `binary`, `stages`, `output_root`, `timeout_s`, `analysis_depth`, `token_budget`, `llm_backend`, `llm_model` | Graphify CLI invocation; `analysis_depth=semantic` adds a `graphify label` community-naming pass via `llm_backend`/`llm_model` (default Gemini 3 flash, `gemini-3-flash-preview`) |
 | `vault` | `vault_root`, `raw_dir_name`, `wiki_dir_name`, `hot_top_n`, `index_read_first_count` | Obsidian vault layout + hot/index sizing |
 | `analysis` | `confidence_floor`, `confidence_strong`, `duplicate_similarity_threshold` | edge-triage confidence band + duplicate threshold (0.91) |
 | `deliverables` | `output_dir`, `mermaid_direction`, `match_confidence_threshold` | reverse-engineering deliverable settings |
