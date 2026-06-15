@@ -151,10 +151,13 @@ LoopResult(iterations=5, stop_reason='hard_cap',
 ```
 
 `analyze` drives Repo → Graph → Analyst; `loop` drives all seven agents through the improvement
-loop. The loop terminates at the **5-iteration hard cap** — not a false "success": four of five
-Part-C stop conditions go green, but `modularity_improved` stays False because the RefactorAgent is
-intentionally **plan-only** (it never writes to the target), so the graph never changes. That is
-the safety cap working as designed, and it never mutates the cloned repo.
+loop. On 2026-06-15 the loop was **plan-only** and stopped at the 5-iteration hard cap (four of
+five Part-C stop conditions green; `modularity_improved` False because nothing was written). Since
+then RefactorAgent has been wired to **apply a real fix** (`sdk.apply_fix` → `RefactorFixes.split_module`),
+GraphAgent computes a **real before/after diff**, and the loop reaches `stop_conditions_met` whenever
+an applied fix genuinely reduces inter-community edges and the tree still parses (proven by the
+integration + diff tests). A naive split won't improve global modularity on every large repo, so a
+big target can still hit the cap honestly — which is exactly what the lecturer's 5-iteration cap is for.
 
 **The six bugs the first live run surfaced.** Running against fakes had proven the wiring but not
 the execution; each gap below is a real defect that made the automation non-functional live, now
@@ -278,8 +281,10 @@ savings — see the Token economics section), and the full `analyze`/`loop` pipe
 end-to-end on a live clone (above). Still open: interactive `graph.html` / Obsidian-vault
 **screenshots** (this environment has no headless browser, so vis.js can't be rendered here —
 the matplotlib charts are the substitute); the **semantic** `graphify extract` pass (needs an
-LLM API key); and an applied, code-mutating refactor that lets the loop reach "stop conditions
-met" rather than the safety cap (RefactorAgent is currently plan-only by design).
+LLM API key). The applied, code-mutating refactor is now wired — RefactorAgent calls
+`sdk.apply_fix` and the loop reaches "stop conditions met" when the fix genuinely improves
+modularity — so the remaining gap is reliable convergence on arbitrary large repos (a smarter,
+behaviour-preserving transform than the current module split).
 
 ### Correction (2026-06-13): Graphify integration rebuilt against the real CLI, then run for real
 
@@ -480,8 +485,13 @@ ARCHLENS_LLM_MODE=mock uv run python src/main.py analyze
 `pricing` block. Three agents now reason via the LLM through `sdk.ask_llm`: **AnalystAgent**
 (interprets the top hubs), **BugHunterAgent** (validates the worst bottleneck as a refactor target),
 and **RefactorAgent** (authors the fix rationale) — so `analyze`/`loop` genuinely invoke the active
-provider end to end. The semantic `graphify extract` pass and an *applied* (code-mutating) refactor
-are the remaining wiring targets.
+provider end to end. RefactorAgent also **applies** the fix: `sdk.apply_fix` →
+`RefactorFixes.split_module` rewrites the target module on disk, GraphAgent re-graphifies and
+computes a real before/after diff, and `loop` reaches "stop conditions met" when the fix reduces
+inter-community edges. (Verified on httpie: `httpie/context.py` was really split into
+`context_part1/2.py`, re-graphified, diffed — `modularity_improved` came back False, so the loop
+honestly hit the cap; the remaining target is a smarter behaviour-preserving transform than a raw
+split, plus the semantic `graphify extract` pass.)
 
 The measurement protocols also accept `live=True` (`sdk.run_baseline(..., live=True)`); the naive
 baseline sends ~148k tokens per question, so a full live baseline run costs real tokens. The tests
