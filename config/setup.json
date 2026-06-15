@@ -31,7 +31,9 @@
     "output_root": "runs/graphify",
     "timeout_s": 600,
     "analysis_depth": "structural",
-    "token_budget": 100000
+    "token_budget": 100000,
+    "llm_backend": "gemini",
+    "llm_model": "gemini-2.0-flash-lite"
   },
   "vault": {
     "vault_root": "runs/vault",

@@ -32,9 +32,10 @@ def test_build_argv_uses_real_graphify_command():
     assert build_argv(_cfg(), "update", Path("/repo")) == ["graphify", "update", str(Path("/repo"))]
 
 
-def test_structural_uses_update_and_semantic_uses_extract():
+def test_build_command_is_always_update():
+    # Graphify has no `extract` command; `update` is the only structural build command.
     assert GraphifyCLI(_cfg("structural"), FakeGatekeeper()).command == "update"
-    assert GraphifyCLI(_cfg("semantic"), FakeGatekeeper()).command == "extract"
+    assert GraphifyCLI(_cfg("semantic"), FakeGatekeeper()).command == "update"
 
 
 def test_run_delegates_to_gatekeeper():
@@ -45,3 +46,19 @@ def test_run_delegates_to_gatekeeper():
     assert argv[:2] == ["graphify", "update"]
     assert label == "update"
     assert timeout == 600
+
+
+def test_structural_runs_only_update_no_llm():
+    gk = FakeGatekeeper()
+    GraphifyCLI(_cfg("structural"), gk).run(Path("/repo"))
+    assert [c[1] for c in gk.calls] == ["update"]  # no label / no LLM call
+
+
+def test_semantic_also_labels_with_the_configured_gemini_model():
+    gk = FakeGatekeeper()
+    GraphifyCLI(_cfg("semantic"), gk).run(Path("/repo"))
+    assert [c[1] for c in gk.calls] == ["update", "label"]
+    label_argv = gk.calls[1][0]
+    assert label_argv[:3] == ["graphify", "label", str(Path("/repo"))]
+    assert "--backend" in label_argv and "gemini" in label_argv
+    assert "gemini-2.0-flash-lite" in label_argv

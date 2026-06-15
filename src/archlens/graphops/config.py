@@ -22,6 +22,10 @@ class GraphifyConfig(BaseModel):
     timeout_s: int
     analysis_depth: str
     token_budget: int
+    # Graphify's only LLM CLI step is community labelling (`graphify label`); it has Gemini, not
+    # OpenAI. Kept lightest/cheapest by default to stay inside the Gemini free-tier quota.
+    llm_backend: str = "gemini"
+    llm_model: str = "gemini-2.0-flash-lite"
 
     @field_validator("analysis_depth")
     @classmethod
