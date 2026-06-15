@@ -7,13 +7,12 @@ SDK, so this agent never imports a client.
 """
 
 from ..agents.evidence import EvidenceFinding
-from ..agents.source_reader import read_source_excerpt
 
 _ARCHITECT_SYSTEM = (
-    "You are a senior software architect reverse-engineering an unfamiliar Python codebase from its "
-    "dependency graph plus the actual source. Be concrete and specific: name the real architectural "
-    "risks (high coupling, single points of failure, god objects, hidden dependencies) and the "
-    "exact behaviour-preserving refactor that relieves them. No filler.")
+    "You are a senior software architect reverse-engineering an unfamiliar codebase from its "
+    "dependency GRAPH (not its source). Reason from graph structure — degree, who depends on whom, "
+    "communities — to name the real architectural risks (coupling, single points of failure, god "
+    "objects) and the refactor that relieves them. Be concrete and brief; no filler.")
 
 
 def _finding(finding_id: str, category: str, source_file: str, relation: str,
@@ -23,15 +22,24 @@ def _finding(finding_id: str, category: str, source_file: str, relation: str,
     return {**evidence.model_dump(), "from": "bughunter", "status": "open", **extra}
 
 
-def _validate_top(sdk, top, repo_path: str) -> dict:
-    """LLM reverse-engineers the worst bottleneck FROM ITS REAL SOURCE; escalate to a VALIDATED target."""
-    code = read_source_excerpt(repo_path, top.source_file)
-    body = f"\n\nIts source:\n```python\n{code}\n```" if code else " (source not available)."
+def _graph_context(graph, node_id: str) -> str:
+    """A compact textual view of the node's GRAPH neighbourhood — the LLM reasons from this, not code."""
+    if not hasattr(graph, "predecessors") or node_id not in graph:
+        return f"'{node_id}' is the highest-betweenness bottleneck (many graph paths route through it)."
+    callers = sorted(graph.predecessors(node_id))[:15]
+    uses = sorted(graph.successors(node_id))[:15]
+    return (f"'{node_id}' has in-degree {graph.in_degree(node_id)} and out-degree "
+            f"{graph.out_degree(node_id)}. Nodes that depend on it (callers): {callers}. "
+            f"It depends on: {uses}.")
+
+
+def _validate_top(sdk, top, graph) -> dict:
+    """LLM judges the worst bottleneck FROM THE GRAPH neighbourhood; escalate to a VALIDATED target."""
     prompt = (
-        f"'{top.node_id}' in {top.source_file} is the highest-betweenness bottleneck — many paths "
-        f"route through it.{body}\n\nIn 3-4 sentences: what is the concrete architectural problem, "
-        "and what specific behaviour-preserving refactor would relieve it?")
-    review = sdk.ask_llm(prompt, system=_ARCHITECT_SYSTEM, agent="BugHunterAgent", max_tokens=600)
+        f"{_graph_context(graph, top.node_id)}\n\nReasoning only from this graph structure, in 3-4 "
+        "sentences: what architectural problem does this indicate (coupling, single point of "
+        "failure, god object), and what refactor would relieve it?")
+    review = sdk.ask_llm(prompt, system=_ARCHITECT_SYSTEM, agent="BugHunterAgent", max_tokens=500)
     return _finding(f"validated-{top.node_id}", "god_node", top.source_file, "betweenness",
                     level="VALIDATED", text=review)
 
@@ -41,7 +49,6 @@ def make_bughunter_node(sdk):
 
     def bughunter_node(state: dict) -> dict:
         graph = sdk.load_analysis_graph(state["graph_snapshot"]["graph_json"])
-        repo_path = (state.get("target_repo") or {}).get("local_path", "")
         findings: list[dict] = []
         for spof in sdk.single_points_of_failure(graph):
             location = spof.citations[0].source_file if spof.citations else spof.node_id
@@ -51,7 +58,7 @@ def make_bughunter_node(sdk):
             findings.append(_finding(f"god-{verdict.node_id}", "god_node",
                                      verdict.source_file, "betweenness"))
         if bottlenecks:
-            findings.append(_validate_top(sdk, bottlenecks[0], repo_path))
+            findings.append(_validate_top(sdk, bottlenecks[0], graph))
         return {"findings": findings}
 
     return bughunter_node
