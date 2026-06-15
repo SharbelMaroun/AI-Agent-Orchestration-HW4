@@ -1,54 +1,43 @@
-# With vs Without Graphify — Agent-Level Token Comparison
+# With vs Without Graphify — Tokens AND Quality
 
 Version: 1.00 | Course: AI Agent Orchestration — HW4 (EX04)
 
-A focused, reproducible demonstration of the lecture's core claim (L07 §6–9): the LLM should reason
-from the **graph** (targeted retrieval), not by reading all the **code**. Same architecture question,
-same model (`gpt-4o`), same target node — answered two ways.
+A reproducible evaluation of the lecture's core claim (L07 §6–9): the LLM should reason from the
+**graph** (targeted retrieval), not from the **code**. For each top bottleneck the agents detect, the
+SAME architecture question is answered twice — once from the node's **graph neighbourhood** (with
+Graphify), once from its **full source module** (without it) — then an LLM judge rates both 1–5 for
+correctness/specificity. Tokens are read back from the gatekeeper ledger, so they are the **flow's
+real usage**, not estimates.
 
-Reproduce:
+Code: `src/archlens/metrics/graph_vs_code.py` (via `sdk.compare_graph_vs_code`). Reproduce:
 
 ```bash
-uv run python scripts/compare_graph_vs_code.py [graph.json] [repo_path]
-# defaults: runs/run/target/graphify-out/graph.json  +  runs/run/target  (needs a live key in .env)
+uv run python scripts/compare_graph_vs_code.py [graph.json] [repo_path] [top_k]
+# defaults: runs/run/target/graphify-out/graph.json  runs/run/target  3   (needs a live key in .env)
 ```
 
-## Live result (real GPT-4o calls, httpie)
+## Live result — real GPT-4o, top 3 bottlenecks of httpie
 
-Target node: `utils_init_http` (`tests/utils/__init__.py`) — the highest in-degree hub.
+| Node | Quality WITH | Quality WITHOUT |
+| --- | :---: | :---: |
+| `utils_init_http` | 5 | 4 |
+| `httpie_context_environment` | 5 | 4 |
+| `utils_init_mockenvironment` | 4 | 5 |
 
-| Approach | What the LLM saw | Input | Output | **Total** |
-| --- | --- | ---: | ---: | ---: |
-| **With Graphify** | the node's graph neighbourhood (degree, callers, dependencies) | 311 | 127 | **438** |
-| **Without Graphify** (naive) | the node's full source module | 3096 | 135 | **3231** |
-
-**Savings: 438 vs 3231 tokens → 86.4% fewer with Graphify**, for the same question and an equivalent
-answer.
-
-### With Graphify (graph context) — 438 tokens
-> The main architectural problem with `utils_init_http` is that it has excessive in-degree,
-> indicating it is highly coupled to numerous components… any change could have widespread
-> implications… refactor to break it into smaller, more cohesive modules that adhere to the Single
-> Responsibility Principle…
-
-### Without Graphify (full source) — 3231 tokens
-> The main architectural problem with this module is the lack of separation of concerns, resulting
-> in a highly coupled and monolithic structure… decompose the module into smaller, more focused
-> components… each class and function should focus on a single responsibility…
-
-Both diagnoses agree (coupling / single-responsibility violation, split into cohesive modules); the
-graph-based path reached it with **~7× fewer tokens**.
-
-## How this relates to the formal economics
-
-This is the *agent-level* echo of the project's full token-economics study, which compares a naive
-full-context baseline against Graphify-assisted retrieval across 10 standard architecture questions:
-
-| Protocol | Total input tokens | Per question |
+| Metric | **With Graphify** (graph) | **Without Graphify** (full source) |
 | --- | ---: | ---: |
-| Baseline (naive full-context) | 1,481,736 | ~148k |
-| Graphify-assisted | 34,801 | ~3.4k |
+| **Total tokens** (real) | **1,322** | **8,102** |
+| **Avg quality** (judge 1–5) | **4.67** | **4.33** |
 
-**97.65% savings** (`metrics/out/token_metrics.json`). That study was measured in offline mock mode
-with token estimates; the table above is **real, live GPT-4o** usage on a single question, which
-independently confirms the same effect at ~86%.
+**Result: 83.7% fewer tokens with Graphify, at equal-or-better quality (4.67 vs 4.33).** Reading the
+whole module costs ~6× more tokens and did **not** improve the diagnosis — the graph neighbourhood
+(degree, callers, dependencies) already carries what the model needs to name the coupling / god-object
+/ single-point-of-failure and propose the split. (The judge itself spent 892 tokens.)
+
+## Relation to the formal economics
+
+This is the *agent-level, live* echo of the project's full token-economics study (naive full-context
+baseline vs Graphify-assisted retrieval over 10 standard questions): **1,481,736 → 34,801 tokens =
+97.65% savings** (`metrics/out/token_metrics.json`, measured in offline mock with estimates). The
+live numbers above independently confirm the same effect (~84%) **and** add a quality dimension the
+formal study did not measure.

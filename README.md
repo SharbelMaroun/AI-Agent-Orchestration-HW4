@@ -520,9 +520,10 @@ Measured on the real httpie checkout (133 `.py` files), 10 standard architecture
 tokens), the graph **breaks even after 2 queries**. Per-model USD cost tables are in
 `docs/metrics/COST_TABLES.md`; the full schema is `metrics/out/token_metrics.json`.
 
-A **live** agent-level confirmation (real GPT-4o on httpie) is in `docs/metrics/GRAPH_VS_CODE.md`:
-the same architecture question answered from the graph neighbourhood vs the full source module cost
-**438 vs 3231 tokens (86.4% fewer)** for an equivalent answer —
+A **live** evaluation measuring both tokens **and quality** (`docs/metrics/GRAPH_VS_CODE.md`,
+`sdk.compare_graph_vs_code`) answers the same architecture question from the graph neighbourhood vs
+the full source for the top 3 httpie bottlenecks, with an LLM judge scoring each: **1,322 vs 8,102
+tokens (83.7% fewer) at equal-or-better quality (4.67 vs 4.33 / 5)** —
 `uv run python scripts/compare_graph_vs_code.py`.
 
 ## Contributing
