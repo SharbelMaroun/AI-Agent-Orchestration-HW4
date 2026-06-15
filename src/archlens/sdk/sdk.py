@@ -19,6 +19,7 @@ from ..sdk.knowledge_mixin import KnowledgeMixin
 from ..sdk.llm_mixin import LLMMixin
 from ..sdk.metrics_mixin import MetricsMixin
 from ..sdk.orchestration_mixin import OrchestrationMixin
+from ..sdk.refactor_mixin import RefactorMixin
 from ..sdk.repo_config import select_repo
 from ..sdk.research_mixin import ResearchMixin
 from ..sdk.sandbox import SandboxManager
@@ -31,7 +32,7 @@ from ..vault.layout import VaultLayout
 
 
 class ArchLensSDK(GraphAnalysisMixin, DeliverablesMixin, OrchestrationMixin, MetricsMixin,
-                  KnowledgeMixin, ResearchMixin, LLMMixin):
+                  KnowledgeMixin, ResearchMixin, LLMMixin, RefactorMixin):
     """Facade over all ArchLens capabilities; phase method groups are added via mixins."""
 
     def __init__(self, setup: SetupConfig | None = None, gatekeeper=None) -> None:

@@ -44,3 +44,6 @@ class OrchSDK(ArchLensSDK):
 
     def ask_llm(self, prompt, *, agent="orchestrator", max_tokens=512):
         return "canned llm reply"
+
+    def apply_fix(self, finding, repo_path):
+        return True
