@@ -115,5 +115,11 @@ class ArchLensSDK(GraphAnalysisMixin, DeliverablesMixin, OrchestrationMixin, Met
         return True
 
     def token_usage(self) -> dict:
-        """Token usage records for MetricsAgent (gatekeeper-aggregated; zeros until a run)."""
-        return {"baseline": 0, "assisted": 0, "rows": []}
+        """Real token usage the gatekeeper recorded this session (per-call input/output tokens)."""
+        ledger = self._gk().usage_ledger
+        rows = [{"agent": e.agent, "model": e.model,
+                 "input_tokens": e.input_tokens, "output_tokens": e.output_tokens}
+                for e in ledger.entries]
+        total = ledger.total_tokens()
+        return {"baseline": 0, "assisted": total, "total": total,
+                "input": ledger.total_input(), "output": ledger.total_output(), "rows": rows}

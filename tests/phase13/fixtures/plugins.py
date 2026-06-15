@@ -128,9 +128,16 @@ def fake_vault_fs(tmp_path):
 def _no_network(monkeypatch):
     """Block outbound (non-loopback) socket connects during every test (task 13.014).
 
-    Also pins the gatekeeper to mock LLM mode so an ambient credential never makes a live API call.
+    Also pins the gatekeeper to mock LLM mode and neutralizes provider credentials so a real key in
+    the developer's .env (loaded by ArchLensSDK.__init__) never leaks in and makes credential tests
+    non-deterministic. Tests that need a credential set it explicitly via monkeypatch.
     """
     monkeypatch.setenv("ARCHLENS_LLM_MODE", "mock")
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-ant-dummy")   # present-but-dummy: blocks .env load
+    monkeypatch.setenv("OPENAI_API_KEY", "sk-openai-dummy")   # and reads as "no credential"
+    monkeypatch.delenv("ANTHROPIC_AUTH_TOKEN", raising=False)
+    monkeypatch.delenv("ARCHLENS_LLM_PROVIDER", raising=False)
+    monkeypatch.delenv("ARCHLENS_LLM_MODEL", raising=False)
     real_connect = socket.socket.connect
     loopback = {"127.0.0.1", "::1", "localhost", ""}
 

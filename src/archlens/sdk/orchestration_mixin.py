@@ -72,7 +72,8 @@ class OrchestrationMixin:
         stop = state.get("stop_eval") or {}
         reason = "stop_conditions_met" if stop.get("met") else "hard_cap"
         diffs = tuple(f"{key}={value}" for key, value in stop.items() if key != "met")
-        return LoopResult(state.get("loop_iteration", 0), reason, diffs)
+        tokens = (state.get("token_ledger") or {}).get("total_tokens", 0)
+        return LoopResult(state.get("loop_iteration", 0), reason, diffs, tokens)
 
     def run_improvement_loop(self, candidates=None, deps=None) -> LoopResult:
         """Run the Phase 11 improvement loop (the single SDK entry point) and return its result."""

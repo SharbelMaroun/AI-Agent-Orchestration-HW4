@@ -30,6 +30,7 @@ class LoopResult:
     iterations: int
     stop_reason: str
     metric_diffs: tuple[str, ...]
+    tokens_used: int = 0  # real LLM tokens the agents consumed this run (gatekeeper-recorded)
 
 
 @dataclass(frozen=True)
