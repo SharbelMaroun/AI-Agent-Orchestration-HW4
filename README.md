@@ -43,8 +43,8 @@ zero-LLM, AST-based `graphify update` (the deep semantic extraction lives in the
 `/graphify` Claude-Code skill, not in this flow). Its one LLM-using CLI step is `graphify label`,
 which gives communities readable names. So:
 
-- **`analysis_depth: "structural"` (default)** — runs `graphify update` only. No LLM, no key, free.
-- **`analysis_depth: "semantic"`** — *additionally* runs `graphify label` to name communities via
+- **`analysis_depth: "structural"`** — runs `graphify update` only. No LLM, no key, free.
+- **`analysis_depth: "semantic"` (default)** — *additionally* runs `graphify label` to name communities via
   `llm_backend`/`llm_model` (default **Gemini `gemini-3-flash-preview`** — the Gemini 3 flash/light
   tier). Graphify supports **Gemini, not OpenAI**, so this needs a `GEMINI_API_KEY`; if the quota is
   exhausted Graphify falls back to `Community N` placeholders.
