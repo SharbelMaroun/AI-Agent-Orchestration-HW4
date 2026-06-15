@@ -1,7 +1,7 @@
 """Live Anthropic client — routes create() to the real API (used only when a credential resolves).
 
-Credentials are resolved by the official SDK from the environment (ANTHROPIC_API_KEY,
-ANTHROPIC_AUTH_TOKEN, or an `ant auth login` profile); no key is ever read or stored here directly.
+Credentials are resolved by the official SDK from the environment only (ANTHROPIC_API_KEY or
+ANTHROPIC_AUTH_TOKEN, typically via .env); no key is ever read or stored here directly.
 Upstream failures are mapped to the gatekeeper error types so the retry/queue policy applies.
 """
 

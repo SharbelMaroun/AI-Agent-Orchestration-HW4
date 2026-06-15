@@ -449,11 +449,14 @@ Every LLM call routes through the gatekeeper, which picks its client automatical
 | `live` | Always the real API (errors if no credential) |
 | `mock` | Always the offline mock (deterministic, no network) |
 
-A credential is any of `ANTHROPIC_API_KEY`, `ANTHROPIC_AUTH_TOKEN`, or an `ant auth login` profile —
-the official `anthropic` SDK resolves it; no key is ever read or stored directly in the code. So:
+A credential is detected from the **environment** only — either `ANTHROPIC_API_KEY` (a real,
+non-`dummy` key) or `ANTHROPIC_AUTH_TOKEN` — typically supplied via the git-ignored `.env` file.
+`credential_available()` checks exactly those two variables; no other source (e.g. an `ant`/OAuth
+login profile) is read, and no key is ever stored in code. The `anthropic` SDK then resolves the
+key at call time. So:
 
 ```bash
-# Live: set a key (or `ant auth login`) and run — the gatekeeper uses the real API automatically
+# Live: set ANTHROPIC_API_KEY (in .env or the shell) and run — the gatekeeper uses the real API
 export ANTHROPIC_API_KEY=sk-ant-...        # PowerShell: $env:ANTHROPIC_API_KEY="sk-ant-..."
 uv run python src/main.py analyze          # agents now call the real Claude API
 
