@@ -2,16 +2,37 @@
 
 import argparse
 
+from .repo_picker import pick_repo
 from .sdk.sdk import ArchLensSDK
 from .shared.dotenv import load_dotenv
+from .shared.errors import RepoError
 
 _EXAMPLES = """Examples:
+  uv run python src/main.py start          # pick a repo, clone it, then analyze
   uv run python src/main.py --version
   uv run python src/main.py vault runs/eval/httpie/graphify-out/graph.json
   uv run python src/main.py deliverables --graph graph.json --src src --prd docs/PRD.md
   uv run python src/main.py analyze
   uv run python src/main.py tokens
 """
+
+
+def run_start(sdk, input_fn=input, output_fn=print) -> int:
+    """Interactive entry: pick a repo (suggested or a URL), clone it, report, then analyze it."""
+    url = pick_repo(sdk.suggested_repos(), input_fn, output_fn)
+    if not url:
+        output_fn("No valid choice — nothing to clone.")
+        return 1
+    output_fn(f"Cloning {url} ...")
+    try:
+        path = sdk.clone_url(url)
+    except (RepoError, ValueError) as exc:
+        output_fn(f"Could not clone {url}: {exc}")
+        return 1
+    output_fn(f"Cloned to {path}. Building the graph and analyzing ...")
+    sdk.reset_run_state()
+    output_fn(str(sdk.analyze(repo_path=str(path))))
+    return 0
 
 
 def _build_parser() -> argparse.ArgumentParser:
@@ -29,6 +50,7 @@ def _build_parser() -> argparse.ArgumentParser:
     deliv.add_argument("--src", default="src", help="target source root for the class schema")
     deliv.add_argument("--prd", default="docs/PRD.md", help="PRD markdown for the alignment audit")
     deliv.add_argument("--out", default=None, help="output directory (defaults to config)")
+    sub.add_parser("start", help="interactively pick a repo, clone it, then analyze it")
     sub.add_parser("analyze", help="run Repo->Graph->Analyst and print the analysis report")
     sub.add_parser("loop", help="run the improvement loop and print the result")
     sub.add_parser("tokens", help="print the token-savings report")
@@ -52,6 +74,8 @@ def main(argv: list[str] | None = None, sdk=None) -> int:
         for path in sdk.generate_deliverables(args.graph, args.src, args.prd, args.out):
             print(path)
         return 0
+    if args.command == "start":
+        return run_start(sdk)
     if args.command == "analyze":
         print(sdk.analyze())
         return 0

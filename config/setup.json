@@ -92,5 +92,12 @@
     "rate_limit_rpm": [10, 30, 60],
     "similarity_threshold": [0.85, 0.88, 0.91, 0.94],
     "baseline": {"analysis_depth": "structural", "top_k_pages": 3, "rate_limit_rpm": 30, "similarity_threshold": 0.91}
-  }
+  },
+  "suggested_repos": [
+    {"name": "httpie", "url": "https://github.com/httpie/cli", "note": "approved primary target (BSD-3, 133 .py)"},
+    {"name": "requests", "url": "https://github.com/psf/requests", "note": "approved fallback (Apache-2.0)"},
+    {"name": "click", "url": "https://github.com/pallets/click", "note": "modern pyproject, uv-friendly"},
+    {"name": "tqdm", "url": "https://github.com/tqdm/tqdm", "note": "BugsInPy registry; small (69 .py)"},
+    {"name": "BugsInPy", "url": "https://github.com/soarsmu/BugsInPy", "note": "lecturer suggestion: real field bugs"}
+  ]
 }

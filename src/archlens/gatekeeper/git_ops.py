@@ -56,16 +56,10 @@ def _run(cmd: list[str], timeout_s: int) -> None:
 
 
 def run_git_clone(repo: RepoBlock, dest: Path) -> None:
-    clone_cmd = [
-        "git",
-        "clone",
-        "--depth",
-        str(repo.clone_depth),
-        "--branch",
-        repo.branch,
-        repo.url,
-        str(dest),
-    ]
+    clone_cmd = ["git", "clone", "--depth", str(repo.clone_depth)]
+    if repo.branch:  # empty branch -> clone the remote's default branch (for arbitrary user URLs)
+        clone_cmd += ["--branch", repo.branch]
+    clone_cmd += [repo.url, str(dest)]
     _run(clone_cmd, repo.timeout_s)
     if repo.pinned_commit not in ("", "HEAD"):
         _run(["git", "-C", str(dest), "checkout", repo.pinned_commit], repo.timeout_s)
