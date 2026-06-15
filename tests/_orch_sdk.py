@@ -41,3 +41,6 @@ class OrchSDK(ArchLensSDK):
 
     def token_usage(self):
         return {"baseline": 100, "assisted": 30, "rows": [{"model": "x"}]}
+
+    def ask_llm(self, prompt, *, agent="orchestrator", max_tokens=512):
+        return "canned llm reply"

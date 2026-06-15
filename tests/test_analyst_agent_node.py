@@ -21,6 +21,9 @@ class _SDK:
     def triage_edges(self, graph):
         return {"EXTRACTED": [1, 2], "INFERRED": [], "AMBIGUOUS": [1]}
 
+    def ask_llm(self, prompt, *, agent="orchestrator", max_tokens=512):
+        return "llm interpretation of the hubs"
+
 
 def _findings():
     return make_analyst_node(_SDK())({"graph_snapshot": {"graph_json": "g.json"}})["findings"]
@@ -29,6 +32,12 @@ def _findings():
 def test_analyst_emits_expected_categories():
     categories = {f["category"] for f in _findings()}
     assert {"centrality", "hub_vs_bottleneck", "triage", "community_count"} <= categories
+
+
+def test_analyst_includes_an_llm_summary_finding():
+    summaries = [f for f in _findings() if f["category"] == "llm_summary"]
+    assert len(summaries) == 1
+    assert summaries[0]["text"] == "llm interpretation of the hubs"
 
 
 def test_analyst_findings_are_tagged_from_analyst():

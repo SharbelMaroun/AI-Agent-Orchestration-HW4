@@ -52,6 +52,24 @@ def resolve_mode(mode: str | None = None) -> str:
     return "mock"
 
 
+def resolve_model(cfg) -> str:
+    """Model for free-form LLM calls: ``ARCHLENS_LLM_MODEL`` override, else the config default.
+
+    OpenAI users set ``ARCHLENS_LLM_MODEL`` (e.g. ``gpt-4o``) in ``.env`` so the model matches the
+    provider; otherwise the Anthropic default from ``config/setup.json`` (``metrics.default_model``).
+    """
+    return os.environ.get("ARCHLENS_LLM_MODEL") or cfg.metrics.default_model
+
+
+def extract_text(response) -> str:
+    """Pull the reply text from any provider's response (mock/OpenAI ``.text``, Anthropic ``.content``)."""
+    text = getattr(response, "text", None)
+    if text:
+        return text
+    content = getattr(response, "content", None) or []
+    return "".join(getattr(block, "text", "") for block in content)
+
+
 def select_llm_client(mode: str | None = None):
     """Return a live provider client (Anthropic/OpenAI) or the offline mock, per mode + provider."""
     if resolve_mode(mode) == "live":
