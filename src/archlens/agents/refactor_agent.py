@@ -23,8 +23,10 @@ def make_refactor_node(sdk):
         rationale = sdk.ask_llm(
             f"Propose one concrete, safe refactor to relieve the {target['category']} at "
             f"{target['source_file']}, in one sentence.", agent="RefactorAgent")
-        plan = {"target": target["source_file"], "action": "split_module", "rationale": rationale}
-        applied = sdk.apply_fix(target, (state.get("target_repo") or {}).get("local_path", ""))
+        plan = {"target": target["source_file"], "action": "seam_or_split", "rationale": rationale}
+        repo_path = (state.get("target_repo") or {}).get("local_path", "")
+        graph_json = (state.get("graph_snapshot") or {}).get("graph_json")
+        applied = sdk.apply_fix(target, repo_path, graph_json)
         status = "fixed" if applied else "selected"
         return {"findings": [{**target, "status": status, "plan": plan, "applied": applied}]}
 

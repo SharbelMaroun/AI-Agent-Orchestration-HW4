@@ -11,7 +11,7 @@ class _SDK:
     def ask_llm(self, prompt, *, agent="orchestrator", max_tokens=512):
         return "extract the request-routing helper into its own module"
 
-    def apply_fix(self, finding, repo_path):
+    def apply_fix(self, finding, repo_path, graph_json=None):
         self.apply_calls.append((finding["id"], repo_path))
         return self._applied
 
