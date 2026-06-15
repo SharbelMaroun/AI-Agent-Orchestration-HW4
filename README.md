@@ -520,6 +520,11 @@ Measured on the real httpie checkout (133 `.py` files), 10 standard architecture
 tokens), the graph **breaks even after 2 queries**. Per-model USD cost tables are in
 `docs/metrics/COST_TABLES.md`; the full schema is `metrics/out/token_metrics.json`.
 
+A **live** agent-level confirmation (real GPT-4o on httpie) is in `docs/metrics/GRAPH_VS_CODE.md`:
+the same architecture question answered from the graph neighbourhood vs the full source module cost
+**438 vs 3231 tokens (86.4% fewer)** for an equivalent answer —
+`uv run python scripts/compare_graph_vs_code.py`.
+
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for branch naming, PR review rules, commit style, and the
