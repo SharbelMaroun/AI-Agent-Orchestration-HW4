@@ -477,9 +477,11 @@ ARCHLENS_LLM_MODE=mock uv run python src/main.py analyze
 
 `ARCHLENS_LLM_MODEL` selects the model (so it matches your provider); it defaults to
 `config/setup.json` → `metrics.default_model`. Pricing rows for both providers' models live in the
-`pricing` block. The **AnalystAgent** is the first agent wired to the LLM (`sdk.ask_llm`), so
-`analyze`/`loop` genuinely invoke the active provider; the BugHunter/Refactor LLM steps and the
-semantic `graphify extract` pass are the next wiring targets.
+`pricing` block. Three agents now reason via the LLM through `sdk.ask_llm`: **AnalystAgent**
+(interprets the top hubs), **BugHunterAgent** (validates the worst bottleneck as a refactor target),
+and **RefactorAgent** (authors the fix rationale) — so `analyze`/`loop` genuinely invoke the active
+provider end to end. The semantic `graphify extract` pass and an *applied* (code-mutating) refactor
+are the remaining wiring targets.
 
 The measurement protocols also accept `live=True` (`sdk.run_baseline(..., live=True)`); the naive
 baseline sends ~148k tokens per question, so a full live baseline run costs real tokens. The tests
