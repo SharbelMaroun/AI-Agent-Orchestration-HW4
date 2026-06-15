@@ -439,32 +439,49 @@ All behaviour is config-driven (no hardcoded values). The three config files and
 | `handlers.console`, `handlers.file` | `class`, `level`, `formatter`, (`filename`, `delay`) | console + file handlers |
 | `loggers.archlens` | `level`, `handlers`, `propagate` | the `archlens` logger config |
 
-## LLM modes (live API vs offline mock)
+## LLM modes (provider-agnostic live API vs offline mock)
 
-Every LLM call routes through the gatekeeper, which picks its client automatically:
+Every LLM call routes through the gatekeeper, which is **provider-agnostic** — it picks a client by
+*mode* (live/mock) and *provider* (Anthropic/OpenAI). The same `create(model, messages)` interface
+backs all three, so nothing downstream cares which provider answered.
 
 | `ARCHLENS_LLM_MODE` | Behaviour |
 | --- | --- |
-| `auto` (default) | **Live** Anthropic API when a credential resolves, else the offline mock |
+| `auto` (default) | **Live** API when any credential resolves, else the offline mock |
 | `live` | Always the real API (errors if no credential) |
 | `mock` | Always the offline mock (deterministic, no network) |
 
-A credential is detected from the **environment** only — either `ANTHROPIC_API_KEY` (a real,
-non-`dummy` key) or `ANTHROPIC_AUTH_TOKEN` — typically supplied via the git-ignored `.env` file.
-`credential_available()` checks exactly those two variables; no other source (e.g. an `ant`/OAuth
-login profile) is read, and no key is ever stored in code. The `anthropic` SDK then resolves the
-key at call time. So:
+| `ARCHLENS_LLM_PROVIDER` | Provider chosen |
+| --- | --- |
+| `auto` (default) | OpenAI when `OPENAI_API_KEY` is the key present; Anthropic otherwise (wins ties) |
+| `anthropic` | Force the Anthropic client (`ANTHROPIC_API_KEY` / `ANTHROPIC_AUTH_TOKEN`) |
+| `openai` | Force the OpenAI client (`OPENAI_API_KEY`) |
+
+A credential is detected from the **environment** only — `ANTHROPIC_API_KEY` / `ANTHROPIC_AUTH_TOKEN`
+**or** `OPENAI_API_KEY` (a real, non-`dummy` key) — typically via the git-ignored `.env`. No key is
+ever stored in code; the official SDK resolves it at call time.
 
 ```bash
-# Live: set ANTHROPIC_API_KEY (in .env or the shell) and run — the gatekeeper uses the real API
-export ANTHROPIC_API_KEY=sk-ant-...        # PowerShell: $env:ANTHROPIC_API_KEY="sk-ant-..."
-uv run python src/main.py analyze          # agents now call the real Claude API
+# Use OpenAI (provider auto-detected from the key); pick a matching model:
+#   .env:  OPENAI_API_KEY=sk-...
+#          ARCHLENS_LLM_MODEL=gpt-4o
+uv run python src/main.py analyze          # AnalystAgent now calls GPT-4o for its read of the graph
 
-# Force offline (no network, canned responses with estimated token counts)
+# Use Anthropic instead:
+#   .env:  ANTHROPIC_API_KEY=sk-ant-...     (ARCHLENS_LLM_MODEL defaults to the Anthropic model)
+uv run python src/main.py analyze          # AnalystAgent calls Claude
+
+# Force offline (no network, deterministic canned reply)
 ARCHLENS_LLM_MODE=mock uv run python src/main.py analyze
 ```
 
-The measurement protocols accept `live=True` (`sdk.run_baseline(..., live=True)`); note the naive
+`ARCHLENS_LLM_MODEL` selects the model (so it matches your provider); it defaults to
+`config/setup.json` → `metrics.default_model`. Pricing rows for both providers' models live in the
+`pricing` block. The **AnalystAgent** is the first agent wired to the LLM (`sdk.ask_llm`), so
+`analyze`/`loop` genuinely invoke the active provider; the BugHunter/Refactor LLM steps and the
+semantic `graphify extract` pass are the next wiring targets.
+
+The measurement protocols also accept `live=True` (`sdk.run_baseline(..., live=True)`); the naive
 baseline sends ~148k tokens per question, so a full live baseline run costs real tokens. The tests
 always run in `mock` mode (pinned by an autouse fixture) so the suite stays offline and free.
 
