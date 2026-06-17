@@ -20,7 +20,6 @@ from archlens.metrics.chart_factory import (  # noqa: E402
 )
 from archlens.metrics.ledger_io import ledger_path, load_ledger  # noqa: E402
 from archlens.shared.config import load_setup  # noqa: E402
-from archlens.shared.constants import RUBRIC_METRICS  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 ASSETS = ROOT / "docs" / "assets"
@@ -67,22 +66,6 @@ def tokens_waterfall(cfg):
                     title=f"Token savings by stage (total {saved})")
 
 
-def convergence_line():
-    iterations = [1, 2, 3, 4]
-    inter_edges = [40, 28, 22, 20]
-    bottlenecks = [5, 3, 1, 0]
-    plt.figure(figsize=(9, 5))
-    plt.plot(iterations, inter_edges, marker="o", label="inter-community edges")
-    plt.plot(iterations, bottlenecks, marker="s", label="bottleneck deps")
-    plt.axvline(4, color="green", linestyle="--", label="stop (tests green, ruff 0)")
-    plt.xlabel("improvement-loop iteration")
-    plt.legend()
-    plt.title("Stop-condition convergence")
-    plt.tight_layout()
-    plt.savefig(ASSETS / "convergence_line.png")
-    plt.close()
-
-
 def similarity_scatter():
     records = _load(RESULTS / "sensitivity" / "similarity_threshold.json")["records"]
     xs = [r["config"]["similarity_threshold"] for r in records]
@@ -110,26 +93,14 @@ def variance_box():
               ASSETS / "variance_box.png", title="Run-to-run variance")
 
 
-def four_metrics_bar():
-    base = _load(ROOT / "metrics" / "knowledge_baseline.json")["tasks"]
-    asst = _load(ROOT / "metrics" / "knowledge_assisted.json")["tasks"]
-    before = [sum(t[m] for t in base) / len(base) for m in RUBRIC_METRICS]
-    after = [sum(t[m] for t in asst) / len(asst) for m in RUBRIC_METRICS]
-    _grouped_bar(list(RUBRIC_METRICS), before, after, "before", "after",
-                 "Knowledge metrics before vs after wiki", "score 0-10",
-                 ASSETS / "four_metrics_bar.png")
-
-
 def main() -> int:
     ASSETS.mkdir(parents=True, exist_ok=True)
     cfg = load_setup()
     tokens_bar(cfg)
     tokens_waterfall(cfg)
-    convergence_line()
     similarity_scatter()
     sensitivity_heatmap()
     variance_box()
-    four_metrics_bar()
     print("charts written:", sorted(p.name for p in ASSETS.glob("*.png")))
     return 0
 

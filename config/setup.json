@@ -32,8 +32,8 @@
     "timeout_s": 600,
     "analysis_depth": "semantic",
     "token_budget": 100000,
-    "llm_backend": "gemini",
-    "llm_model": "gemini-3-flash-preview"
+    "llm_backend": "openai",
+    "llm_model": "gpt-4.1-mini"
   },
   "vault": {
     "vault_root": "runs/vault",
@@ -78,7 +78,8 @@
     "claude-sonnet-4-6": {"input_per_mtok": 3.0, "output_per_mtok": 15.0},
     "claude-haiku-4-5": {"input_per_mtok": 1.0, "output_per_mtok": 5.0},
     "gpt-4o": {"input_per_mtok": 2.5, "output_per_mtok": 10.0},
-    "gpt-4o-mini": {"input_per_mtok": 0.15, "output_per_mtok": 0.6}
+    "gpt-4o-mini": {"input_per_mtok": 0.15, "output_per_mtok": 0.6},
+    "gpt-4.1-mini": {"input_per_mtok": 0.4, "output_per_mtok": 1.6}
   },
   "knowledge_assets": {
     "raw_dir": "raw",

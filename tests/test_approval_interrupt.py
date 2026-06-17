@@ -1,12 +1,10 @@
 """TDD tests for the human-approval interrupt and resume (tasks 10.036-10.038)."""
 
-import sqlite3
-
-from langgraph.checkpoint.sqlite import SqliteSaver
 from langgraph.graph import END, START, StateGraph
 from langgraph.types import Command
 
 from archlens.agents.approval import make_approval_node
+from archlens.agents.runner import make_checkpointer
 from archlens.agents.state import AgentState
 
 _PENDING = [{"action": "git push --force", "finding": "spof-ss", "status": "pending"}]
@@ -17,7 +15,7 @@ def _graph(tmp_path, thread):
     builder.add_node("approval", make_approval_node())
     builder.add_edge(START, "approval")
     builder.add_edge("approval", END)
-    saver = SqliteSaver(sqlite3.connect(str(tmp_path / f"{thread}.sqlite"), check_same_thread=False))
+    saver = make_checkpointer(str(tmp_path / f"{thread}.sqlite"))
     graph = builder.compile(checkpointer=saver)
     return graph, {"configurable": {"thread_id": thread}}
 
