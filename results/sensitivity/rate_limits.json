@@ -1,40 +1,40 @@
 {
-  "param": "rate_limit_rpm",
+  "param": "rate_limits",
   "records": [
     {
       "config": {
         "analysis_depth": "structural",
+        "top_k_pages": 3,
         "rate_limit_rpm": 10,
-        "similarity_threshold": 0.91,
-        "top_k_pages": 3
+        "similarity_threshold": 0.91
       },
       "result": {
-        "max_queue_depth": 40,
-        "wait_time_s": 240
+        "wait_time_s": 240.0,
+        "max_queue_depth": 0
       }
     },
     {
       "config": {
         "analysis_depth": "structural",
+        "top_k_pages": 3,
         "rate_limit_rpm": 30,
-        "similarity_threshold": 0.91,
-        "top_k_pages": 3
+        "similarity_threshold": 0.91
       },
       "result": {
-        "max_queue_depth": 20,
-        "wait_time_s": 60
+        "wait_time_s": 60.0,
+        "max_queue_depth": 0
       }
     },
     {
       "config": {
         "analysis_depth": "structural",
+        "top_k_pages": 3,
         "rate_limit_rpm": 60,
-        "similarity_threshold": 0.91,
-        "top_k_pages": 3
+        "similarity_threshold": 0.91
       },
       "result": {
-        "max_queue_depth": 0,
-        "wait_time_s": 0
+        "wait_time_s": 0.0,
+        "max_queue_depth": 0
       }
     }
   ]

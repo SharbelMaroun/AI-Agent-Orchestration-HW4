@@ -18,8 +18,8 @@ Each Guidelines V3 quick-reference requirement, with verdict and evidence.
 | 10 | Gatekeeper-only external calls + FIFO never-reject | PASS | `tests/test_api_call_routing.py`, `test_no_llm_bypass.py`, `test_no_direct_git.py` |
 | 11 | Graphify pipeline + Obsidian vault (hot/index/wiki/log) | PASS | `runs/httpie-vault/`; `runs/eval/httpie/graphify-out/graph.json` |
 | 12 | Reverse-engineering deliverables (block diagram, class schema, audit) | PASS | `deliverables/ARCHITECTURE.md`, `CLASS_SCHEMA.md`, `ALIGNMENT_AUDIT.md` |
-| 13 | Token before/after with >= 70% savings (or amortization) | PASS | 97.07% real billed gpt-4.1-mini, $0.58 (`metrics/out/token_metrics.json`) |
-| 14 | 4 knowledge-quality metrics measured before/after | PASS | `metrics/knowledge_*.json`; `docs/metrics/KNOWLEDGE_COMPARISON.md` |
+| 13 | Token before/after with >= 70% savings (or amortization) | PASS | 97.08% real billed gpt-4.1-mini, $0.58 (`metrics/out/token_metrics.json`) |
+| 14 | 4 knowledge-quality metrics measured before/after | N/A | the eval harness was illustrative (hardcoded scores, not a real measurement); the fabricated result was removed rather than presented as real (see RETRO) |
 | 15 | SKILL.md with guardrails + LLM wiki | PASS | `skills/SKILL_graph_reading.md`, `SKILL_refactor.md` |
 | 16 | CI/CD pipeline (uv sync --frozen, gates) | PASS | `.github/workflows/ci.yml` |
 | 17 | README + PROMPT_BOOK + PRD/PLAN docs | PASS | `README.md`, `docs/PROMPT_BOOK.md`, `docs/PRD.md`, `docs/PLAN.md` |

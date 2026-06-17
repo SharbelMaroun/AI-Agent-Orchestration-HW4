@@ -1,8 +1,10 @@
 """Phase 15 variance runs + OAT sweeps -> results/ artifacts (tasks 15.013-15.018).
 
-Deterministic where the pipeline is deterministic (tokens, modularity from the real httpie graph,
-duplicate counts by similarity threshold); runtime is measured per run. Each OAT sweep runs through
-the SDK runner, so no external API call happens outside the gatekeeper.
+NOTE: the committed results/sensitivity/*.json and results/variance/*.json are from REAL live
+measurement (token/top_k cost on gpt-4.1-mini; rate-limit wait through the real limiter; similarity
+and modularity from the real httpie graph). This offline script regenerates deterministic stand-in
+values for analysis_depth/top_k_pages/rate_limits so it runs without an API key in CI — re-run it only
+to refresh the offline fallback, not to reproduce the committed real numbers.
 Run: uv run python scripts/run_sensitivity.py
 """
 

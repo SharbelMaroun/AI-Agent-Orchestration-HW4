@@ -13,12 +13,10 @@ be split into many small, single-purpose modules and SDK mixins rather than a fe
 
 ## Metrics outcome
 
-- **Token savings: 97.07%** — naive full-context baseline 1,369,484 tokens vs Graphify-assisted
-  40,088 tokens over 10 standard questions on the real httpie checkout (real billed gpt-4.1-mini, $0.58).
+- **Token savings: 97.08%** — naive full-context baseline 1,368,538 tokens vs Graphify-assisted
+  39,950 tokens over 10 standard questions on the real httpie checkout (real billed gpt-4.1-mini, $0.58).
   Break-even after **2 queries** even counting the one-time graph-build cost.
-- **Knowledge quality: all 4 metrics improved** with the wiki + skills (source traceability +10.0,
-  noise reduction +8.0, correct-file identification +2.6, correct-tool timing +10.0).
-- **Quality gates:** 800+ tests green, 97.35% branch coverage, ruff 0 violations, every file <= 150
+- **Quality gates:** 904 tests green, 96.96% branch coverage, ruff 0 violations, every file <= 150
   lines, 3/3 analysis mutants killed.
 
 ## Lessons learned
@@ -37,3 +35,31 @@ be split into many small, single-purpose modules and SDK mixins rather than a fe
 4. **Config-as-single-source-of-truth scales.** Threading every threshold and path through typed
    pydantic config blocks made the OAT sensitivity sweeps trivial to express and kept the "no hardcoded
    values" audit clean at the end.
+
+## Known issues & planned fixes
+
+1. **Obsidian vault community pages are titled by number, not by topic.** The generated vault
+   (`runs/vault/wiki/`) names each cluster page `community-0`, `community-1`, … instead of by a
+   human-readable topic. The semantic names *do* exist — graphify's LLM `label` step produces them
+   (e.g. `community-6` = "HTTP Adapters and Sessions") and stores them in
+   `graphify-out/.graphify_labels.json` and the labelled `graph.html` — but the ArchLens vault builder
+   titles each page by its numeric cluster id and does not consume that label sidecar, so the two
+   outputs are not wired together. The vault is correct and navigable (every page lists its real member
+   symbols and the bridge links resolve), but it is harder to browse than topic-named pages would be.
+   **Planned fix:** have `src/archlens/vault/builder.py` read the graphify community labels and title
+   each `community-N.md` with its semantic name (falling back to `community-N` when no label exists),
+   and render the `index.md` links as aliases (`[[community-6|HTTP Adapters and Sessions]]`) so the hub
+   reads as topics instead of numbers.
+
+2. **Several "research" results were illustrative stand-ins, now re-measured for real or removed.** A
+   late audit found that parts of the research were synthetic rather than measured, so they were
+   corrected:
+   - **Now real (live, gpt-4.1-mini):** token economics (97.08% savings, $0.58), the top-k and
+     run-to-run-variance sweeps, and `analysis_depth` / `rate_limits` (the latter measured through the
+     real limiter). `similarity_threshold` already counted real graph edges.
+   - **Removed** rather than presented as real: the **stop-condition convergence** plot (the production
+     loop's `apply`/`regraph` are no-ops, so the curve had been hardcoded) and the **4 knowledge-quality
+     metrics** (`knowledge_eval.py` hard-coded "assisted = perfect, baseline = bad" from the answer key
+     over fake ground-truth files; one metric did not map to real behaviour).
+   **Planned fix:** restore either honestly by building a real refactor-and-re-graph convergence harness
+   and a real LLM-judge knowledge eval against true httpie ground truth.

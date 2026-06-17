@@ -2,40 +2,40 @@
   "amortization": {
     "break_even_queries": 2,
     "graph_build_tokens": 148169,
-    "per_query_savings": 132939
+    "per_query_savings": 132858
   },
   "cost_totals": {
     "input_tokens": 1393010,
     "key": "TOTAL",
-    "output_tokens": 16562,
-    "usd_cost": 0.5837032000000001
+    "output_tokens": 15478,
+    "usd_cost": 0.5819688000000001
   },
   "per_agent": [
     {
       "input_tokens": 33546,
       "key": "AssistedRunner",
-      "output_tokens": 6542,
-      "usd_cost": 0.023885600000000003
+      "output_tokens": 6404,
+      "usd_cost": 0.023664799999999996
     },
     {
       "input_tokens": 1359464,
       "key": "BaselineRunner",
-      "output_tokens": 10020,
-      "usd_cost": 0.5598176
+      "output_tokens": 9074,
+      "usd_cost": 0.5583039999999999
     }
   ],
   "per_model": [
     {
       "input_tokens": 1393010,
       "key": "gpt-4.1-mini",
-      "output_tokens": 16562,
-      "usd_cost": 0.5837032
+      "output_tokens": 15478,
+      "usd_cost": 0.5819688
     }
   ],
   "savings": {
-    "assisted_tokens": 40088,
-    "baseline_tokens": 1369484,
-    "savings_pct": 97.07276609292259,
+    "assisted_tokens": 39950,
+    "baseline_tokens": 1368538,
+    "savings_pct": 97.0808264001438,
     "target_met": true
   },
   "target_met": true

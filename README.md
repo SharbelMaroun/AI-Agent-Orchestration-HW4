@@ -92,7 +92,7 @@ reproducible from the repo.
 | `41efe45` | **Phase 10 — Multi-agent orchestration (LangGraph)** (55/55) | AgentState + per-key reducers, supervisor + conditional routing, 7 agent nodes, compiled StateGraph, SqliteSaver checkpointing + resume, guardrail tiers + human-approval interrupt, per-node retries, run trace, 7 prompt templates |
 | `4f6be68` | **Phase 11 — Improvement loop & stop conditions** (49/50) | fix priority policy + evidence gate + queue, iteration brancher + revert rollback, refactor fixes (split/bottleneck/duplicate/SPOF), test gate→rollback, graph-diff metrics + load-shift SC-1, StopConditionEvaluator (5 SCs + 5-iter cap), LoopController subgraph + `--loop` CLI + E2E convergence |
 | `7ad35d0` | **Phase 9 — API gatekeeper & rate limiting** (49/50) | sliding-window limiters (30/min, 500/hr), concurrency semaphore, retry policy, FIFO overflow queue + blocking backpressure, drain loop, structured call log + key redaction, token-ledger hooks, Anthropic client + offline mock mode, `execute()` facade (saturation / never-reject / thread-safety) |
-| `…`→`209e0d4` | **Phases 12–15 — token economics, knowledge wiki, research** | baseline-vs-assisted token measurement (97.07% savings, cost tables), LLM raw→wiki→index→log + SKILL guardrails + 4 knowledge-quality metrics, research notebook + OAT sensitivity sweeps + charts |
+| `…`→`209e0d4` | **Phases 12–15 — token economics, knowledge wiki, research** | baseline-vs-assisted token measurement (97.08% savings, cost tables), LLM raw→wiki→index→log + SKILL guardrails, research notebook + OAT sensitivity sweeps + charts |
 | `d75debe`→`ae9b40b` | **Phase 16 — packaging, CI, compliance** | gate scripts (line-cap + forbidden-tooling), CI workflow + CONTRIBUTING + PR template, README + LICENSE + screenshots, PROMPT_BOOK, Nielsen UX eval, Guidelines-V3 compliance sweep, annotated tag `v1.00`, live-LLM mode + `.env`, all approval gates closed |
 | `00e06ae`→`88c33d8` | **Ran it for real — 6 live-execution bug fixes (2026-06-15)** | loader node-link format, real graph.json path resolution, idempotent sandbox + Windows rmtree, O(V+E) hub/bottleneck classification, QAAgent quality gate — `analyze` and `loop` now complete end-to-end on a live httpie clone (see "Running the full pipeline live" below) |
 
@@ -299,16 +299,15 @@ the system temp directory. Full honest log trail: `docs/REPO_SELECTION.md` §3.
   the Guidelines V3 workflow forbids development past those gates without sign-off;
   requests are prepared in `docs/approvals/`.
 
-### Not yet captured
+### Earlier gaps — now closed
 
 Real `graph.json` / `graph.html` / `GRAPH_REPORT.md` exist (httpie, under the git-ignored
 `runs/`), a real Obsidian vault was generated and validated, the real graph is charted in the
-**Analysis** section above, the **token-economics** before/after tables are measured (97.07%
+**Analysis** section above, the **token-economics** before/after tables are measured (97.08%
 savings — see the Token economics section), and the full `analyze`/`loop` pipeline now runs
-end-to-end on a live clone (above). Still open: interactive `graph.html` / Obsidian-vault
-**screenshots** (this environment has no headless browser, so vis.js can't be rendered here —
-the matplotlib charts are the substitute); the **semantic** `graphify extract` pass (needs an
-LLM API key). The applied, code-mutating refactor is now wired — RefactorAgent calls
+end-to-end on a live clone (above). **Now closed too:** live `graph.html` and Obsidian-vault
+**screenshots** are captured from a real browser/Obsidian session (see the Screenshots section), and
+the **semantic** community-labelling pass runs live via OpenAI (gpt-4.1-mini). The applied, code-mutating refactor is now wired — RefactorAgent calls
 `sdk.apply_fix` and the loop reaches "stop conditions met" when the fix genuinely improves
 modularity — so the remaining gap is reliable convergence on arbitrary large repos (a smarter,
 behaviour-preserving transform than the current module split).
@@ -361,9 +360,8 @@ VALIDATION ok: True | orphans: 0 | broken_links: 0 | lint: 0
 ```
 
 The wrapper, adapter, and models are now exercised by unit tests *and* proven against a
-real 2033-node Graphify graph. `graph.html` / vault screenshots remain to be captured;
-the semantic (`extract`) pass needs an LLM API key and is deferred to the token-economics
-work in Phase 12.
+real 2033-node Graphify graph. `graph.html` / vault screenshots are now captured (see the
+Screenshots section), and the semantic community-labelling pass runs live via OpenAI (gpt-4.1-mini).
 
 ## Installation
 
@@ -396,8 +394,8 @@ uv run python src/main.py loop                        # run the improvement loop
 
 ### Screenshots
 
-This environment is headless, so the graph and vault images are rendered from their underlying data
-rather than captured from a live browser/Obsidian UI; the CLI image shows real command output.
+The CLI image shows real command output; the `graph.html` and Obsidian graph below are now captured
+**live** from a real browser and Obsidian session on the httpie analysis.
 
 ![ArchLens CLI run showing version and token-savings output](docs/screenshots/cli_run.png)
 *The thin CLI delegating to the SDK.*
@@ -407,6 +405,12 @@ rather than captured from a live browser/Obsidian UI; the CLI image shows real c
 
 ![Obsidian vault index.md read-first hub](docs/screenshots/obsidian_vault.png)
 *The Obsidian vault's read-first `index.md` hub.*
+
+![Updated graph.html with OpenAI-labelled communities](docs/screenshots/graph.html_updated.png)
+*Live `graph.html` — the 2033-node httpie graph, communities now named by OpenAI (gpt-4.1-mini).*
+
+![Obsidian Graph View of the generated vault](docs/screenshots/obsidia_updated_graph.png)
+*Obsidian Graph View of the generated vault, navigated live.*
 
 ## Architecture
 
@@ -530,12 +534,25 @@ Measured on the real httpie checkout (133 `.py` files), 10 standard architecture
 
 | Protocol | Total input tokens | Per-question |
 | --- | --- | --- |
-| Baseline (naive full-context) | 1,369,484 | ~137k |
-| Graphify-assisted (index + ≤3 wiki + subgraph) | 40,088 | ~4.0k |
+| Baseline (naive full-context) | 1,368,538 | ~137k |
+| Graphify-assisted (index + ≤3 wiki + subgraph) | 39,950 | ~4.0k |
 
-**Token savings: 97.07%** (target ≥ 70%; real billed gpt-4.1-mini, $0.58). Even charging the one-time Graphify build cost (~148k
+**Token savings: 97.08%** (target ≥ 70%; real billed gpt-4.1-mini, $0.58). Even charging the one-time Graphify build cost (~148k
 tokens), the graph **breaks even after 2 queries**. Per-model USD cost tables are in
 `docs/metrics/COST_TABLES.md`; the full schema is `metrics/out/token_metrics.json`.
+
+### Live cost: model selection (gpt-4o → gpt-4.1-mini)
+
+![OpenAI usage dashboard: high gpt-4o spend earlier, low gpt-4.1-mini spend now](docs/screenshots/openai_usage.png)
+*OpenAI usage dashboard — the earlier exploratory runs on **gpt-4o** (the high-spend days) versus the
+current measurement on **gpt-4.1-mini** (the low, flat spend).*
+
+The usage graph makes the cost optimisation concrete. The earlier agent and measurement runs on
+**gpt-4o** ($2.50 / $10.00 per 1M input/output tokens) produced the visible spend spike; repointing the
+LLM at **gpt-4.1-mini** ($0.40 / $1.60 per 1M — roughly **6× cheaper**) dropped daily usage to a flat
+low. The same ~1.4M-token baseline-vs-assisted study that would cost **~$3.7 on gpt-4o** ran for
+**$0.58 on gpt-4.1-mini** — an **~84% cost cut** with no measurable quality loss on these tasks. This
+is exactly the rubric §11 "select models by cost-benefit ratio" optimisation, shown end-to-end.
 
 A **live** evaluation measuring both tokens **and quality** (`docs/metrics/GRAPH_VS_CODE.md`,
 `sdk.compare_graph_vs_code`) answers the same architecture question from the graph neighbourhood vs

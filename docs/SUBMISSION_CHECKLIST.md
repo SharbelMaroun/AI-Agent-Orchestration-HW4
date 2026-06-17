@@ -16,9 +16,9 @@ Version: 1.00 | Course: AI Agent Orchestration — HW4 (EX04) | Task 16.041
 - [x] API gatekeeper: rate limiting + FIFO never-reject overflow queue
 - [x] Multi-agent LangGraph orchestration (supervisor + 7 agents)
 - [x] Improvement loop + 5 stop conditions + 5-iteration cap
-- [x] Token measurement: baseline vs assisted, **97.07% savings** (real billed gpt-4.1-mini), cost tables (`metrics/out/`)
+- [x] Token measurement: baseline vs assisted, **97.08% savings** (real billed gpt-4.1-mini), cost tables (`metrics/out/`)
 - [x] SKILL.md files with guardrails + LLM wiki (raw→wiki→index→log)
-- [x] 4 knowledge-quality metrics measured before/after
+- [ ] 4 knowledge-quality metrics measured before/after — *illustrative harness only (hardcoded scores); fabricated result removed rather than shown as real (see RETRO)*
 - [x] Research notebook + sensitivity analysis + charts (`notebooks/`, `docs/assets/`)
 - [x] README.md, CONTRIBUTING.md, LICENSE
 - [x] CI/CD workflow (`.github/workflows/ci.yml`) + PR template
@@ -46,10 +46,9 @@ Version: 1.00 | Course: AI Agent Orchestration — HW4 (EX04) | Task 16.041
 
 ## Remaining (your GitHub / course-portal actions only)
 
-Three steps need your GitHub account or the course submission portal — they cannot be done from the
+Two steps need your GitHub account or the course submission portal — they cannot be done from the
 repo itself:
 
 - [ ] **16.011** — open a PR so GitHub Actions runs the CI checks (CI already runs on every push to
   the branch; a PR just surfaces the checks tab).
-- [ ] **16.014** — enable branch protection on the main branch (GitHub → Settings → Branches).
 - [ ] **16.043** — upload the final submission (repo at tag `v1.00`) per the course instructions.
