@@ -92,7 +92,7 @@ reproducible from the repo.
 | `41efe45` | **Phase 10 — Multi-agent orchestration (LangGraph)** (55/55) | AgentState + per-key reducers, supervisor + conditional routing, 7 agent nodes, compiled StateGraph, SqliteSaver checkpointing + resume, guardrail tiers + human-approval interrupt, per-node retries, run trace, 7 prompt templates |
 | `4f6be68` | **Phase 11 — Improvement loop & stop conditions** (49/50) | fix priority policy + evidence gate + queue, iteration brancher + revert rollback, refactor fixes (split/bottleneck/duplicate/SPOF), test gate→rollback, graph-diff metrics + load-shift SC-1, StopConditionEvaluator (5 SCs + 5-iter cap), LoopController subgraph + `--loop` CLI + E2E convergence |
 | `7ad35d0` | **Phase 9 — API gatekeeper & rate limiting** (49/50) | sliding-window limiters (30/min, 500/hr), concurrency semaphore, retry policy, FIFO overflow queue + blocking backpressure, drain loop, structured call log + key redaction, token-ledger hooks, Anthropic client + offline mock mode, `execute()` facade (saturation / never-reject / thread-safety) |
-| `…`→`209e0d4` | **Phases 12–15 — token economics, knowledge wiki, research** | baseline-vs-assisted token measurement (97.65% savings, cost tables), LLM raw→wiki→index→log + SKILL guardrails + 4 knowledge-quality metrics, research notebook + OAT sensitivity sweeps + charts |
+| `…`→`209e0d4` | **Phases 12–15 — token economics, knowledge wiki, research** | baseline-vs-assisted token measurement (97.07% savings, cost tables), LLM raw→wiki→index→log + SKILL guardrails + 4 knowledge-quality metrics, research notebook + OAT sensitivity sweeps + charts |
 | `d75debe`→`ae9b40b` | **Phase 16 — packaging, CI, compliance** | gate scripts (line-cap + forbidden-tooling), CI workflow + CONTRIBUTING + PR template, README + LICENSE + screenshots, PROMPT_BOOK, Nielsen UX eval, Guidelines-V3 compliance sweep, annotated tag `v1.00`, live-LLM mode + `.env`, all approval gates closed |
 | `00e06ae`→`88c33d8` | **Ran it for real — 6 live-execution bug fixes (2026-06-15)** | loader node-link format, real graph.json path resolution, idempotent sandbox + Windows rmtree, O(V+E) hub/bottleneck classification, QAAgent quality gate — `analyze` and `loop` now complete end-to-end on a live httpie clone (see "Running the full pipeline live" below) |
 
@@ -303,7 +303,7 @@ the system temp directory. Full honest log trail: `docs/REPO_SELECTION.md` §3.
 
 Real `graph.json` / `graph.html` / `GRAPH_REPORT.md` exist (httpie, under the git-ignored
 `runs/`), a real Obsidian vault was generated and validated, the real graph is charted in the
-**Analysis** section above, the **token-economics** before/after tables are measured (97.65%
+**Analysis** section above, the **token-economics** before/after tables are measured (97.07%
 savings — see the Token economics section), and the full `analyze`/`loop` pipeline now runs
 end-to-end on a live clone (above). Still open: interactive `graph.html` / Obsidian-vault
 **screenshots** (this environment has no headless browser, so vis.js can't be rendered here —
@@ -530,10 +530,10 @@ Measured on the real httpie checkout (133 `.py` files), 10 standard architecture
 
 | Protocol | Total input tokens | Per-question |
 | --- | --- | --- |
-| Baseline (naive full-context) | 1,481,736 | ~148k |
-| Graphify-assisted (index + ≤3 wiki + subgraph) | 34,801 | ~3.4k |
+| Baseline (naive full-context) | 1,369,484 | ~137k |
+| Graphify-assisted (index + ≤3 wiki + subgraph) | 40,088 | ~4.0k |
 
-**Token savings: 97.65%** (target ≥ 70%). Even charging the one-time Graphify build cost (~148k
+**Token savings: 97.07%** (target ≥ 70%; real billed gpt-4.1-mini, $0.58). Even charging the one-time Graphify build cost (~148k
 tokens), the graph **breaks even after 2 queries**. Per-model USD cost tables are in
 `docs/metrics/COST_TABLES.md`; the full schema is `metrics/out/token_metrics.json`.
 

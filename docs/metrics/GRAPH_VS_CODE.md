@@ -37,7 +37,7 @@ whole module costs ~6× more tokens and did **not** improve the diagnosis — th
 ## Relation to the formal economics
 
 This is the *agent-level, live* echo of the project's full token-economics study (naive full-context
-baseline vs Graphify-assisted retrieval over 10 standard questions): **1,481,736 → 34,801 tokens =
-97.65% savings** (`metrics/out/token_metrics.json`, measured in offline mock with estimates). The
+baseline vs Graphify-assisted retrieval over 10 standard questions): **1,369,484 → 40,088 tokens =
+97.07% savings** (`metrics/out/token_metrics.json`, measured live on gpt-4.1-mini, $0.58). The
 live numbers above independently confirm the same effect (~84%) **and** add a quality dimension the
 formal study did not measure.

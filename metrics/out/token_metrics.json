@@ -2,40 +2,40 @@
   "amortization": {
     "break_even_queries": 2,
     "graph_build_tokens": 148169,
-    "per_query_savings": 144693
+    "per_query_savings": 132939
   },
   "cost_totals": {
-    "input_tokens": 1516437,
+    "input_tokens": 1393010,
     "key": "TOTAL",
-    "output_tokens": 100,
-    "usd_cost": 7.584685
+    "output_tokens": 16562,
+    "usd_cost": 0.5837032000000001
   },
   "per_agent": [
     {
-      "input_tokens": 34751,
+      "input_tokens": 33546,
       "key": "AssistedRunner",
-      "output_tokens": 50,
-      "usd_cost": 0.17500500000000002
+      "output_tokens": 6542,
+      "usd_cost": 0.023885600000000003
     },
     {
-      "input_tokens": 1481686,
+      "input_tokens": 1359464,
       "key": "BaselineRunner",
-      "output_tokens": 50,
-      "usd_cost": 7.409679999999999
+      "output_tokens": 10020,
+      "usd_cost": 0.5598176
     }
   ],
   "per_model": [
     {
-      "input_tokens": 1516437,
-      "key": "claude-opus-4-8",
-      "output_tokens": 100,
-      "usd_cost": 7.5846849999999995
+      "input_tokens": 1393010,
+      "key": "gpt-4.1-mini",
+      "output_tokens": 16562,
+      "usd_cost": 0.5837032
     }
   ],
   "savings": {
-    "assisted_tokens": 34801,
-    "baseline_tokens": 1481736,
-    "savings_pct": 97.65133600047513,
+    "assisted_tokens": 40088,
+    "baseline_tokens": 1369484,
+    "savings_pct": 97.07276609292259,
     "target_met": true
   },
   "target_met": true

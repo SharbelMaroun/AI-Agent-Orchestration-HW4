@@ -16,7 +16,7 @@ Version: 1.00 | Course: AI Agent Orchestration — HW4 (EX04) | Task 16.041
 - [x] API gatekeeper: rate limiting + FIFO never-reject overflow queue
 - [x] Multi-agent LangGraph orchestration (supervisor + 7 agents)
 - [x] Improvement loop + 5 stop conditions + 5-iteration cap
-- [x] Token measurement: baseline vs assisted, **97.65% savings**, cost tables (`metrics/out/`)
+- [x] Token measurement: baseline vs assisted, **97.07% savings** (real billed gpt-4.1-mini), cost tables (`metrics/out/`)
 - [x] SKILL.md files with guardrails + LLM wiki (raw→wiki→index→log)
 - [x] 4 knowledge-quality metrics measured before/after
 - [x] Research notebook + sensitivity analysis + charts (`notebooks/`, `docs/assets/`)
@@ -25,8 +25,8 @@ Version: 1.00 | Course: AI Agent Orchestration — HW4 (EX04) | Task 16.041
 
 ## Quality gates
 
-- [x] Tests green (800+ tests)
-- [x] Branch coverage >= 85% (97.35%)
+- [x] Tests green (904 tests)
+- [x] Branch coverage >= 85% (96.96%)
 - [x] Ruff 0 violations
 - [x] 150 effective-line cap on every file (incl. tests)
 - [x] uv-only toolchain; no pip/virtualenv/venv/requirements.txt

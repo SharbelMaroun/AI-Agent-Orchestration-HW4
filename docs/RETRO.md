@@ -13,9 +13,9 @@ be split into many small, single-purpose modules and SDK mixins rather than a fe
 
 ## Metrics outcome
 
-- **Token savings: 97.65%** — naive full-context baseline 1,481,736 tokens vs Graphify-assisted
-  34,801 tokens over 10 standard questions on the real httpie checkout. Break-even after **2 queries**
-  even counting the one-time graph-build cost.
+- **Token savings: 97.07%** — naive full-context baseline 1,369,484 tokens vs Graphify-assisted
+  40,088 tokens over 10 standard questions on the real httpie checkout (real billed gpt-4.1-mini, $0.58).
+  Break-even after **2 queries** even counting the one-time graph-build cost.
 - **Knowledge quality: all 4 metrics improved** with the wiki + skills (source traceability +10.0,
   noise reduction +8.0, correct-file identification +2.6, correct-tool timing +10.0).
 - **Quality gates:** 800+ tests green, 97.35% branch coverage, ruff 0 violations, every file <= 150
