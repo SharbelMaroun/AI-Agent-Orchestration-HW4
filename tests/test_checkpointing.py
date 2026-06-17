@@ -31,7 +31,7 @@ class _MockSDK:
     def triage_edges(self, graph):
         return {"EXTRACTED": [1], "INFERRED": [], "AMBIGUOUS": []}
 
-    def ask_llm(self, prompt, *, agent="orchestrator", max_tokens=512):
+    def ask_llm(self, prompt, *, system=None, agent="orchestrator", max_tokens=512):
         return "canned llm reply"
 
 

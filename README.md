@@ -36,6 +36,23 @@ All tooling goes through uv; this project never uses other package managers. Gra
 `git`, it is invoked through the gatekeeper and is **not** vendored into the repo. Its
 clones and outputs land under the git-ignored `runs/`.
 
+### Graphify modes (structural vs semantic)
+
+Graphify's CLI has **no semantic edge-extraction command** — its only build command is the
+zero-LLM, AST-based `graphify update` (the deep semantic extraction lives in the separate
+`/graphify` Claude-Code skill, not in this flow). Its one LLM-using CLI step is `graphify label`,
+which gives communities readable names. So:
+
+- **`analysis_depth: "structural"`** — runs `graphify update` only. No LLM, no key, free.
+- **`analysis_depth: "semantic"` (default)** — *additionally* runs `graphify label` to name communities via
+  `llm_backend`/`llm_model` (default **Gemini `gemini-3-flash-preview`** — the Gemini 3 flash/light
+  tier). Graphify supports **Gemini, not OpenAI**, so this needs a `GEMINI_API_KEY`; if the quota is
+  exhausted Graphify falls back to `Community N` placeholders.
+
+The **actual semantic reverse engineering** — finding the architectural problems — is done by the
+ArchLens **LLM agents reasoning over the graph** (with your OpenAI key), not by Graphify. See the
+graph-vs-code comparison in `docs/metrics/GRAPH_VS_CODE.md`.
+
 ### Optional developer setup: the `/graphify` skill in Claude Code
 
 ArchLens drives Graphify through the gatekeeper, so this is **not required** to run the
@@ -425,7 +442,7 @@ All behaviour is config-driven (no hardcoded values). The three config files and
 | (top) | `version`, `graphify_output_dir`, `obsidian_vault_dir` | config schema version + default Graphify/vault output roots |
 | `target_repo`, `fallback_repo` | `url`, `branch`, `pinned_commit`, `workdir_root`, `clone_depth`, `timeout_s`, `max_size_mb` | primary + fallback repo to clone, with sandbox root and size/time bounds |
 | `validation` | `python_min_share`, `min_file_count`, `max_file_count` | target-repo acceptance thresholds |
-| `graphify` | `binary`, `stages`, `output_root`, `timeout_s`, `analysis_depth`, `token_budget` | Graphify CLI invocation + pipeline stages |
+| `graphify` | `binary`, `stages`, `output_root`, `timeout_s`, `analysis_depth`, `token_budget`, `llm_backend`, `llm_model` | Graphify CLI invocation; `analysis_depth=semantic` adds a `graphify label` community-naming pass via `llm_backend`/`llm_model` (default Gemini 3 flash, `gemini-3-flash-preview`) |
 | `vault` | `vault_root`, `raw_dir_name`, `wiki_dir_name`, `hot_top_n`, `index_read_first_count` | Obsidian vault layout + hot/index sizing |
 | `analysis` | `confidence_floor`, `confidence_strong`, `duplicate_similarity_threshold` | edge-triage confidence band + duplicate threshold (0.91) |
 | `deliverables` | `output_dir`, `mermaid_direction`, `match_confidence_threshold` | reverse-engineering deliverable settings |
@@ -519,6 +536,12 @@ Measured on the real httpie checkout (133 `.py` files), 10 standard architecture
 **Token savings: 97.65%** (target ≥ 70%). Even charging the one-time Graphify build cost (~148k
 tokens), the graph **breaks even after 2 queries**. Per-model USD cost tables are in
 `docs/metrics/COST_TABLES.md`; the full schema is `metrics/out/token_metrics.json`.
+
+A **live** evaluation measuring both tokens **and quality** (`docs/metrics/GRAPH_VS_CODE.md`,
+`sdk.compare_graph_vs_code`) answers the same architecture question from the graph neighbourhood vs
+the full source for the top 3 httpie bottlenecks, with an LLM judge scoring each: **1,322 vs 8,102
+tokens (83.7% fewer) at equal-or-better quality (4.67 vs 4.33 / 5)** —
+`uv run python scripts/compare_graph_vs_code.py`.
 
 ## Contributing
 

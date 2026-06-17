@@ -16,7 +16,7 @@ class _SDK:
     def classify_nodes(self, graph):
         return [SimpleNamespace(node_id="gate", verdict="BOTTLENECK", source_file="gate.py")]
 
-    def ask_llm(self, prompt, *, agent="orchestrator", max_tokens=512):
+    def ask_llm(self, prompt, *, system=None, agent="orchestrator", max_tokens=512):
         return "the gate node funnels every request — a real bottleneck"
 
 

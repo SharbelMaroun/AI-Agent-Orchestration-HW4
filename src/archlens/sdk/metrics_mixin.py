@@ -55,6 +55,11 @@ class MetricsMixin:
         gk = gatekeeper if gatekeeper is not None else self._metrics_gatekeeper(live)
         return AssistedRunner(gk, chosen_model, root, graph_json, cap).run(qs)
 
+    def compare_graph_vs_code(self, graph_json, repo_path, top_k: int = 3) -> dict:
+        """Evaluate the top bottlenecks with vs without Graphify — real flow tokens + LLM-judged quality."""
+        from ..metrics.graph_vs_code import compare
+        return compare(self, self.load_analysis_graph(graph_json), repo_path, top_k)
+
     def export_token_metrics(self, baseline_ledger, assisted_ledger, graph_build_tokens: int,
                              path=None) -> dict:
         """Build and persist metrics/out/token_metrics.json; return the metrics document."""

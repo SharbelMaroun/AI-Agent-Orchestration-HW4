@@ -9,6 +9,7 @@ def test_run_loop_reaches_hard_cap_when_stop_never_met(tmp_path):
     result = OrchSDK().run_loop(db_path=str(tmp_path / "l.sqlite"))
     assert result.iterations == 5
     assert result.stop_reason == "hard_cap"
+    assert result.tokens_used == 130  # real token total surfaced from the MetricsAgent ledger
 
 
 def test_run_loop_exits_early_when_stop_conditions_met(tmp_path):

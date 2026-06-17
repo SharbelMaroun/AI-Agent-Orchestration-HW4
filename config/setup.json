@@ -30,8 +30,10 @@
     "stages": ["detect", "extract", "build", "cluster", "export"],
     "output_root": "runs/graphify",
     "timeout_s": 600,
-    "analysis_depth": "structural",
-    "token_budget": 100000
+    "analysis_depth": "semantic",
+    "token_budget": 100000,
+    "llm_backend": "gemini",
+    "llm_model": "gemini-3-flash-preview"
   },
   "vault": {
     "vault_root": "runs/vault",

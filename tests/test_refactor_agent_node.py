@@ -8,7 +8,7 @@ class _SDK:
         self._applied = applied
         self.apply_calls = []
 
-    def ask_llm(self, prompt, *, agent="orchestrator", max_tokens=512):
+    def ask_llm(self, prompt, *, system=None, agent="orchestrator", max_tokens=512):
         return "extract the request-routing helper into its own module"
 
     def apply_fix(self, finding, repo_path, graph_json=None):

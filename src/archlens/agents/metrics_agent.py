@@ -12,6 +12,9 @@ def make_metrics_node(sdk):
         ledger["baseline_tokens"] = baseline
         ledger["assisted_tokens"] = assisted
         ledger["savings_pct"] = round(100.0 * (1 - assisted / baseline), 1) if baseline else 0.0
+        ledger["total_tokens"] = usage.get("total", assisted)  # real tokens the run consumed
+        ledger["input_tokens"] = usage.get("input", 0)
+        ledger["output_tokens"] = usage.get("output", 0)
         ledger["rows"] = usage.get("rows", [])
         return {"token_ledger": ledger}
 
