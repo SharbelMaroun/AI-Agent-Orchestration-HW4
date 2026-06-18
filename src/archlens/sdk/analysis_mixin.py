@@ -55,6 +55,11 @@ class GraphAnalysisMixin:
         """Nodes on every critical path, each with its citation chain."""
         return spof_detect(graph)
 
+    def localize_bug(self, graph_source, failing_symbol: str):
+        """Graph-first localization of an import failure to its suspect node + root cause (EX04 §5.3)."""
+        from ..agents.bug_localizer import localize_import_failure
+        return localize_import_failure(graph_source, failing_symbol)
+
     def triage_edges(self, graph):
         """Bucket edges by evidence type (EXTRACTED/INFERRED/AMBIGUOUS)."""
         return triage_edges(graph)

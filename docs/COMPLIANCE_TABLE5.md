@@ -8,7 +8,7 @@ Each Guidelines V3 quick-reference requirement, with verdict and evidence.
 | --- | --- | --- | --- |
 | 1 | uv-only toolchain (no pip/virtualenv/venv/`python -m`/requirements.txt) | PASS | `scripts/check_forbidden_tools.py` (0 hits); `tests/test_check_forbidden_tools.py` |
 | 2 | `pyproject.toml` + committed `uv.lock` as single dependency source | PASS | `git ls-files uv.lock`; `uv lock --check` |
-| 3 | Test coverage >= 85% (statement + branch) | PASS | `uv run pytest --cov` → 96.81% (930 tests, branch on) |
+| 3 | Test coverage >= 85% (statement + branch) | PASS | `uv run pytest --cov` → 96.76% (936 tests, branch on) |
 | 4 | Ruff: 0 violations (E,F,W,I,N,UP,B,C4,SIM; ignore E501) | PASS | `uv run ruff check .`; `tests/test_ruff_gate.py` |
 | 5 | 150 effective-line cap per file (incl. tests) | PASS | `scripts/check_line_cap.py`; `tests/test_check_line_cap.py` |
 | 6 | TDD red-green workflow | PASS | per-phase red/green commit history; 3/3 mutants killed (`reports/mutation_spotchecks.md`) |

@@ -33,3 +33,19 @@ Evaluation of the ArchLens CLI (`src/main.py`) and its generated outputs. Severi
 | After (**resolved**) | `docs/screenshots/cli_help_after.png` | `--help` now lists a fuller description and an `Examples:` block with runnable invocations |
 
 All severity >= 3 findings (one: H10) are resolved.
+
+## Accessibility (Guidelines §10.2 / §17.5)
+
+Accessibility for a terminal-first tool plus its generated graphics:
+
+| Concern | How ArchLens addresses it |
+| --- | --- |
+| **Plain-text, screen-reader friendly** | All CLI output is plain ASCII/UTF-8 text with no ANSI color codes, box-drawing, or cursor control, so it is read verbatim by screen readers and pipes/`> file` cleanly. Results are one labelled line per command (no spatial/columnar layout a reader would scramble). |
+| **No color-only signalling** | Status is conveyed by words (`PASS`/`FAIL`, `OK`, exit codes), never by color alone, so the CLI is fully usable with no color perception. |
+| **Color-blind-safe charts** | The analysis charts use Matplotlib's **viridis** perceptually-uniform, color-blind-safe colormap (`chart_factory.heatmap_chart`) and rely on position/shape (markers, bar height, axis labels) rather than hue to carry meaning; every figure has a title, axis labels, a legend, and a markdown caption (alt-text) where embedded. |
+| **Operability / no time limits** | The CLI is non-interactive and imposes no input time limits; long operations can be re-run idempotently. |
+| **Documentation** | Every screen/state is documented with a screenshot and a text description (above), and `--help` carries runnable examples (H10 fix), so the interface is learnable without sighted exploration. |
+
+Known limitation: the embedded `.svg` architecture diagrams encode labels in `<foreignObject>` (mermaid
+default); the byte-identical inline-mermaid sources in [`docs/PLAN.md`](PLAN.md) are the accessible,
+GitHub-rendered fallback.

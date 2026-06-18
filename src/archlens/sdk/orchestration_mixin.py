@@ -3,12 +3,14 @@
 These run the LangGraph orchestration built in Phase 10, keeping the SDK the single entry point.
 """
 
+import json
 from pathlib import Path
 
 from ..agents.contracts import QAReport
 from ..agents.metrics_agent import make_metrics_node
 from ..agents.quality_gates import run_quality_gates
 from ..agents.runner import make_runner
+from ..metrics.ledger_io import ledger_path
 from ..sdk.dto_core import AnalysisReport
 from ..sdk.dto_loop import LoopResult, TokenReport
 from ..sdk.sandbox import SandboxManager
@@ -87,9 +89,29 @@ class OrchestrationMixin:
         return run_quality_gates(repo_path)
 
     def measure_tokens(self) -> TokenReport:
-        """Delegate to MetricsAgent token accounting; flag explanation when savings < 70%."""
+        """Token-savings report; flag explanation when savings < the configured target.
+
+        Uses the MetricsAgent's live-session accounting. When the session has recorded no usage
+        (e.g. a fresh `archlens tokens` call that made no LLM calls), fall back to the persisted
+        before/after study so the CLI surfaces the real measured savings instead of a bare 0%.
+        """
         ledger = make_metrics_node(self)({}).get("token_ledger", {})
         baseline = ledger.get("baseline_tokens", 0)
         assisted = ledger.get("assisted_tokens", 0)
         savings = ledger.get("savings_pct", 0.0)
+        if baseline == 0 and assisted == 0:
+            persisted = self._persisted_token_report()
+            if persisted is not None:
+                return persisted
         return TokenReport(baseline, assisted, savings, explanation_required=savings < 70.0)
+
+    def _persisted_token_report(self) -> TokenReport | None:
+        """Build a TokenReport from the committed token_metrics.json study, or None if absent."""
+        cfg = self._config()
+        path = ledger_path(cfg.metrics.metrics_json, cfg)
+        if not path.is_file():
+            return None
+        savings = json.loads(path.read_text(encoding="utf-8")).get("savings", {})
+        pct = round(savings.get("savings_pct", 0.0), 2)
+        return TokenReport(savings.get("baseline_tokens", 0), savings.get("assisted_tokens", 0),
+                           pct, explanation_required=pct < cfg.metrics.savings_target_pct)

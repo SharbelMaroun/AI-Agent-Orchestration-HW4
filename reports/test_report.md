@@ -2,16 +2,21 @@
 
 Version: 1.00 | Course: AI Agent Orchestration — HW4 (EX04)
 
-Totals: 930 passed, 0 failed.
+Totals: 936 passed, 0 failed.
 
 | Test | Expected | Status |
 |---|---|---|
+| test_localizes_import_failure_to_the_reexport_hub | - | PASS |
+| test_localizer_uses_an_llm_explanation_when_provided | - | PASS |
+| test_localizer_node_emits_localization_via_the_sdk_llm | - | PASS |
+| test_sdk_localize_bug_is_the_single_entry_point | - | PASS |
 | test_graph_agent_builds_vault | - | PASS |
 | test_clean_tree_is_green | - | PASS |
 | test_syntax_error_is_counted_and_not_green | - | PASS |
 | test_dotgit_directory_is_ignored | - | PASS |
 | test_missing_path_is_vacuously_green | - | PASS |
 | test_none_path_is_vacuously_green | - | PASS |
+| test_fixed_buggy_python_harness_passes | the fixed buggy-python harness prints the success line at exit 0. | PASS |
 | test_every_community_appears_exactly_once_as_a_mermaid_node | - | PASS |
 | test_pipeline_emits_a_fenced_diagram_with_an_edge | - | PASS |
 | test_real_nodelink_schema_renders_non_empty_diagram | - | PASS |
@@ -742,6 +747,7 @@ Totals: 930 passed, 0 failed.
 | test_run_loop_returns_loop_result_within_cap | - | PASS |
 | test_measure_tokens_returns_token_report | - | PASS |
 | test_measure_tokens_flags_explanation_below_seventy_percent | - | PASS |
+| test_measure_tokens_falls_back_to_persisted_study_when_session_is_empty | - | PASS |
 | test_variants_cover_all_four_parameters | - | PASS |
 | test_one_factor_varied_others_at_baseline | - | PASS |
 | test_varied_factor_matches_its_range | - | PASS |

@@ -137,6 +137,18 @@ Hard cap: the loop never exceeds **5 iterations**, converged or not.
 - Every rollback is recorded in the decision log with the failed condition (SC-x or test/lint
   gate) as the stated cause.
 
+> **Implementation status (shipped `LoopController`).** The convenience loop assembled by
+> `loop_wiring.build_loop_deps` realizes "no fix kept on red" by **branch isolation + SC-4
+> rejection**, not by an automatic in-loop `git revert`: each iteration is applied on its own
+> `archlens/iter-<N>-<fix-id>` feature branch (the undo path), the `TestGate` verdict feeds **SC-4**,
+> and a red verdict fails SC-4 so the fix is never accepted/merged to baseline (the failing change
+> stays isolated on its unmerged branch). The history-preserving `git revert` rollback
+> (`shared/gitops.revert_commit`, wrapped by `agents/test_gate.gate_then_rollback`) **is implemented
+> and unit-tested** (`tests/test_rollback.py`, `tests/test_red_gate_rollback.py`) for any iteration
+> whose change was committed, but it is exercised by those tests rather than auto-invoked inside
+> `loop_controller._apply_fix`. Net effect (no red fix reaches baseline) matches this policy; the
+> mechanism is branch-isolation rejection rather than an automatic revert transition.
+
 ---
 
 ## 8. Evidence Requirement
@@ -203,7 +215,7 @@ the loop go through `gatekeeper/gatekeeper.py` under `config/rate_limits.json` l
 |---|---|---|
 | FR-IL-01 | The loop shall execute at most 5 iterations | Iteration counter never exceeds 5 in any run, including rolled-back iterations |
 | FR-IL-02 | Exactly one fix shall be applied per iteration, on a dedicated feature branch | Each iteration's diff touches one fix-id; branch `archlens/iter-<N>-<fix-id>` exists |
-| FR-IL-03 | The full unit-test suite shall run after every change; any red test triggers rollback | Injected failing test ⇒ `git revert` executed and baseline re-verified green |
+| FR-IL-03 | The full unit-test suite shall run after every change; no fix is kept on a red test (shipped via branch-isolation + SC-4 rejection — see §7 Implementation status; `git revert` rollback is unit-tested for committed iterations) | `--loop` `TestGate` runs `uv run pytest` each iteration; a red verdict fails SC-4 so the fix is not merged to baseline; `tests/test_rollback.py` / `tests/test_red_gate_rollback.py` prove the `git revert` helper restores a green baseline |
 | FR-IL-04 | Graphify shall be re-run (detect→extract→build→cluster→export) after every accepted test gate | Fresh `graph.json` timestamp per iteration |
 | FR-IL-05 | SC-1 shall compare both degree and betweenness deltas and reject pure load migration | Fixture where load moves to a new node ⇒ fix REJECTED |
 | FR-IL-06 | SC-2/SC-3 shall reject fixes that raise inter-community edges or create isolated components | Fixture producing a degree-0 node ⇒ fix REJECTED |

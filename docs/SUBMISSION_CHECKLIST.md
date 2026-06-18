@@ -25,7 +25,7 @@ Version: 1.00 | Course: AI Agent Orchestration — HW4 (EX04) | Task 16.041
 
 ## Quality gates
 
-- [x] Tests green (930 tests)
+- [x] Tests green (936 tests)
 - [x] Branch coverage >= 85% (96.81%)
 - [x] Ruff 0 violations
 - [x] 150 effective-line cap on every file (incl. tests)

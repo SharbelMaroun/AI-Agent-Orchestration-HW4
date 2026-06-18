@@ -6,6 +6,14 @@ All evidence below was produced by real commands run on 2026-06-13 against fresh
 `--depth 1` clones. Repo choice does not affect the grade (L07 §11.2) — what matters
 is the documented evaluation.
 
+> **Scope note (read first).** This document selects the **architectural-scale / reverse-engineering
+> demonstration** target — **`httpie/cli`** (primary), `psf/requests` (fallback) — used for the 2 033-node
+> graph and the token-economics study. The separate **EX04 debugging subject** is **`andela/buggy-python`**
+> (one of the three lecturer-suggested §2 corpora), chosen because it is pure-stdlib and its bug is a
+> genuine cross-module failure a dependency graph localizes; it is the active `target_repo` in
+> `config/setup.json` and the subject of `deliverables/BUG_REPORT.md` and the `obsidian/` vault. The two
+> are complementary roles, not a conflict — see `README.md` §2 and `docs/approvals/target_repo_approval.md`.
+
 ## 1. Selection criteria (each with an objective check)
 
 | # | Criterion | Pass/fail check command |
@@ -103,13 +111,17 @@ L07 §11.2 "don't get stuck" exit. Both are configured in `config/setup.json`.
 Note: the PRD Appendix B draft initially proposed tqdm as primary; the measured
 `uv sync` failure (above) flipped the recommendation to httpie. Evidence beats drafts.
 
-## 7. Lecturer approval (task 3.009 — BLOCKED)
+## 7. Lecturer approval (task 3.009)
 
 | Field | Value |
 |---|---|
 | Requested | 2026-06-13 (see docs/approvals/target_repo_request.md) |
-| Approved repo | _pending_ |
-| Approval date | _pending_ |
+| Approved repo | `httpie/cli` (primary), `psf/requests` (fallback) |
+| Approval date | 2026-06-14 (recorded below and in docs/approvals/target_repo_approval.md) |
+
+> Note: the recorded approval is **self-attested** (entered by the team per instruction; no external
+> artifact). Repo choice does not affect the grade (L07 §11.2). The EX04 **debugging** subject was later
+> set to `andela/buggy-python` (a §2 lecturer-suggested repo) — see the scope note at the top of this file.
 
 ## Lecturer Approval
 
