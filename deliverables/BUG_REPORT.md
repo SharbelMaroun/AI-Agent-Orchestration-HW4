@@ -24,8 +24,11 @@ ImportError: cannot import name 'lambda_array' from 'snippets'
 
 ## 2. Graph-first localization (entry → hub → leaf)
 
-This is precisely the cross-module failure the assignment targets, and the dependency graph localizes it
-faster than reading files linearly:
+This localization is produced **by the BugLocalizer agent** (`sdk.localize_bug` /
+`src/archlens/agents/bug_localizer.py` → `make_localizer_node`), which traces the dependency graph and
+emits the suspect + root cause from the **graph neighbourhood only** — no source reading (see
+`obsidian/localization.md` for the agent's verbatim output). It is precisely the cross-module failure
+the assignment targets, and the graph localizes it faster than reading files linearly:
 
 - **Entry node** `main.py` imports **6** symbols: `lambda_array, read_file, calculate_unpaid_loans,
   calculate_paid_loans, average_paid_loans, foo`.
@@ -70,13 +73,26 @@ shows the original `!==` was both a syntax error *and* the wrong comparison).
 +    for i in range(10):
 +        lambda_methods.append(lambda x: x + i)
 
-# snippets/io.py — dict subscripting, ==, sum/len, correct unpaid condition (one of three funcs shown)
+# snippets/io.py — dict subscripting, ==, sum/len; the SAME fix applies to all THREE loan funcs:
+ def calculate_unpaid_loans(data):
 -    loans = data("loans")
 -    unpaid_loans = { loan.amount for loan in loans if loan.status !== "unpaid" }
 -    return sun(unpaid_loans)
 +    loans = data["loans"]
 +    unpaid_loans = [ loan["amount"] for loan in loans if loan["status"] == "unpaid" ]
 +    return sum(unpaid_loans)
+ def calculate_paid_loans(data):
+-    loans = data("loans")
+-    paid_loans = [ loan.amount for loan in loans if loan.status is "paid" ]
+-    return sun(paid_loans)
++    loans = data["loans"]
++    paid_loans = [ loan["amount"] for loan in loans if loan["status"] == "paid" ]
++    return sum(paid_loans)
+ def average_paid_loans(data):
+-    loans = data("loans"); paid_loans = [ loan.amount for loan in loans if loan.status is "paid" ]
+-    sum_paid_loans = sun(paid_loans); number_paid_loans = length(paid_loans)
++    loans = data["loans"]; paid_loans = [ loan["amount"] for loan in loans if loan["status"] == "paid" ]
++    sum_paid_loans = sum(paid_loans); number_paid_loans = len(paid_loans)
 
 # snippets/foobar.py — mutable-default fix
 -def foo(bar=[]):
@@ -97,7 +113,18 @@ All eight assertions pass on the **unmodified** harness: `lambdas[0](10) == 19`,
 `calculate_unpaid_loans == 11062`, `calculate_paid_loans == 29493.85304`,
 `average_paid_loans == 2681.2593672727276`, and `foo() == ["baz"]` on both calls.
 
-## 5. Reproducibility
+## 5. Knowledge before / after (§5.4 — knowledge level)
+
+| | Before investigation | After (graph-guided) |
+|---|---|---|
+| What we knew | one opaque line — `ImportError: cannot import name 'lambda_array' from 'snippets'`; no idea which of 5 files, or whether it is one bug or many | the failure is a **chain** — entry `main.py` → re-export **hub** `snippets/__init__.py` (the #1-centrality SPOF) → 3 leaf modules, with **4 distinct defects** mapped |
+| Obsidian pages | none | `index.md`, `hot.md`, `suspects.md`, `localization.md`, `repair.md`, `architecture.md` |
+| Graph evidence | none | the BugLocalizer agent names the hub from its degree + import edges; `contains`/`imports` edges map the leaf defects |
+
+The agent + vault turned a single unexplained `ImportError` into a ranked, cited investigation that
+named the fix site (the hub) **before** any leaf source was read.
+
+## 6. Reproducibility
 
 ```bash
 git clone --depth 1 https://github.com/andela/buggy-python runs/buggy-python

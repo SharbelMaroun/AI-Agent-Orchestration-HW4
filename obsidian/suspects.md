@@ -1,7 +1,8 @@
 # Suspects — Ranked Candidate Defects
 
 Derived from the import/call graph (`../artifacts/buggy-python-graph.json`), tracing from the failing
-entry point — not from reading the whole codebase.
+entry point — not from reading the whole codebase. The #1 suspect is produced **by the BugLocalizer
+agent** (`sdk.localize_bug` / `make_localizer_node`), graph-first — see [[localization]].
 
 ## 1. `snippets/__init__.py` — the re-export hub (PRIMARY)
 - **Graph evidence:** highest degree (9); `main` needs 6 symbols but the hub provides only 1 (`foo`);

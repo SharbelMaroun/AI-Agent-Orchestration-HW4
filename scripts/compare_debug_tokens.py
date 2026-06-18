@@ -1,9 +1,12 @@
-"""Token study for the EX04 debugging task: naive raw-file reading vs graph-guided context.
+"""Token study for the EX04 debugging task: naive raw-file reading vs graph-guided context (§5.5).
 
-Asks the SAME question ("which file holds the bug and what is the root cause?") two ways over the
-andela/buggy-python clone: (1) NAIVE — stuff the full source of every module; (2) GRAPH-GUIDED —
-read only the graph-derived vault pages (index + suspects). Real input tokens come from the
-gatekeeper ledger. Writes metrics/out/debug_token_study.json. Needs a live key in .env.
+Both modes answer the SAME question — "which file must be fixed FIRST to resolve the import failure?"
+— over the andela/buggy-python clone, and we report all four axes the spec lists:
+  - tokens consumed (gatekeeper ledger), - files / text units read,
+  - iterations / investigation cycles, - quality (did it reach the correct root cause: the hub).
+NAIVE is the spec's unfocused baseline (dump the whole repo); its cycle count is how many files a
+LINEAR one-at-a-time scan must reveal before the hub is named. GRAPH-GUIDED reads the two graph-derived
+vault pages once. Writes metrics/out/debug_token_study.json. Needs a live key in .env.
 
     uv run python scripts/compare_debug_tokens.py
 """
@@ -16,53 +19,68 @@ from archlens.sdk.sdk import ArchLensSDK
 ROOT = Path(__file__).resolve().parents[1]
 REPO = ROOT / "runs" / "buggy-python"
 OUT = ROOT / "metrics" / "out" / "debug_token_study.json"
-QUESTION = ("You are debugging this Python repository whose test harness main.py fails. In 3-4 "
-            "sentences, name the file(s) that contain the bug and explain the root cause.")
+NAIVE_ORDER = ["main.py", "snippets/__init__.py", "snippets/loop.py", "snippets/io.py", "snippets/foobar.py"]
+ASK = "Which single file must be fixed FIRST to resolve the import failure? Answer just the path, or UNKNOWN."
 
 
-def _source_files() -> list[Path]:
-    return sorted(p for p in REPO.glob("**/*.py") if ".git" not in p.parts)
+def _ask(sdk, prompt: str, agent: str) -> str:
+    return sdk.ask_llm(prompt, agent=agent, max_tokens=60)
 
 
-def _naive_context() -> tuple[str, int]:
-    files = _source_files()
-    blob = "\n\n".join(f"# FILE: {p.relative_to(REPO)}\n{p.read_text(encoding='utf-8')}" for p in files)
-    return blob, len(files)
+def _correct(answer: str) -> bool:
+    """The correct first fix is the re-export hub snippets/__init__.py."""
+    return "__init__" in answer
 
 
-def _guided_context() -> tuple[str, int]:
+def _scan_cycles(sdk) -> int:
+    """Linear naive scan: reveal files one at a time; return the cycle at which the hub is named."""
+    seen: list[str] = []
+    for cycle, rel in enumerate(NAIVE_ORDER, start=1):
+        seen.append(f"# FILE: {rel}\n{(REPO / rel).read_text(encoding='utf-8')}")
+        if _correct(_ask(sdk, f"Source files seen so far:\n\n{chr(10).join(seen)}\n\n{ASK}", "DebugScan")):
+            return cycle
+    return len(NAIVE_ORDER)
+
+
+def _naive(sdk, ledger) -> dict:
+    """Spec baseline: dump the whole repo (unfocused) for tokens/files; linear-scan cycles separately."""
+    base = ledger.total_input()
+    blob = "\n\n".join(f"# FILE: {f}\n{(REPO / f).read_text(encoding='utf-8')}" for f in NAIVE_ORDER)
+    answer = _ask(sdk, f"FULL SOURCE of the repo:\n\n{blob}\n\n{ASK}", "DebugNaive")
+    return {"input_tokens": ledger.total_input() - base, "files_read": len(NAIVE_ORDER),
+            "iterations": _scan_cycles(sdk), "localized": _correct(answer), "answer": answer.strip()[:160]}
+
+
+def _guided(sdk, ledger) -> dict:
+    """Read the two graph-derived vault pages once (the suspects ranking routes straight to the hub)."""
+    base = ledger.total_input()
     pages = [ROOT / "obsidian" / "index.md", ROOT / "obsidian" / "suspects.md"]
-    blob = "\n\n".join(p.read_text(encoding="utf-8") for p in pages)
-    return blob, len(pages)
+    ctx = "\n\n".join(p.read_text(encoding="utf-8") for p in pages)
+    answer = _ask(sdk, f"Graph-derived vault context:\n\n{ctx}\n\n{ASK}", "DebugGuided")
+    return {"input_tokens": ledger.total_input() - base, "files_read": len(pages),
+            "iterations": 1, "localized": _correct(answer), "answer": answer.strip()[:160]}
 
 
 def main() -> int:
     sdk = ArchLensSDK()
     ledger = sdk._gk().usage_ledger
-    naive_ctx, naive_files = _naive_context()
-    guided_ctx, guided_files = _guided_context()
-
-    before = ledger.total_input()
-    sdk.ask_llm(f"{QUESTION}\n\nFULL SOURCE:\n{naive_ctx}", agent="DebugNaive", max_tokens=300)
-    naive_tokens = ledger.total_input() - before
-
-    before = ledger.total_input()
-    sdk.ask_llm(f"{QUESTION}\n\nGRAPH-GUIDED CONTEXT (vault index + suspects):\n{guided_ctx}",
-                agent="DebugGuided", max_tokens=300)
-    guided_tokens = ledger.total_input() - before
-
-    savings = round((1 - guided_tokens / naive_tokens) * 100, 2) if naive_tokens else 0.0
+    naive, guided = _naive(sdk, ledger), _guided(sdk, ledger)
+    pct = lambda a, b: round((1 - b / a) * 100, 2) if a else 0.0  # noqa: E731
     result = {
-        "task": "locate the bug + root cause in andela/buggy-python",
-        "naive": {"input_tokens": naive_tokens, "files_read": naive_files},
-        "graph_guided": {"input_tokens": guided_tokens, "files_read": guided_files},
-        "token_savings_pct": savings,
+        "task": "locate the file to fix first in andela/buggy-python (import failure)",
+        "naive": naive, "graph_guided": guided,
+        "token_savings_pct": pct(naive["input_tokens"], guided["input_tokens"]),
+        "files_reduction_pct": pct(naive["files_read"], guided["files_read"]),
+        "iteration_reduction": f"{guided['iterations']} vs {naive['iterations']} cycles",
     }
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(result, indent=2), encoding="utf-8")
-    print(f"naive: {naive_tokens} input tokens over {naive_files} files")
-    print(f"graph-guided: {guided_tokens} input tokens over {guided_files} files")
-    print(f"token savings: {savings}%   ->  {OUT}")
+    print(f"naive : {naive['input_tokens']} tok, {naive['files_read']} files, "
+          f"{naive['iterations']} scan-cycles, correct={naive['localized']}")
+    print(f"guided: {guided['input_tokens']} tok, {guided['files_read']} files, "
+          f"{guided['iterations']} cycle, correct={guided['localized']}")
+    print(f"tokens -{result['token_savings_pct']}% | files -{result['files_reduction_pct']}% | "
+          f"cycles {result['iteration_reduction']}  ->  {OUT}")
     return 0
 
 

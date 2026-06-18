@@ -54,18 +54,33 @@ mutable default argument in `foobar.py`. Full diff + transcript: **`deliverables
 **`obsidian/`**: `index.md` (read-first bug overview), `hot.md` (the bug hotspot / suspect ranking),
 `suspects.md` (ranked candidates with graph evidence), `repair.md` (per-file root cause + fix).
 
-**Graph-guided vs naive — token study (§5.5).** Asking *"which file holds the bug and why?"* two ways
-(`scripts/compare_debug_tokens.py` → `metrics/out/debug_token_study.json`): naive (stuff all 5 source
-files) = 815 input tokens / 5 files; graph-guided (read the vault `index.md` + `suspects.md`) = 668
-tokens / **2 files**. On this tiny repo the token delta is modest (~18%), but the graph cuts **files
-read by 60% (2 vs 5)** and points at the hub directly — localization, not raw size, is the lesson
-here; the 97% study on the 2k-node httpie graph below is the *scale* demonstration.
+**Graph-guided vs naive — token study (§5.5).** Asking *"which file must be fixed first?"* two ways
+(`scripts/compare_debug_tokens.py` → `metrics/out/debug_token_study.json`) over all four spec axes:
+
+| axis | naive (dump all source) | graph-guided (vault `index`+`suspects`) |
+|---|---|---|
+| input tokens | 802 | **685** (−14.6%) |
+| files / units read | 5 | **2** (−60%) |
+| investigation cycles | 2 (linear scan to the hub) | **1** |
+| quality (correct root cause) | ✅ `snippets/__init__.py` | ✅ `snippets/__init__.py` |
+
+On this tiny repo the token delta is modest and both localize correctly — the win is **fewer files
+(60%) and fewer investigation cycles**: the graph routes straight to the hub. The 97% study on the
+2k-node httpie graph below is the *scale* demonstration of the same effect.
 
 **Research questions (§4).** *Architecture:* a 5-module package fronted by a re-export hub.
 *Central / "god" node:* the hub `snippets/__init__.py` (highest fan-in). *How the bug was found:*
 trace the graph from the failing entry point to the hub's missing edges, not linear file reading.
-*Graph/Obsidian advantage:* localize to 2 files instead of reading all 5. *Extensions:* the
-evidence-gated, guardrailed agent pipeline reused for debugging.
+*Graph/Obsidian advantage:* localize to 2 files instead of reading all 5.
+
+**Original extension (§5.6) — the graph-first `BugLocalizer` agent.** Beyond the assignment's
+read→summarize loop, we built a dedicated debugging agent (`src/archlens/agents/bug_localizer.py`,
+exposed as `sdk.localize_bug`). Given only the failing symbol and the dependency graph, it nominates
+the fix site from **graph structure alone** — it finds the highest-degree re-export hub, detects the
+*missing* import edges that explain the `ImportError`, and emits a deterministic evidence trace plus an
+LLM root-cause explanation **without reading any source file**. Its verbatim output is committed at
+`obsidian/localization.md`; it is covered by `tests/agents/test_bug_localizer.py`. This is the concrete
+debugging-specific capability the spec invites — turning the graph into the localizer, not just context.
 
 ## Quickstart (uv only)
 
