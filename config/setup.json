@@ -1,7 +1,7 @@
 {
   "version": "1.00",
   "target_repo": {
-    "url": "https://github.com/httpie/cli",
+    "url": "https://github.com/andela/buggy-python",
     "branch": "master",
     "pinned_commit": "HEAD",
     "workdir_root": "runs",
@@ -10,8 +10,8 @@
     "max_size_mb": 200
   },
   "fallback_repo": {
-    "url": "https://github.com/psf/requests",
-    "branch": "main",
+    "url": "https://github.com/httpie/cli",
+    "branch": "master",
     "pinned_commit": "HEAD",
     "workdir_root": "runs",
     "clone_depth": 1,
@@ -98,10 +98,10 @@
     "baseline": {"analysis_depth": "structural", "top_k_pages": 3, "rate_limit_rpm": 30, "similarity_threshold": 0.91}
   },
   "suggested_repos": [
-    {"name": "httpie", "url": "https://github.com/httpie/cli", "note": "approved primary target (BSD-3, 133 .py)"},
-    {"name": "requests", "url": "https://github.com/psf/requests", "note": "approved fallback (Apache-2.0)"},
-    {"name": "click", "url": "https://github.com/pallets/click", "note": "modern pyproject, uv-friendly"},
-    {"name": "tqdm", "url": "https://github.com/tqdm/tqdm", "note": "BugsInPy registry; small (69 .py)"},
-    {"name": "BugsInPy", "url": "https://github.com/soarsmu/BugsInPy", "note": "lecturer suggestion: real field bugs"}
+    {"name": "buggy-python", "url": "https://github.com/andela/buggy-python", "note": "EX04 debugging target (lecturer-suggested): seeded bugs, pure stdlib, reproduces in uv/no-Docker"},
+    {"name": "broken-python", "url": "https://github.com/martinpeck/broken-python", "note": "lecturer-suggested (py2 snippets; not chosen - no parseable call graph)"},
+    {"name": "BugsInPy", "url": "https://github.com/soarsmu/BugsInPy", "note": "lecturer-suggested (heavy: needs Docker/per-project deps)"},
+    {"name": "httpie", "url": "https://github.com/httpie/cli", "note": "scale demo / fallback (BSD-3, 133 .py) - architectural token study"},
+    {"name": "requests", "url": "https://github.com/psf/requests", "note": "fallback (Apache-2.0)"}
   ]
 }

@@ -11,6 +11,8 @@ Full documentation lives in `docs/` (PRD, PLAN, specialized PRDs, TODO, prompt b
 
 ## Table of Contents
 
+> **EX04 debugging core:** [Debugging an unfamiliar buggy repo (buggy-python)](#ex04--debugging-an-unfamiliar-buggy-repo-andelabuggy-python) — bug → graph-first localization → fix → verify (failing→passing).
+
 1. [Quickstart (uv only)](#quickstart-uv-only)
 2. [Installation](#installation)
 3. [CLI usage](#cli-usage) — incl. [Screenshots](#screenshots)
@@ -21,6 +23,49 @@ Full documentation lives in `docs/` (PRD, PLAN, specialized PRDs, TODO, prompt b
 8. [Report](#report)
 9. [Contributing](#contributing)
 10. [License & credits](#license--credits)
+
+## EX04 — Debugging an unfamiliar buggy repo (andela/buggy-python)
+
+**Target & justification (§2).** The EX04 debugging subject is **`andela/buggy-python`** — one of the
+three lecturer-suggested buggy corpora — chosen because it is pure-stdlib (no Docker, no deps,
+reproduces in our uv-only env) and its bug is a genuine **cross-module** failure a dependency graph
+helps localize. (`broken-python` is unparseable Python-2 syntax → no call graph; BugsInPy needs
+Docker/per-project deps.) `httpie` remains the large-scale architectural demo / fallback.
+
+**The bug (§5.4).** `python main.py` (the repo's own, unmodifiable test harness) fails at import time:
+`ImportError: cannot import name 'lambda_array' from 'snippets'`.
+
+**Graph-first localization (§5.3).** The Graphify import graph (19 nodes / 28 edges,
+`artifacts/buggy-python-graph.json`) shows the failure chain **entry → hub → leaf**: `main.py` needs
+6 symbols, the re-export **hub** `snippets/__init__.py` — the #1 centrality node (degree 9, found by
+ArchLens `node_centrality`) — supplies only 1, and the 5 missing edges point straight at the defect.
+Fixing the hub then surfaces defects in the leaf modules `loop.py` / `io.py` / `foobar.py`.
+
+**Root cause & fix (§5.4).** Four defects: the hub's commented-out re-exports; JS-isms in `loop.py`
+(`{}` / `for i in 10` / `.push`); dict-as-call + `!==`/`is` + `sun`/`length` typos in `io.py` (the
+correct unpaid condition `== "unpaid"` was *derived from* the failing assertion total 11062); and a
+mutable default argument in `foobar.py`. Full diff + transcript: **`deliverables/BUG_REPORT.md`**.
+
+**Verification (failing → passing).** After the fix, `python main.py` prints
+`All test passed successfully!! 😀` (exit 0) — all 8 assertions green. The local gate is
+`tests/debug/test_buggy_python_entry.py` (it skips when the git-ignored clone is absent).
+
+**Knowledge before/after (§5.4) & the vault.** The bug-investigation Obsidian vault is committed under
+**`obsidian/`**: `index.md` (read-first bug overview), `hot.md` (the bug hotspot / suspect ranking),
+`suspects.md` (ranked candidates with graph evidence), `repair.md` (per-file root cause + fix).
+
+**Graph-guided vs naive — token study (§5.5).** Asking *"which file holds the bug and why?"* two ways
+(`scripts/compare_debug_tokens.py` → `metrics/out/debug_token_study.json`): naive (stuff all 5 source
+files) = 815 input tokens / 5 files; graph-guided (read the vault `index.md` + `suspects.md`) = 668
+tokens / **2 files**. On this tiny repo the token delta is modest (~18%), but the graph cuts **files
+read by 60% (2 vs 5)** and points at the hub directly — localization, not raw size, is the lesson
+here; the 97% study on the 2k-node httpie graph below is the *scale* demonstration.
+
+**Research questions (§4).** *Architecture:* a 5-module package fronted by a re-export hub.
+*Central / "god" node:* the hub `snippets/__init__.py` (highest fan-in). *How the bug was found:*
+trace the graph from the failing entry point to the hub's missing edges, not linear file reading.
+*Graph/Obsidian advantage:* localize to 2 files instead of reading all 5. *Extensions:* the
+evidence-gated, guardrailed agent pipeline reused for debugging.
 
 ## Quickstart (uv only)
 
@@ -74,6 +119,16 @@ This writes to your per-machine `~/.claude/` (a `SKILL.md`, its `references/`, a
 What was actually done on branch `Sharbel` (commits `ef5e993` → `88c33d8`,
 2026-06-12..15), including the real failures hit along the way. Everything below is
 reproducible from the repo.
+
+### Development methodology (built step by step, tested at every step)
+
+We built this project **incrementally and test-first** — not in one big drop. The work was split into
+small phases, and within each phase we added **one capability at a time**, wrote and ran its tests,
+and only moved on **once everything was green**: all tests passing, ruff at zero violations, branch
+coverage above the 85% gate, and every file within the 150-line cap. Each step was committed as a
+self-contained red→green slice, so the system grew in **verified increments** — add a piece, prove it
+works, then add the next. The phase-by-phase commit history below is that trail, and the same
+discipline (run the full suite before moving on) is how every later fix in this repo was made.
 
 ### Timeline of work
 

@@ -1,0 +1,12 @@
+{
+  "task": "locate the bug + root cause in andela/buggy-python",
+  "naive": {
+    "input_tokens": 815,
+    "files_read": 5
+  },
+  "graph_guided": {
+    "input_tokens": 668,
+    "files_read": 2
+  },
+  "token_savings_pct": 18.04
+}
