@@ -98,10 +98,11 @@
     "baseline": {"analysis_depth": "structural", "top_k_pages": 3, "rate_limit_rpm": 30, "similarity_threshold": 0.91}
   },
   "suggested_repos": [
-    {"name": "BugsInPy", "url": "https://github.com/soarsmu/BugsInPy", "note": "PDF-listed primary target: real field bugs"},
-    {"name": "requests", "url": "https://github.com/psf/requests", "note": "approved fallback (Apache-2.0)"},
-    {"name": "httpie", "url": "https://github.com/httpie/cli", "note": "previous approved target; retained as reference only"},
-    {"name": "click", "url": "https://github.com/pallets/click", "note": "modern pyproject, uv-friendly"},
+    {"name": "BugsInPy", "url": "https://github.com/soarsmu/BugsInPy", "note": "PDF-listed primary target: real Python bug corpus"},
+    {"name": "buggy-python", "url": "https://github.com/andela/buggy-python", "note": "PDF-listed debugging corpus; supplemental bug-localization evidence"},
+    {"name": "broken-python", "url": "https://github.com/martinpeck/broken-python", "note": "PDF-listed corpus; py2 snippets make it less suitable for this graph run"},
+    {"name": "requests", "url": "https://github.com/psf/requests", "note": "fallback (Apache-2.0)"},
+    {"name": "httpie", "url": "https://github.com/httpie/cli", "note": "previous scale demo / token-economics study"},
     {"name": "tqdm", "url": "https://github.com/tqdm/tqdm", "note": "BugsInPy registry; small (69 .py)"}
   ]
 }

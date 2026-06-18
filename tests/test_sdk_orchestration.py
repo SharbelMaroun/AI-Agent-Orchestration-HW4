@@ -77,3 +77,12 @@ def test_measure_tokens_flags_explanation_below_seventy_percent():
             return {"baseline": 100, "assisted": 50}
 
     assert _Low().measure_tokens().explanation_required is True
+
+
+def test_measure_tokens_falls_back_to_persisted_study_when_session_is_empty():
+    # A fresh SDK made no LLM calls this session, so `archlens tokens` must surface the committed
+    # before/after study (metrics/out/token_metrics.json) rather than a misleading bare 0%.
+    report = ArchLensSDK().measure_tokens()
+    assert report.baseline_tokens > 0 and report.assisted_tokens > 0
+    assert report.savings_pct > 70  # the committed study clears the 70% target
+    assert report.explanation_required is False

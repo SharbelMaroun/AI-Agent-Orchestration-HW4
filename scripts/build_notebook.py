@@ -100,7 +100,11 @@ FIGURES = """## 5. Figures
 *Figure 4. Heatmap of normalized outcome delta per swept parameter.*
 
 ![Figure 5: Run-to-run variance.](../docs/assets/variance_box.png)
-*Figure 5. Box plot of tokens and runtime across the 3 baseline runs.*"""
+*Figure 5. Box plot of tokens and runtime across the 3 baseline runs.*
+
+![Figure 6: Break-even line chart.](../docs/assets/break_even_line.png)
+*Figure 6. Cumulative tokens vs query count; the one-time Graphify build cost T_build is the assisted
+curve's y-intercept and the curves cross at the break-even query count (PRD_token_metrics §9 / FR-TM-10).*"""
 
 TOKENS_CODE = """metrics = load("metrics/out/token_metrics.json")
 savings = metrics["savings"]
@@ -112,7 +116,8 @@ TOKENS_MD = """## 6. Token Economics
 
 The per-model cost table above lists input/output tokens and USD cost. Measured savings vs the naive
 baseline exceed the 70% target (see Figure 1), and the one-time Graphify build cost is amortized
-within a handful of queries (Figure 2)."""
+within a handful of queries — the break-even crossing is shown in Figure 6 and reported as
+`amortization.break_even_queries` above."""
 
 ISO_CODE = """from IPython.display import Markdown
 

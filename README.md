@@ -23,6 +23,8 @@ submission configuration and regenerated deliverables now use BugsInPy.
 
 ## Table of Contents
 
+> **EX04 debugging core:** [Debugging an unfamiliar buggy repo (buggy-python)](#ex04--debugging-an-unfamiliar-buggy-repo-andelabuggy-python) — bug → graph-first localization → fix → verify (failing→passing).
+
 1. [Quickstart (uv only)](#quickstart-uv-only)
 2. [Installation](#installation)
 3. [CLI usage](#cli-usage) — incl. [Screenshots](#screenshots)
@@ -33,6 +35,67 @@ submission configuration and regenerated deliverables now use BugsInPy.
 8. [Report](#report)
 9. [Contributing](#contributing)
 10. [License & credits](#license--credits)
+
+## EX04 — Debugging an unfamiliar buggy repo (andela/buggy-python)
+
+**Target & justification (§2).** The EX04 debugging subject is **`andela/buggy-python`** — one of the
+three lecturer-suggested buggy corpora — chosen because it is pure-stdlib (no Docker, no deps,
+reproduces in our uv-only env) and its bug is a genuine **cross-module** failure a dependency graph
+helps localize. (`broken-python` is unparseable Python-2 syntax → no call graph; BugsInPy needs
+Docker/per-project deps.) `httpie` remains the large-scale architectural demo / fallback.
+
+**The bug (§5.4).** `python main.py` (the repo's own, unmodifiable test harness) fails at import time:
+`ImportError: cannot import name 'lambda_array' from 'snippets'`.
+
+**Graph-first localization (§5.3).** The Graphify import graph (19 nodes / 28 edges,
+`artifacts/buggy-python-graph.json`) shows the failure chain **entry → hub → leaf**: `main.py` needs
+6 symbols, the re-export **hub** `snippets/__init__.py` — the #1 centrality node (degree 9, found by
+ArchLens `node_centrality`) — supplies only 1, and the 5 missing edges point straight at the defect.
+Fixing the hub then surfaces defects in the leaf modules `loop.py` / `io.py` / `foobar.py`.
+
+**Root cause & fix (§5.4).** Four defects: the hub's commented-out re-exports; JS-isms in `loop.py`
+(`{}` / `for i in 10` / `.push`); dict-as-call + `!==`/`is` + `sun`/`length` typos in `io.py` (the
+correct unpaid condition `== "unpaid"` was *derived from* the failing assertion total 11062); and a
+mutable default argument in `foobar.py`. Full diff + transcript: **`deliverables/BUG_REPORT.md`**.
+
+**Verification (failing → passing).** After the fix, `python main.py` prints
+`All test passed successfully!! 😀` (exit 0) — all 8 assertions green. The local gate is
+`tests/debug/test_buggy_python_entry.py` (it skips when the git-ignored clone is absent).
+
+**Knowledge before/after (§5.4) & the vault.** The bug-investigation Obsidian vault is committed under
+**`obsidian/`**: `index.md` (read-first bug overview), `hot.md` (the bug hotspot / suspect ranking),
+`suspects.md` (ranked candidates with graph evidence), `repair.md` (per-file root cause + fix),
+`architecture.md` (the §5.2 block + OOP-level diagrams of the target), `localization.md` (the
+BugLocalizer agent's graph-first output), `findings.md` (the eight §4 research questions, answered), and
+`tests.md` (how the fix is verified). The before/after knowledge table is in `deliverables/BUG_REPORT.md` §5.
+
+**Graph-guided vs naive — token study (§5.5).** Asking *"which file must be fixed first?"* two ways
+(`scripts/compare_debug_tokens.py` → `metrics/out/debug_token_study.json`) over all four spec axes:
+
+| axis | naive (dump all source) | graph-guided (vault `index`+`suspects`) |
+|---|---|---|
+| input tokens | 802 | **685** (−14.6%) |
+| files / units read | 5 | **2** (−60%) |
+| investigation cycles | 2 (linear scan to the hub) | **1** |
+| quality (correct root cause) | ✅ `snippets/__init__.py` | ✅ `snippets/__init__.py` |
+
+On this tiny repo the token delta is modest and both localize correctly — the win is **fewer files
+(60%) and fewer investigation cycles**: the graph routes straight to the hub. The 97% study on the
+2k-node httpie graph below is the *scale* demonstration of the same effect.
+
+**Research questions (§4).** *Architecture:* a 5-module package fronted by a re-export hub.
+*Central / "god" node:* the hub `snippets/__init__.py` (highest fan-in). *How the bug was found:*
+trace the graph from the failing entry point to the hub's missing edges, not linear file reading.
+*Graph/Obsidian advantage:* localize to 2 files instead of reading all 5.
+
+**Original extension (§5.6) — the graph-first `BugLocalizer` agent.** Beyond the assignment's
+read→summarize loop, we built a dedicated debugging agent (`src/archlens/agents/bug_localizer.py`,
+exposed as `sdk.localize_bug`). Given only the failing symbol and the dependency graph, it nominates
+the fix site from **graph structure alone** — it finds the highest-degree re-export hub, detects the
+*missing* import edges that explain the `ImportError`, and emits a deterministic evidence trace plus an
+LLM root-cause explanation **without reading any source file**. Its verbatim output is committed at
+`obsidian/localization.md`; it is covered by `tests/agents/test_bug_localizer.py`. This is the concrete
+debugging-specific capability the spec invites — turning the graph into the localizer, not just context.
 
 ## Quickstart (uv only)
 
@@ -87,6 +150,16 @@ What was actually done on branch `Sharbel` (commits `ef5e993` → `88c33d8`,
 2026-06-12..15), including the real failures hit along the way. Everything below is
 reproducible from the repo.
 
+### Development methodology (built step by step, tested at every step)
+
+We built this project **incrementally and test-first** — not in one big drop. The work was split into
+small phases, and within each phase we added **one capability at a time**, wrote and ran its tests,
+and only moved on **once everything was green**: all tests passing, ruff at zero violations, branch
+coverage above the 85% gate, and every file within the 150-line cap. Each step was committed as a
+self-contained red→green slice, so the system grew in **verified increments** — add a piece, prove it
+works, then add the next. The phase-by-phase commit history below is that trail, and the same
+discipline (run the full suite before moving on) is how every later fix in this repo was made.
+
 ### Timeline of work
 
 | Commit | Scope | Outcome |
@@ -103,7 +176,7 @@ reproducible from the repo.
 | `8b9ad6b` | **Phase 7 — Reverse-engineering deliverables** (44/45) | architecture block diagram, OOP class schema (AST→classDiagram), PRD↔code alignment audit, traceability + evidence-ladder linter, deliverable generators + CLI |
 | `d93a776` | **Phase 8 — SDK layer & core architecture** (49/50) | constants/exceptions, frozen DTOs + serde, gatekeeper protocol, SDK orchestration facade (analyze/run_loop/measure_tokens), plugin registry, thin CLI subcommands, DRY + thread-safety audits |
 | `41efe45` | **Phase 10 — Multi-agent orchestration (LangGraph)** (55/55) | AgentState + per-key reducers, supervisor + conditional routing, 7 agent nodes, compiled StateGraph, SqliteSaver checkpointing + resume, guardrail tiers + human-approval interrupt, per-node retries, run trace, 7 prompt templates |
-| `4f6be68` | **Phase 11 — Improvement loop & stop conditions** (49/50) | fix priority policy + evidence gate + queue, iteration brancher + revert rollback, refactor fixes (split/bottleneck/duplicate/SPOF), test gate→rollback, graph-diff metrics + load-shift SC-1, StopConditionEvaluator (5 SCs + 5-iter cap), LoopController subgraph + `--loop` CLI + E2E convergence |
+| `4f6be68` | **Phase 11 — Improvement loop & stop conditions** (49/50) | fix priority policy + evidence gate + queue, iteration brancher (branch-isolation undo) + `git revert` rollback helper, refactor fixes (split/bottleneck/duplicate/SPOF), real-`pytest` test gate feeding SC-4, graph-diff metrics + load-shift SC-1, StopConditionEvaluator (5 SCs + 5-iter cap), LoopController subgraph + `--loop` CLI + E2E convergence |
 | `7ad35d0` | **Phase 9 — API gatekeeper & rate limiting** (49/50) | sliding-window limiters (30/min, 500/hr), concurrency semaphore, retry policy, FIFO overflow queue + blocking backpressure, drain loop, structured call log + key redaction, token-ledger hooks, Anthropic client + offline mock mode, `execute()` facade (saturation / never-reject / thread-safety) |
 | `…`→`209e0d4` | **Phases 12–15 — token economics, knowledge wiki, research** | baseline-vs-assisted token measurement (97.08% savings, cost tables), LLM raw→wiki→index→log + SKILL guardrails, research notebook + OAT sensitivity sweeps + charts |
 | `d75debe`→`ae9b40b` | **Phase 16 — packaging, CI, compliance** | gate scripts (line-cap + forbidden-tooling), CI workflow + CONTRIBUTING + PR template, README + LICENSE + screenshots, PROMPT_BOOK, Nielsen UX eval, Guidelines-V3 compliance sweep, annotated tag `v1.00`, live-LLM mode + `.env`, all approval gates closed |
@@ -118,8 +191,8 @@ upload, which only the submitter can do). All lecturer-approval gates were grant
 
 ```text
 $ uv run pytest --cov=archlens --cov-branch
-930 passed
-Required test coverage of 85.0% reached. Total coverage: 96.8%
+936 passed
+Required test coverage of 85.0% reached. Total coverage: 96.76%
 
 $ uv run ruff check .
 All checks passed!
@@ -133,7 +206,17 @@ $ uv run python src/main.py --version
 
 ### Architecture diagrams (compiled from PLAN.md)
 
-All seven mermaid diagrams are machine-verified (mermaid-cli exit 0) and rendered to SVG:
+> **Reverse-engineered target diagrams (EX04 §5.2)** — the block architecture diagram and the OOP-level
+> module/function diagram **of the target `andela/buggy-python`** live in
+> [`obsidian/architecture.md`](obsidian/architecture.md) (rendered from
+> `artifacts/buggy-python-graph.json`). The target is procedural (0 classes), so the OOP deliverable is
+> the module/function dependency structure; a UML class diagram of the **tool** ArchLens is `plan_04` below.
+
+The seven diagrams below are of **ArchLens itself** (the tool). All are machine-verified (mermaid-cli
+exit 0) and rendered to SVG. (These `.svg`s embed labels as mermaid `<foreignObject>`, which GitHub's
+README image viewer renders blank; the **byte-identical inline-mermaid versions of all seven** live in
+[`docs/PLAN.md`](docs/PLAN.md) §3–§7 and render natively on github.com — open that file if a label
+looks blank here.)
 
 | | |
 |---|---|
@@ -289,7 +372,7 @@ the system temp directory. Full honest log trail: `docs/REPO_SELECTION.md` §3.
 
 ### What is verifiable right now
 
-- `uv run pytest` — 930 tests across the repo module, the Graphify pipeline (models,
+- `uv run pytest` — 936 tests across the repo module, the Graphify pipeline (models,
   validating parser, node-link adapter, diff engine, orchestrator), the graph-analysis
   engine, the Obsidian vault generator (hot.md golden file, broken-link/orphan validation,
   deterministic rebuild), the LangGraph multi-agent orchestration (supervisor + 7 agents +
@@ -411,8 +494,17 @@ uv run python src/main.py vault <graph.json>          # build the Obsidian vault
 uv run python src/main.py deliverables --graph <g.json> --src src --prd docs/PRD.md
 uv run python src/main.py analyze                     # Repo -> Graph -> Analyst report
 uv run python src/main.py tokens                      # token-savings report
-uv run python src/main.py loop                        # run the improvement loop
+uv run python src/main.py loop                        # full multi-agent improvement loop
+uv run python src/main.py --loop                      # Phase-11 LoopController (real `uv run pytest` gate)
 ```
+
+**Two loop entry points.** `loop` drives the full supervisor + seven-agent runner, whose QA step uses a
+dependency-free AST-parse gate (it cannot provision an arbitrary clone's bespoke venv — see bug-fix #6).
+`--loop` runs the Phase-11 `LoopController`, whose `TestGate` runs the target's **real `uv run pytest`**
+suite after every change and feeds SC-4. Both share the 5-iteration cap and the five stop conditions; a
+red gate fails SC-4 so the failing fix is never accepted (it stays isolated on its per-iteration feature
+branch — the undo path — and `git revert` is the history-preserving rollback for any committed iteration,
+covered by `tests/test_rollback.py` and `tests/test_red_gate_rollback.py`).
 
 ### Screenshots
 
@@ -552,6 +644,12 @@ always run in `mock` mode (pinned by an autouse fixture) so the suite stays offl
 
 ## Token economics
 
+The graph-first design is a direct response to the **"Lost in the Middle"** problem (Liu et al. 2024,
+the L07 §9 concept): LLMs attend most reliably to the **start** of the context and lose information
+buried in the middle of a long prompt. Rather than stuff the whole source tree into the window,
+ArchLens reads the `index.md` hub first and then ≤3 graph-scoped pages, keeping the highest-value
+evidence at the front — which is also what makes it cheap.
+
 Measured on the real httpie checkout (133 `.py` files), 10 standard architecture questions:
 
 | Protocol | Total input tokens | Per-question |
@@ -559,9 +657,15 @@ Measured on the real httpie checkout (133 `.py` files), 10 standard architecture
 | Baseline (naive full-context) | 1,368,538 | ~137k |
 | Graphify-assisted (index + ≤3 wiki + subgraph) | 39,950 | ~4.0k |
 
-**Token savings: 97.08%** (target ≥ 70%; real billed gpt-4.1-mini, $0.58). Even charging the one-time Graphify build cost (~148k
+**Token savings: 97.08%** (target ≥ 70%; real billed gpt-4.1-mini, $0.58). Even charging the one-time Graphify build cost (~136k
 tokens), the graph **breaks even after 2 queries**. Per-model USD cost tables are in
 `docs/metrics/COST_TABLES.md`; the full schema is `metrics/out/token_metrics.json`.
+
+![Break-even line chart: cumulative tokens vs query count, naive baseline vs graph-assisted](docs/assets/break_even_line.png)
+*Cumulative input tokens vs query count. The one-time Graphify build cost `T_build` (135,948 tokens) is
+the assisted curve's y-intercept; the curves cross at ~2 queries, after which graph-assisted retrieval
+is strictly cheaper. Rendered by `scripts/gen_charts.py` (`break_even_line`); also Figure 6 in
+`notebooks/archlens_analysis.ipynb`.*
 
 ### Live cost: model selection (gpt-4o → gpt-4.1-mini)
 

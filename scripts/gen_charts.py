@@ -24,6 +24,7 @@ from archlens.shared.config import load_setup  # noqa: E402
 ROOT = Path(__file__).resolve().parents[1]
 ASSETS = ROOT / "docs" / "assets"
 RESULTS = ROOT / "results"
+METRICS_OUT = ROOT / "metrics" / "out"
 
 
 def _load(path):
@@ -93,6 +94,37 @@ def variance_box():
               ASSETS / "variance_box.png", title="Run-to-run variance")
 
 
+def break_even_line(cfg):
+    """Cumulative tokens vs query count: T_build is the assisted curve's y-intercept; the curves
+    cross at break-even (PRD_token_metrics §9 / FR-TM-10)."""
+    base = load_ledger(ledger_path(cfg.metrics.baseline_ledger))
+    asst = load_ledger(ledger_path(cfg.metrics.assisted_ledger))
+    t_build = _load(METRICS_OUT / "token_metrics.json")["amortization"]["graph_build_tokens"]
+    qs = sorted({entry.question_id for entry in base.entries})
+    base_by = {entry.question_id: entry.total_tokens for entry in base.entries}
+    asst_by = {entry.question_id: entry.total_tokens for entry in asst.entries}
+    base_cum, asst_cum, run_b, run_a = [0], [t_build], 0, 0
+    for q in qs:
+        run_b += base_by.get(q, 0)
+        run_a += asst_by.get(q, 0)
+        base_cum.append(run_b)
+        asst_cum.append(t_build + run_a)
+    xs = list(range(len(qs) + 1))
+    crossing = next((i for i in xs if asst_cum[i] <= base_cum[i]), None)
+    plt.figure(figsize=(8, 5))
+    plt.plot(xs, base_cum, marker="o", label="naive baseline (full context per query)")
+    plt.plot(xs, asst_cum, marker="o", label=f"graph-assisted (+T_build={t_build:,} at q=0)")
+    if crossing is not None:
+        plt.axvline(crossing, color="red", linestyle="--", label=f"break-even ≈ {crossing} queries")
+    plt.xlabel("queries answered")
+    plt.ylabel("cumulative input tokens")
+    plt.title("Break-even: cumulative tokens, naive vs graph-assisted")
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig(ASSETS / "break_even_line.png")
+    plt.close()
+
+
 def main() -> int:
     ASSETS.mkdir(parents=True, exist_ok=True)
     cfg = load_setup()
@@ -101,6 +133,7 @@ def main() -> int:
     similarity_scatter()
     sensitivity_heatmap()
     variance_box()
+    break_even_line(cfg)
     print("charts written:", sorted(p.name for p in ASSETS.glob("*.png")))
     return 0
 
