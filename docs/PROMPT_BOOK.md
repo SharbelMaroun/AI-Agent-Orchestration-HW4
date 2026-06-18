@@ -123,10 +123,10 @@ failed, and how the prompt was refined* (L07, section 11; Guidelines V3).
   (initial graph-scan cost amortization).
 - **Prompt:** identical question set for both arms; assisted arm instructed to read `index.md`
   first, then at most 2-3 wiki pages (Part B navigation rule). To be logged verbatim.
-- **Output Summary / Evaluation:** implemented — 97.08% input-token savings ($0.58 total),
-  recorded in `metrics/out/token_metrics.json` and `docs/metrics/COST_TABLES.md`; the before/after
-  knowledge metrics live in `src/archlens/metrics/knowledge_eval.py`.
-- **Tokens:** the entire point — both arms fully measured (1,368,538 -> 39,950 tokens).
+- **Output Summary / Evaluation:** implemented for the submitted `andela/buggy-python` debug task:
+  685 graph-guided input tokens vs 802 naive input tokens (14.59% fewer), recorded in
+  `metrics/out/debug_token_study.json` and `docs/metrics/GRAPH_VS_CODE.md`.
+- **Tokens:** both arms measured on the same localization question.
 
 ### PB-005 — SKILL.md routing descriptions (implemented)
 - **Date:** implemented — see `skills/SKILL_graph_reading.md`, `skills/SKILL_refactor.md`

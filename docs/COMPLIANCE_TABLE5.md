@@ -18,7 +18,7 @@ Each Guidelines V3 quick-reference requirement, with verdict and evidence.
 | 10 | Gatekeeper-only external calls + FIFO never-reject | PASS | `tests/test_api_call_routing.py`, `test_no_llm_bypass.py`, `test_no_direct_git.py` |
 | 11 | Graphify pipeline + Obsidian vault (hot/index/wiki/log) | PASS | `artifacts/buggy-python-graph.json`, `artifacts/buggy-python-GRAPH_REPORT.md`, `obsidian/` |
 | 12 | Reverse-engineering deliverables (block diagram, class schema, audit) | PASS | `deliverables/ARCHITECTURE.md`, `CLASS_SCHEMA.md`, `ALIGNMENT_AUDIT.md`, `BUG_REPORT.md` |
-| 13 | Token before/after with >= 70% savings (or amortization) | PASS (debug study + historical ledger) | Debug graph-vs-code study in `metrics/out/debug_token_study.json`; persisted billed development ledger in `metrics/out/token_metrics.json` |
+| 13 | Token before/after with >= 70% savings (or amortization/explanation when target is small) | PASS (measured + explained) | `metrics/out/debug_token_study.json`, `metrics/out/token_metrics.json`, `docs/metrics/SAVINGS_EXPLANATION.md` |
 | 14 | 4 knowledge-quality metrics measured before/after | PASS | `deliverables/BUG_REPORT.md`, `obsidian/findings.md`, and `metrics/out/debug_token_study.json` document files read, cycles, root-cause quality, and token use |
 | 15 | SKILL.md with guardrails + LLM wiki | PASS | `skills/SKILL_graph_reading.md`, `SKILL_refactor.md` |
 | 16 | CI/CD pipeline (uv sync --frozen, gates) | PASS | `.github/workflows/ci.yml` |

@@ -98,6 +98,44 @@ Read these files first:
 - `obsidian/findings.md` - assignment research questions
 - `obsidian/tests.md` - verification notes
 
+Visual evidence:
+
+![CLI debug-demo output](docs/screenshots/cli_run.png)
+
+![Top graph hubs](docs/diagrams/analysis_hubs.png)
+
+![Target graph subgraph](docs/diagrams/analysis_subgraph.png)
+
+```mermaid
+flowchart LR
+    main["main.py"]
+    init["snippets/__init__.py<br/>re-export hub"]
+    loop["snippets/loop.py"]
+    io["snippets/io.py"]
+    foobar["snippets/foobar.py"]
+
+    main --> init
+    init --> loop
+    init --> io
+    init --> foobar
+```
+
+The OOP/class view is intentionally empty because `buggy-python` is procedural. The class-schema
+deliverable records that result instead of inventing classes that are not present.
+
+## Research Questions
+
+| # | Question | Short answer | Evidence |
+|---|---|---|---|
+| Q1 | What is the actual architecture? | A thin `main.py` harness imports through one `snippets/__init__.py` re-export hub into three leaf modules. | `obsidian/architecture.md` |
+| Q2 | Which components are most central? | `snippets/__init__.py` is the top hub by degree; `main.py` and `snippets/io.py` follow. | `obsidian/hot.md` |
+| Q3 | Where are the God nodes or bottlenecks? | The re-export hub is the single failure point for package imports; `io.py` is a secondary logic bottleneck. | `obsidian/suspects.md` |
+| Q4 | How were block/OOP views extracted? | Graph communities form the block view; the target has no classes, so the honest OOP view is an empty class schema plus module/function dependencies. | `deliverables/CLASS_SCHEMA.md` |
+| Q5 | How was the bug identified? | `BugLocalizer` followed the graph from `main.py` to the missing `lambda_array` export and selected `snippets/__init__.py` first. | `obsidian/localization.md` |
+| Q6 | What did graph + Obsidian improve? | The investigation read 2 graph/vault units instead of 5 source files and reached the first fix site in one cycle. | `metrics/out/debug_token_study.json` |
+| Q7 | How were tokens saved? | Graph-guided localization used 685 input tokens vs 802 naive input tokens, a 14.59% reduction on this small target. | `docs/metrics/GRAPH_VS_CODE.md` |
+| Q8 | What extension was added? | A graph-first `BugLocalizer` agent plus centrality, bottleneck, SPOF, audit, and token-measurement tooling. | `src/archlens/agents/bug_localizer.py` |
+
 ## Token Efficiency
 
 The debug token study compares locating the first file to fix with and without graph navigation:
