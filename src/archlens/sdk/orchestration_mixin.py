@@ -3,6 +3,7 @@
 These run the LangGraph orchestration built in Phase 10, keeping the SDK the single entry point.
 """
 
+import json
 from pathlib import Path
 
 from ..agents.contracts import QAReport
@@ -92,4 +93,18 @@ class OrchestrationMixin:
         baseline = ledger.get("baseline_tokens", 0)
         assisted = ledger.get("assisted_tokens", 0)
         savings = ledger.get("savings_pct", 0.0)
+        if baseline or assisted:
+            return TokenReport(baseline, assisted, savings, explanation_required=savings < 70.0)
+        cfg = self._config()
+        path = Path(cfg.metrics.output_dir) / cfg.metrics.metrics_json
+        if path.is_file():
+            data = json.loads(path.read_text(encoding="utf-8"))
+            saved = data.get("savings", {})
+            target_met = bool(data.get("target_met", saved.get("target_met", False)))
+            return TokenReport(
+                saved.get("baseline_tokens", 0),
+                saved.get("assisted_tokens", 0),
+                saved.get("savings_pct", 0.0),
+                explanation_required=not target_met,
+            )
         return TokenReport(baseline, assisted, savings, explanation_required=savings < 70.0)

@@ -1,0 +1,53 @@
+{
+  "version": "1.00",
+  "source_artifact": "metrics/out/graph_vs_code.json",
+  "method": "Live top-3 bottleneck proxy over the with-vs-without-Graphify study.",
+  "scope_note": "This is an honest measured proxy, not the removed synthetic 10-task harness.",
+  "sample_size": 3,
+  "baseline_label": "without_graphify_full_source",
+  "assisted_label": "with_graphify_neighbourhood",
+  "raw_observations": {
+    "baseline_tokens": 8125,
+    "assisted_tokens": 1302,
+    "token_savings_pct": 84.0,
+    "baseline_quality": 5.0,
+    "assisted_quality": 5.0,
+    "rows_with_source_file": 3,
+    "total_rows": 3
+  },
+  "metrics": [
+    {
+      "metric": "source_traceability",
+      "baseline": 4,
+      "assisted": 7,
+      "delta": 3,
+      "rationale": "The graph-assisted rows carry explicit node and source_file evidence for all 3 cases; the answers still do not cite full relation-confidence-source triples, so this is not scored as perfect."
+    },
+    {
+      "metric": "noise_reduction",
+      "baseline": 0,
+      "assisted": 8,
+      "delta": 8,
+      "rationale": "Measured context fell from 8125 tokens without Graphify to 1302 tokens with Graphify, an 84.0% reduction."
+    },
+    {
+      "metric": "correct_file_identification",
+      "baseline": 10,
+      "assisted": 10,
+      "delta": 0,
+      "rationale": "Both study arms were evaluated on the same 3 ground-truth bottleneck source files and received equal 5/5 quality."
+    },
+    {
+      "metric": "correct_tool_at_the_right_time",
+      "baseline": 2,
+      "assisted": 10,
+      "delta": 8,
+      "rationale": "The assisted path starts from the Graphify neighbourhood, matching the Part B routing protocol; the baseline path uses broad full-source reading."
+    }
+  ],
+  "averages": {
+    "baseline": 4.0,
+    "assisted": 8.75,
+    "delta": 4.75
+  }
+}

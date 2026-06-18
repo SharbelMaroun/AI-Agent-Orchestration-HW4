@@ -18,11 +18,18 @@ from ..shared.errors import (
     RepoError,
     RetryExhaustedError,
 )
+from ..shared.files import force_rmtree
 from ..shared.rate_limits import ServiceLimits
 
 _AUTH_MARKERS = ("authentication", "permission denied", "403", "could not read username")
 _DISK_MARKERS = ("no space left", "disk full")
 _GIT_IDENT = ["-c", f"user.email={GIT_BOT_EMAIL}", "-c", f"user.name={GIT_BOT_NAME}"]
+
+
+def _remove_partial_clone(path: Path) -> None:
+    """Remove a failed clone destination, including Windows read-only git pack files."""
+    if path.exists():
+        force_rmtree(path)
 
 
 def run_local_git(args: list[str], cwd: Path, timeout_s: int) -> str:
@@ -62,6 +69,8 @@ def run_git_clone(repo: RepoBlock, dest: Path) -> None:
     clone_cmd += [repo.url, str(dest)]
     _run(clone_cmd, repo.timeout_s)
     if repo.pinned_commit not in ("", "HEAD"):
+        _run(["git", "-C", str(dest), "fetch", "--depth", "1", "origin", repo.pinned_commit],
+             repo.timeout_s)
         _run(["git", "-C", str(dest), "checkout", repo.pinned_commit], repo.timeout_s)
 
 
@@ -76,10 +85,12 @@ def clone_with_retry(
     last_error: RepoError | None = None
     for attempt in range(1, limits.max_retries + 1):
         try:
+            _remove_partial_clone(dest)
             runner(repo, dest)
             return dest
         except (CloneNetworkError, CloneTimeoutError) as exc:
             last_error = exc
             if attempt < limits.max_retries:
+                _remove_partial_clone(dest)
                 sleeper(limits.retry_after_seconds)
     raise RetryExhaustedError(f"clone failed after {limits.max_retries} attempts") from last_error

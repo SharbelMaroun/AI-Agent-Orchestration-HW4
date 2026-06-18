@@ -1,6 +1,6 @@
 # Target-Repository Approval Request
 
-> Version: 1.00 | Status: Prepared — pending send/approval | Course: AI Agent Orchestration — HW4 (EX04)
+> Version: 1.00 | Status: Sent and approved 2026-06-14 | Course: AI Agent Orchestration — HW4 (EX04)
 
 **Prepared:** 2026-06-13 (sent-date to be stamped on dispatch)
 **To:** Course lecturer

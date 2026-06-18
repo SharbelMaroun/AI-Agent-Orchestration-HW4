@@ -10,7 +10,7 @@ from .shared.errors import RepoError
 _EXAMPLES = """Examples:
   uv run python src/main.py start          # pick a repo, clone it, then analyze
   uv run python src/main.py --version
-  uv run python src/main.py vault runs/eval/httpie/graphify-out/graph.json
+  uv run python src/main.py vault runs/run/target/graphify-out/graph.json
   uv run python src/main.py deliverables --graph graph.json --src src --prd docs/PRD.md
   uv run python src/main.py analyze
   uv run python src/main.py tokens

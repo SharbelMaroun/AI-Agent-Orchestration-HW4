@@ -350,7 +350,7 @@ L07 requirement and the Guidelines V3 venv prohibition).
 - [x] All 5 EX04 core tasks trace to FRs (Appendix A, zero unmapped)
 - [x] No tooling other than uv is referenced for use anywhere in this document
 - [x] Stop conditions, hard cap, coverage 85, ruff 0, 150-line cap, uv-only each appear as a dedicated requirement (FR-30/31, NFR-01..04)
-- [x] Mandatory header present; status remains Draft pending lecturer approval
+- [x] Mandatory header present; status approved by lecturer on 2026-06-14
 
 ---
 

@@ -133,7 +133,7 @@ All seven mermaid diagrams are machine-verified (mermaid-cli exit 0) and rendere
 
 ### Analysis of a real graph (httpie — 2033 nodes / 4306 edges / 138 communities)
 
-Generated from the real `runs/eval/httpie/graphify-out/graph.json` by
+Generated from the real `deliverables/graphify-out/graph.json` by
 `uv run python scripts/visualize_graph.py` (structural `graphify update` pass, no LLM):
 
 | | |
@@ -296,9 +296,8 @@ the system temp directory. Full honest log trail: `docs/REPO_SELECTION.md` §3.
   validation (0 broken links, 0 orphans). See the correction note below.
 - `uv run python -c "..."` config-switch demo — primary `httpie/cli`, fallback
   `psf/requests`, no code change needed (see `docs/REPO_SELECTION.md` §5).
-- Lecturer-approval gates (PRD, all-docs, target repo) are deliberately BLOCKED —
-  the Guidelines V3 workflow forbids development past those gates without sign-off;
-  requests are prepared in `docs/approvals/`.
+- Lecturer-approval gates (PRD, all-docs, target repo) are closed and recorded in
+  `docs/approvals/`.
 
 ### Earlier gaps — now closed
 
@@ -358,14 +357,14 @@ exercised against hand-authored `graph.json` fixtures with a **mocked** subproce
 **Real-run evidence (no LLM / no API key — structural `graphify update`):**
 
 ```text
-$ graphify update runs/eval/httpie
+$ graphify update runs/run/target
   AST extraction: 188/188 files (100%) [8 workers]
 [graphify watch] Rebuilt: 2033 nodes, 4306 edges, 138 communities
   graph.json, graph.html and GRAPH_REPORT.md updated
 
 # ArchLens then consumed that real graph.json:
 REAL httpie graph: 2033 nodes, 4306 edges, 138 communities
-vault root: runs/httpie-vault   wiki community pages: 138   hot.md lines: 46
+vault root: deliverables/httpie-vault   graph artifacts: deliverables/graphify-out
 raw/ files: ['GRAPH_REPORT.md', 'graph.json']
 VALIDATION ok: True | orphans: 0 | broken_links: 0 | lint: 0
 ```

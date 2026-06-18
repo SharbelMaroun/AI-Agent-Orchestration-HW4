@@ -1,0 +1,12 @@
+---
+type: community
+status: generated
+project: archlens-target
+---
+# Community: community-49
+
+Members: tests_test_plugins_cli, tests_test_plugins_cli_test_plugins_installation, tests_test_plugins_cli_test_plugin_installation_with_custom_config, tests_test_plugins_cli_test_plugins_listing, tests_test_plugins_cli_test_plugins_listing_multiple, tests_test_plugins_cli_test_plugins_uninstall, tests_test_plugins_cli_test_plugins_listing_after_uninstall, tests_test_plugins_cli_test_plugins_uninstall_specific, tests_test_plugins_cli_test_plugins_installation_failed, tests_test_plugins_cli_test_plugins_uninstall_non_existent, tests_test_plugins_cli_test_plugins_double_uninstall, tests_test_plugins_cli_test_plugins_upgrade, tests_test_plugins_cli_test_broken_plugins, tests_test_plugins_cli_rationale_120, utils_plugins_cli_parse_listing, utils_plugins_cli_httpie_plugins, utils_plugins_cli_httpie_plugins_success
+
+Bridges out: [[community-13]], [[community-16]]
+
+Navigate: [[index]], [[hot]]

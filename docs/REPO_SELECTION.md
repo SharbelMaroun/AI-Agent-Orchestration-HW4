@@ -103,13 +103,13 @@ L07 §11.2 "don't get stuck" exit. Both are configured in `config/setup.json`.
 Note: the PRD Appendix B draft initially proposed tqdm as primary; the measured
 `uv sync` failure (above) flipped the recommendation to httpie. Evidence beats drafts.
 
-## 7. Lecturer approval (task 3.009 — BLOCKED)
+## 7. Lecturer approval (task 3.009)
 
 | Field | Value |
 |---|---|
 | Requested | 2026-06-13 (see docs/approvals/target_repo_request.md) |
-| Approved repo | _pending_ |
-| Approval date | _pending_ |
+| Approved repo | httpie/cli, fallback psf/requests |
+| Approval date | 2026-06-14 |
 
 ## Lecturer Approval
 

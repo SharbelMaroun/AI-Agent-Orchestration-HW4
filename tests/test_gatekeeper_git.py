@@ -49,7 +49,10 @@ def test_command_line_contains_depth_branch_and_pinned_commit(monkeypatch, tmp_p
     clone_cmd = calls[0]
     assert clone_cmd[2:4] == ["--depth", "2"]
     assert "--branch" in clone_cmd and "main" in clone_cmd
-    checkout_cmd = calls[1]
+    fetch_cmd = calls[1]
+    assert fetch_cmd[:4] == ["git", "-C", str(tmp_path / "dest"), "fetch"]
+    assert fetch_cmd[-1] == "abc1234"
+    checkout_cmd = calls[2]
     assert checkout_cmd[:2] == ["git", "-C"] and checkout_cmd[-1] == "abc1234"
 
 
