@@ -3,16 +3,16 @@
   "target_repo": {
     "url": "https://github.com/andela/buggy-python",
     "branch": "master",
-    "pinned_commit": "HEAD",
+    "pinned_commit": "",
     "workdir_root": "runs",
     "clone_depth": 1,
     "timeout_s": 300,
     "max_size_mb": 200
   },
   "fallback_repo": {
-    "url": "https://github.com/httpie/cli",
-    "branch": "master",
-    "pinned_commit": "HEAD",
+    "url": "https://github.com/psf/requests",
+    "branch": "main",
+    "pinned_commit": "",
     "workdir_root": "runs",
     "clone_depth": 1,
     "timeout_s": 300,
@@ -98,10 +98,8 @@
     "baseline": {"analysis_depth": "structural", "top_k_pages": 3, "rate_limit_rpm": 30, "similarity_threshold": 0.91}
   },
   "suggested_repos": [
-    {"name": "buggy-python", "url": "https://github.com/andela/buggy-python", "note": "EX04 debugging target (lecturer-suggested): seeded bugs, pure stdlib, reproduces in uv/no-Docker"},
-    {"name": "broken-python", "url": "https://github.com/martinpeck/broken-python", "note": "lecturer-suggested (py2 snippets; not chosen - no parseable call graph)"},
-    {"name": "BugsInPy", "url": "https://github.com/soarsmu/BugsInPy", "note": "lecturer-suggested (heavy: needs Docker/per-project deps)"},
-    {"name": "httpie", "url": "https://github.com/httpie/cli", "note": "scale demo / fallback (BSD-3, 133 .py) - architectural token study"},
-    {"name": "requests", "url": "https://github.com/psf/requests", "note": "fallback (Apache-2.0)"}
+    {"name": "buggy-python", "url": "https://github.com/andela/buggy-python", "note": "PDF-listed primary target: runnable bug-fix corpus"},
+    {"name": "broken-python", "url": "https://github.com/martinpeck/broken-python", "note": "PDF-listed corpus; py2 snippets make it less suitable for this graph run"},
+    {"name": "requests", "url": "https://github.com/psf/requests", "note": "internal clone-validation fallback only; not a submitted target"}
   ]
 }

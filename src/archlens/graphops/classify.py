@@ -17,9 +17,8 @@ def alternative_paths(graph: nx.DiGraph, node: str, undirected=None, articulatio
     Zero means the node is a cut vertex (a mandatory bottleneck / single point of failure); a
     positive value means redundancy survives its removal. Removing a node disconnects two of its
     neighbours **iff** that node is an articulation point, so the cut-vertex test is the exact
-    O(V+E) ``articulation_points`` membership check — not all-pairs max-flow per node, which is
-    intractable on real graphs whose hubs reach hundreds of edges (it hung on a 2033-node httpie
-    graph). The surviving-redundancy count is reported as ``_REDUNDANCY_FLOOR`` (only 0 vs >=2
+    O(V+E) ``articulation_points`` membership check. The surviving-redundancy count is reported
+    as ``_REDUNDANCY_FLOOR`` (only 0 vs >=2
     drives the verdict, and the agent consumes the verdict, not the count).
     """
     undirected = undirected if undirected is not None else graph.to_undirected()

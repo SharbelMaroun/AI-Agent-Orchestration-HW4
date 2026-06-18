@@ -29,6 +29,10 @@
     requirements; consider whether the coupling is intended.
 11. **Confidence bounds** — every reported match confidence is within `[0.55, 0.95]`.
 12. **Version headers** — all three deliverables carry a `Version:` header.
+13. **Fix patch** - `deliverables/buggy-python-fix.patch` applies to the target repo files named in
+    `BUG_REPORT.md` and matches the documented root-cause table.
+14. **Submission demo** - `uv run python src/main.py submission-demo` prints the graph artifact,
+    Obsidian vault, agent path, fix patch, token comparison, and verification commands.
 
 ## Sign-off
 

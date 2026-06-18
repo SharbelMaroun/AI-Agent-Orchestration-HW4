@@ -138,7 +138,7 @@ FINDINGS_MD = """## 8. Findings & Threats to Validity
 measurements on gpt-4.1-mini; per-question token counts are near-deterministic, so the measured
 variance is dominated by wall-clock runtime (Figure 5). The similarity-threshold sweep is bounded by
 the analyzed graph's confidence distribution. Results are reported for a single target repository
-(httpie)."""
+(`andela/buggy-python`)."""
 
 
 def main() -> int:

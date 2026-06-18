@@ -7,7 +7,11 @@ from archlens.repo_picker import pick_repo, resolve_choice
 
 def _repos():
     return [
-        SimpleNamespace(name="httpie", url="https://github.com/httpie/cli", note="primary"),
+        SimpleNamespace(
+            name="buggy-python",
+            url="https://github.com/andela/buggy-python",
+            note="primary",
+        ),
         SimpleNamespace(name="requests", url="https://github.com/psf/requests", note=""),
     ]
 
@@ -31,5 +35,5 @@ def test_resolve_choice_garbage_is_none():
 def test_pick_repo_lists_options_and_reads_a_number():
     out = []
     url = pick_repo(_repos(), input_fn=lambda _prompt: "1", output_fn=out.append)
-    assert url == "https://github.com/httpie/cli"
-    assert any("httpie" in line for line in out)  # the menu was shown
+    assert url == "https://github.com/andela/buggy-python"
+    assert any("buggy-python" in line for line in out)  # the menu was shown

@@ -62,7 +62,7 @@ The shared state is a typed dict (`AgentState`) declared in `src/archlens/agents
 
 | Field | Type | Written by | Description |
 |---|---|---|---|
-| `target_repo` | `dict` | RepoAgent | Local path, remote URL, commit SHA, uv-managed env status; target selected via `config/setup.json` (BugsInPy candidate or lecturer-approved simpler repo). |
+| `target_repo` | `dict` | RepoAgent | Local path, remote URL, commit SHA, uv-managed env status; target selected via `config/setup.json` (`andela/buggy-python` for this submission). |
 | `graph_snapshot` | `dict` | GraphAgent | Latest Graphify outputs: `graph.json` path, `graph.html`, `REPORT.md`, Obsidian vault paths (`hot.md`, `index.md`, `wiki/`, `log.md`), monotonically increasing snapshot id per iteration. |
 | `findings` | `list[dict]` | AnalystAgent, BugHunterAgent | Each finding: id, category (SPOF / god node / hub-vs-bottleneck / bridge / duplicate logic similarity ≥ 0.91), evidence level (OBSERVED → INFERRED → EXTRACTED → VALIDATED), citation triple `relation → confidence → source_file`, edge-triage label (EXTRACTED / INFERRED / AMBIGUOUS, confidence 0.55–0.95), status (`open` / `selected` / `fixed` / `skipped` / `fix_failed`). |
 | `loop_iteration` | `int` | Supervisor | 0-based improvement-loop counter; hard cap 5, constant `MAX_LOOP_ITERATIONS` in `shared/constants.py`. |
@@ -106,7 +106,7 @@ All agents live in `src/archlens/agents/` (one module each, ≤ 150 code lines, 
 
 | Agent | Responsibility | Inputs | Outputs | Tools allowed | Guardrail level |
 |---|---|---|---|---|---|
-| RepoAgent | Clone and validate the target repo (BugsInPy candidate with uv-managed env, or lecturer-approved simpler repo, per `config/setup.json`). | `config/setup.json` | `target_repo` | `git clone`, `uv sync`, filesystem read | Reversible — undo path: delete clone dir and re-clone |
+| RepoAgent | Clone and validate the configured target repo (`andela/buggy-python` for this submission, per `config/setup.json`). | `config/setup.json` | `target_repo` | `git clone`, `uv sync`, filesystem read | Reversible — undo path: delete clone dir and re-clone |
 | GraphAgent | Run Graphify pipeline detect → extract → build → cluster → export; build/update Obsidian vault (`hot.md`, `index.md`, `wiki/`, `log.md`). | `target_repo`, prior `graph_snapshot` | new `graph_snapshot` (graph.json, graph.html, REPORT.md, vault paths) | Graphify CLI via SDK, filesystem write under run output dir only | Reversible — snapshots versioned per iteration, previous snapshot retained |
 | AnalystAgent | Degree/betweenness centrality, community detection, hub-vs-bottleneck classification, bridge analysis; edge triage EXTRACTED / INFERRED / AMBIGUOUS with confidence 0.55–0.95. | `graph_snapshot` | analysis entries appended to `findings` | graph.json read, LLM via gatekeeper | Read-only → auto |
 | BugHunterAgent | Architectural-bug identification: SPOF, god nodes, hub-vs-bottleneck, bridges, duplicate logic (similarity ≥ 0.91 triage); climbs evidence ladder OBSERVED → INFERRED → EXTRACTED → VALIDATED; every claim cites `relation → confidence → source_file`. | analysis `findings`, `graph_snapshot`, target source files (read) | VALIDATED `findings` | source read, graph read, LLM via gatekeeper | Read-only → auto |

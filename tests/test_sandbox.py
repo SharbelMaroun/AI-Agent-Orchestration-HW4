@@ -1,13 +1,12 @@
 """TDD tests for the sandbox workdir manager (tasks 3.015, 3.017, 3.018)."""
 
-import os
 import stat
 from pathlib import Path
 
 import pytest
 
-from archlens.sdk import sandbox as sandbox_mod
-from archlens.sdk.sandbox import SandboxManager, _force_rmtree
+from archlens.sdk.sandbox import SandboxManager
+from archlens.shared import files as files_mod
 from archlens.shared.config import load_setup
 from archlens.shared.errors import SandboxViolationError
 
@@ -56,10 +55,10 @@ def test_force_rmtree_clears_readonly_pack_files(tmp_path: Path, monkeypatch):
     victim.chmod(stat.S_IREAD)
 
     def fake_rmtree(path, onexc):
-        onexc(os.unlink, str(victim), PermissionError())
+        onexc(Path.unlink, victim, PermissionError())
 
-    monkeypatch.setattr(sandbox_mod.shutil, "rmtree", fake_rmtree)
-    _force_rmtree(tmp_path)
+    monkeypatch.setattr(files_mod.shutil, "rmtree", fake_rmtree)
+    files_mod.force_rmtree(tmp_path)
     assert not victim.exists()
 
 

@@ -40,6 +40,21 @@ def test_success_on_third_attempt(limits, tmp_path):
     assert sleeps == [limits.retry_after_seconds] * 2
 
 
+def test_retry_removes_partial_clone_between_attempts(limits, tmp_path):
+    attempts = []
+    dest = tmp_path / "target"
+
+    def flaky_runner(repo, target):
+        attempts.append(target.exists())
+        if len(attempts) == 1:
+            target.mkdir()
+            (target / "partial.txt").write_text("leftover", encoding="utf-8")
+            raise CloneNetworkError("checkout failed after partial clone")
+
+    git_ops.clone_with_retry(None, dest, limits, runner=flaky_runner, sleeper=lambda s: None)
+    assert attempts == [False, False]
+
+
 def test_exhaustion_after_max_retries(limits, tmp_path):
     attempts = []
 

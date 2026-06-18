@@ -17,7 +17,11 @@ class _SDK:
         self.analyzed_path = None
 
     def suggested_repos(self):
-        return [SimpleNamespace(name="httpie", url="https://github.com/httpie/cli", note="primary")]
+        return [SimpleNamespace(
+            name="buggy-python",
+            url="https://github.com/andela/buggy-python",
+            note="primary",
+        )]
 
     def clone_url(self, url):
         return self._clone(url)
@@ -80,4 +84,4 @@ def test_clone_url_rejects_a_disallowed_url_scheme():
 
 def test_config_exposes_the_lecturers_suggested_repos():
     names = {r.name for r in load_setup().suggested_repos}
-    assert {"httpie", "requests", "BugsInPy"} <= names
+    assert {"buggy-python", "broken-python", "requests"} <= names
