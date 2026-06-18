@@ -12,7 +12,7 @@ Version: 1.00 | Status: Approved (lecturer sign-off 2026-06-14) | Course: AI Age
 | Package name | `archlens` |
 | Document version | 1.00 (versions start at 1.00 per Guidelines V3) |
 | Status | Approved (lecturer sign-off 2026-06-14) |
-| Author | \<STUDENT NAME — placeholder\> |
+| Author | Student team |
 | Course | AI Agent Orchestration — Dr. Yoram Segal |
 | Assignment | HW4 / EX04 — "Reverse Engineering of Graph Knowledge Systems with Graphify and Obsidian" (Lecture 07, section 11) |
 | Source course material | L07 Lesson Summary; Part A (Active Knowledge Architecture); Part B (Graph-Based Knowledge Architectures & Context Management); Part C (Reading and Inferring from a Graphify Graph); Software Submission Guidelines V3 |
