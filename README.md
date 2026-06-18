@@ -464,7 +464,7 @@ All behaviour is config-driven (no hardcoded values). The three config files and
 | `sdk` | `default_analysis_depth`, `plugin_allowlist`, `vault_output_root`, `checkpoint_db` | SDK + LangGraph checkpointer settings |
 | `improvement_loop` | `max_iterations`, `priority_order`, `allowed_evidence_levels`, `branch_prefix` | loop cap (5), fix priority P1-P5, evidence gate |
 | `metrics` | `output_dir`, `baseline_ledger`, `assisted_ledger`, `metrics_json`, `savings_target_pct`, `max_wiki_pages`, `default_model` | token-measurement paths + 70% target |
-| `pricing` | `claude-opus-4-8`, `claude-sonnet-4-6`, `claude-haiku-4-5` (each `input_per_mtok`, `output_per_mtok`) | per-model USD/MTok pricing |
+| `pricing` | `claude-opus-4-8`, `claude-sonnet-4-6`, `claude-haiku-4-5`, `gpt-4o`, `gpt-4o-mini`, `gpt-4.1-mini` (each `input_per_mtok`, `output_per_mtok`) | per-model USD/MTok pricing |
 | `knowledge_assets` | `raw_dir`, `wiki_dir`, `skills_dir`, `eval_task_set`, `metrics_output` | LLM-wiki + skills paths |
 | `sensitivity` | `run_count`, `analysis_depth`, `top_k_pages`, `rate_limit_rpm`, `similarity_threshold`, `baseline` | OAT ranges + baseline + repeat-run count |
 
@@ -527,13 +527,13 @@ ARCHLENS_LLM_MODE=mock uv run python src/main.py analyze
 `pricing` block. Three agents now reason via the LLM through `sdk.ask_llm`: **AnalystAgent**
 (interprets the top hubs), **BugHunterAgent** (validates the worst bottleneck as a refactor target),
 and **RefactorAgent** (authors the fix rationale) — so `analyze`/`loop` genuinely invoke the active
-provider end to end. RefactorAgent also **applies** the fix: `sdk.apply_fix` →
-`RefactorFixes.split_module` rewrites the target module on disk, GraphAgent re-graphifies and
-computes a real before/after diff, and `loop` reaches "stop conditions met" when the fix reduces
-inter-community edges. (Verified on httpie: `httpie/context.py` was really split into
-`context_part1/2.py`, re-graphified, diffed — `modularity_improved` came back False, so the loop
-honestly hit the cap; the remaining target is a smarter behaviour-preserving transform than a raw
-split, plus the semantic `graphify extract` pass.)
+provider end to end. RefactorAgent also **applies** the fix: `sdk.apply_fix` → `RefactorFixes.break_bottleneck` inserts an
+interface **seam** and rewires the bottleneck's dependents off it (splitting the oversized module is
+the fallback when it has no dependents), GraphAgent re-graphifies and computes a real before/after
+diff, and `loop` reaches "stop conditions met" when the fix reduces inter-community edges. (Verified
+on httpie: `httpie/context.py` got a `context_interface.py` seam with its 26 dependents rewired,
+re-graphified, diffed — `modularity_improved` came back False, so the loop honestly hit the cap; the
+remaining target is a smarter behaviour-preserving transform than the current seam/split.)
 
 The measurement protocols also accept `live=True` (`sdk.run_baseline(..., live=True)`); the naive
 baseline sends ~148k tokens per question, so a full live baseline run costs real tokens. The tests
