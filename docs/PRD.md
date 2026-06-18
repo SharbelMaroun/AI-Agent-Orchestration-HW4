@@ -325,10 +325,11 @@ grade — L07 §11.2.
 |---|---|---|---|---|
 | 1 (primary) | https://github.com/andela/buggy-python | Yes | stdlib-only; no dependency install required | `main.py` assertion harness |
 | 2 | https://github.com/martinpeck/broken-python | Yes | older syntax makes graph parsing less reliable | snippet exercises |
-| F (fallback) | https://github.com/psf/requests | No | modern packaging, uv-friendly | pytest, extensive |
+| Internal fallback option | https://github.com/psf/requests | No | modern packaging, uv-friendly | pytest, extensive |
 
-Fallback policy: FR-03 — if primary environment preparation fails, switch to F and
-log the decision (L07 §11.2 "do not get stuck"). The submitted run uses the primary
+Fallback policy: FR-03 — if primary environment preparation fails, the implementation can switch to
+the configured internal fallback and log the decision (L07 §11.2 "do not get stuck"). The submitted
+run, graph, Obsidian vault, bug report, fix patch, token comparison, and demo all use only the
 `andela/buggy-python` target.
 
 ## Appendix C — Change Log & Self-Review

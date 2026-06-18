@@ -1,6 +1,6 @@
 # Target-Repository Selection (EX04)
 
-> Version: 1.03 | Status: Single target | Course: AI Agent Orchestration - HW4 (EX04)
+> Version: 1.04 | Status: Single submitted target | Course: AI Agent Orchestration - HW4 (EX04)
 
 The active submission uses one PDF-listed repository:
 
@@ -10,12 +10,16 @@ The active submission uses one PDF-listed repository:
 - Obsidian vault: `obsidian/`
 - Bug report and repair transcript: `deliverables/BUG_REPORT.md`
 
-## 1. Current Selection
+## 1. Submitted Selection
 
 | Role | Repository | Branch | Reason |
 |---|---|---|---|
-| Primary | `https://github.com/andela/buggy-python` | `master` | PDF-listed debugging corpus; pure Python, stdlib-only, reproducible with the repo's own `main.py` harness |
-| Fallback | `https://github.com/psf/requests` | `main` | Simple fallback for generic clone/validation flows only; not part of the submitted bug-fix story |
+| Submitted target | `https://github.com/andela/buggy-python` | `master` | PDF-listed debugging corpus; pure Python, stdlib-only, reproducible with the repo's own `main.py` harness |
+
+Implementation note: `config/setup.json` still contains a `fallback_repo` block because the
+RepoAgent implementation and tests support one retry path when cloning or validation fails. That
+fallback is an internal resilience feature only. It is not used in the submitted graph,
+Obsidian vault, bug report, patch, token comparison, or demo output.
 
 ## 2. Why This Repo
 
