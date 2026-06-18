@@ -313,6 +313,16 @@ the **semantic** community-labelling pass runs live via OpenAI (gpt-4.1-mini). T
 modularity — so the remaining gap is reliable convergence on arbitrary large repos (a smarter,
 behaviour-preserving transform than the current module split).
 
+**Evaluation-driven hardening (latest).** A materials-based review of this repo drove a further pass:
+the architecture **block diagram** now renders from the real node-link `graph.json` (was empty on the
+live graph); the Karpathy **LLM-Wiki raw layer** is populated (no dead links); the improvement-loop
+**SC-1 polarity** was reconciled across both stop-condition modules and dependency-loss is measured
+for real; the **governance layer** (EvidenceGate, three-tier guardrails + UndoRegistry, the
+human-approval interrupt node, the plugin registry) is now wired into the live orchestration, not
+test-only; stale research artifacts (`results/variance/summary.csv`, `docs/metrics/COST_TABLES.md`,
+the test report) were regenerated from real data; and the with/without-Graphify study is now a
+committed live artifact (`metrics/out/graph_vs_code.json`: 84.0% fewer tokens at equal quality).
+
 ### Correction (2026-06-13): Graphify integration rebuilt against the real CLI, then run for real
 
 We got something wrong in Phase 4 and fixed it. Recorded honestly, with before/after.
@@ -337,8 +347,8 @@ exercised against hand-authored `graph.json` fixtures with a **mocked** subproce
 1. Installed the real tool the uv-compliant way, pinned: `uv tool install graphifyy==0.8.39`.
 2. Rewrote `graphops/cli_wrapper.py` + `gatekeeper/graphify_ops.py` to call the real
    commands — `graphify update <repo>` for the structural, no-LLM pass (the "almost
-   free" AST analysis) and `graphify extract` for the semantic pass — through the
-   gatekeeper, exactly like `git`.
+   free" AST analysis) and `graphify label` for the semantic community-naming pass — through
+   the gatekeeper, exactly like `git`.
 3. Added `graphops/adapter.py` (`load_graphify_graph`) that normalizes real node-link
    output (and our canonical fixtures) into the `Graph` aggregate, and relaxed the
    models to reality (`relation` is now an open string; nodes carry `label` /
