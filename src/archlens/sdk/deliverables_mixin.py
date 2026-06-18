@@ -1,6 +1,6 @@
 """Phase 7 reverse-engineering deliverable methods, mixed into ArchLensSDK."""
 
-from ..graphops.block_model import build_block_model
+from ..graphops.block_model import build_block_model, top_block_model
 from ..graphops.class_extractor import extract_classes
 from ..graphops.class_relations import class_relations
 from ..graphops.flow_detector import detect_duplicate_flows, detect_shared_flows
@@ -20,8 +20,10 @@ class DeliverablesMixin:
 
     def generate_block_diagram(self, graph_source, direction: str | None = None) -> str:
         """Render the architecture block diagram (mermaid flowchart) from a graph.json."""
-        direction = direction or self._config().deliverables.mermaid_direction
-        return render_block_diagram(build_block_model(graph_source), direction)
+        deliverables = self._config().deliverables
+        direction = direction or deliverables.mermaid_direction
+        model = top_block_model(build_block_model(graph_source), deliverables.max_blocks)
+        return render_block_diagram(model, direction)
 
     def extract_class_schema(self, source_root) -> dict:
         """Extract the OOP class model and render it as a mermaid classDiagram."""
@@ -50,10 +52,11 @@ class DeliverablesMixin:
                               out_dir=None, version: str | None = None) -> list:
         """Write ARCHITECTURE.md, CLASS_SCHEMA.md, and ALIGNMENT_AUDIT.md; return their paths."""
         version = version or self.version()
-        out_dir = out_dir or self._config().deliverables.output_dir
-        direction = self._config().deliverables.mermaid_direction
+        deliverables = self._config().deliverables
+        out_dir = out_dir or deliverables.output_dir
+        direction = deliverables.mermaid_direction
         return [
-            write_architecture(graph_source, out_dir, version, direction),
+            write_architecture(graph_source, out_dir, version, direction, deliverables.max_blocks),
             write_class_schema(source_root, out_dir, version),
             write_audit(prd_source, graph_source, out_dir, version),
         ]

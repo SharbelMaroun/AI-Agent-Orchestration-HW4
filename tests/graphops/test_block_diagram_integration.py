@@ -20,3 +20,16 @@ def test_pipeline_emits_a_fenced_diagram_with_an_edge():
     rendered = render_block_diagram(build_block_model(FIXTURES / "full.json"))
     assert rendered.startswith("```mermaid")
     assert "-->" in rendered
+
+
+def test_real_nodelink_schema_renders_non_empty_diagram():
+    """Regression: the real `graphify update` node-link schema (links/source/target plus
+    per-node community) must yield a non-empty, labelled, weighted diagram — not the empty
+    flowchart the canonical-only reader produced on graphify-out/graph.json."""
+    graph = FIXTURES / "nodelink.json"
+    communities = load_communities(graph)
+    assert len(communities) == 2  # reconstructed from per-node `community` ids, not a top-level array
+    rendered = render_block_diagram(build_block_model(graph))
+    assert rendered.startswith("```mermaid")
+    assert "graphops (c0)" in rendered and "gatekeeper (c1)" in rendered
+    assert "-->|2|" in rendered  # graphops -> gatekeeper aggregated from two node-link links

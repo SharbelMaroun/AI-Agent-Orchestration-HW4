@@ -1,7 +1,9 @@
 """Stop-condition evaluation node and loop-iteration guard (tasks 10.028-10.029).
 
-The five Part C stop conditions (PRD §3.2): no bottleneck dependency loss, modularity improved,
-no new isolated components, all tests green, ruff zero. ``met`` is the logical AND of all five.
+The five Part C stop conditions (PRD §3.2): SC-1 the bottleneck SHED dependencies (a genuine fix
+removes load from the node, Part C p21 / load_shift.dependencies_lost), modularity improved, no new
+isolated components, all tests green, ruff zero. ``met`` is the logical AND of all five. This SC-1
+polarity matches the LoopController's StopConditionEvaluator (dependency loss is the goal).
 """
 
 
@@ -19,7 +21,7 @@ def make_stop_eval_node(sdk=None):
             "ruff_zero": bool(qa.get("ruff_zero", False)),
         }
         verdict["met"] = (
-            not verdict["bottleneck_deps_lost"]
+            verdict["bottleneck_deps_lost"]  # SC-1: the bottleneck shed dependencies (loss is the goal)
             and verdict["modularity_improved"]
             and verdict["no_new_isolates"]
             and verdict["tests_green"]

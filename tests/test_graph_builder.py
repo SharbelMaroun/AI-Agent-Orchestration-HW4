@@ -17,6 +17,11 @@ def test_graph_contains_supervisor_and_seven_agents():
     assert nodes >= EXPECTED
 
 
+def test_graph_includes_the_human_approval_node():
+    # The HITL approval interrupt is wired into the live orchestration graph, not test-only.
+    assert "ApprovalAgent" in set(_graph().get_graph().nodes)
+
+
 def test_supervisor_is_reachable_from_start():
     drawable = _graph().get_graph()
     sources = {edge.source for edge in drawable.edges}

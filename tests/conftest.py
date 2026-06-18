@@ -92,6 +92,9 @@ class _MockGatekeeper:
 class _MockSDK:
     """Canned SDK for orchestration integration tests (no network, deterministic)."""
 
+    def _config(self):  # evidence-gate allowlist RefactorAgent reads
+        return SimpleNamespace(improvement_loop=SimpleNamespace(allowed_evidence_levels=["EXTRACTED", "VALIDATED"]))
+
     def clone_target_repo(self, run_id, use_fallback=False):
         return Path("/clone")
 
@@ -164,8 +167,7 @@ def fake_clock():
 def rate_config_factory(tmp_path):
     """Write a temp rate_limits.json with overridable version/limits; return its path."""
     def _make(version="1.00", **overrides):
-        default = {"requests_per_minute": 30, "requests_per_hour": 500, "concurrent_max": 5,
-                   "retry_after_seconds": 30, "max_retries": 3}
+        default = {"requests_per_minute": 30, "requests_per_hour": 500, "concurrent_max": 5, "retry_after_seconds": 30, "max_retries": 3}
         default.update({k: v for k, v in overrides.items() if k in default})
         data = {"version": version, "rate_limits": {"services": {"default": default}},
                 "queue": {"max_depth": 100, "backpressure_warn_ratio": 0.8}}

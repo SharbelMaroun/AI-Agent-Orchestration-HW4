@@ -45,9 +45,9 @@ which gives communities readable names. So:
 
 - **`analysis_depth: "structural"`** — runs `graphify update` only. No LLM, no key, free.
 - **`analysis_depth: "semantic"` (default)** — *additionally* runs `graphify label` to name communities via
-  `llm_backend`/`llm_model` (default **Gemini `gemini-3-flash-preview`** — the Gemini 3 flash/light
-  tier). Graphify supports **Gemini, not OpenAI**, so this needs a `GEMINI_API_KEY`; if the quota is
-  exhausted Graphify falls back to `Community N` placeholders.
+  `llm_backend`/`llm_model` (shipped default **OpenAI `gpt-4.1-mini`**, as set in `config/setup.json`),
+  which needs an `OPENAI_API_KEY`; if the quota is exhausted Graphify falls back to `Community N`
+  placeholders. (A `GEMINI_API_KEY` backend is also supported but is not the shipped default.)
 
 The **actual semantic reverse engineering** — finding the architectural problems — is done by the
 ArchLens **LLM agents reasoning over the graph** (with your OpenAI key), not by Graphify. See the
@@ -105,8 +105,8 @@ upload, which only the submitter can do). All lecturer-approval gates were grant
 
 ```text
 $ uv run pytest --cov=archlens --cov-branch
-851 passed in 15.41s
-Required test coverage of 85.0% reached. Total coverage: 97.33%
+929 passed
+Required test coverage of 85.0% reached. Total coverage: 96.8%
 
 $ uv run ruff check .
 All checks passed!
@@ -276,7 +276,7 @@ the system temp directory. Full honest log trail: `docs/REPO_SELECTION.md` §3.
 
 ### What is verifiable right now
 
-- `uv run pytest` — 851 tests across the repo module, the Graphify pipeline (models,
+- `uv run pytest` — 929 tests across the repo module, the Graphify pipeline (models,
   validating parser, node-link adapter, diff engine, orchestrator), the graph-analysis
   engine, the Obsidian vault generator (hot.md golden file, broken-link/orphan validation,
   deterministic rebuild), the LangGraph multi-agent orchestration (supervisor + 7 agents +
@@ -446,7 +446,7 @@ All behaviour is config-driven (no hardcoded values). The three config files and
 | (top) | `version`, `graphify_output_dir`, `obsidian_vault_dir` | config schema version + default Graphify/vault output roots |
 | `target_repo`, `fallback_repo` | `url`, `branch`, `pinned_commit`, `workdir_root`, `clone_depth`, `timeout_s`, `max_size_mb` | primary + fallback repo to clone, with sandbox root and size/time bounds |
 | `validation` | `python_min_share`, `min_file_count`, `max_file_count` | target-repo acceptance thresholds |
-| `graphify` | `binary`, `stages`, `output_root`, `timeout_s`, `analysis_depth`, `token_budget`, `llm_backend`, `llm_model` | Graphify CLI invocation; `analysis_depth=semantic` adds a `graphify label` community-naming pass via `llm_backend`/`llm_model` (default Gemini 3 flash, `gemini-3-flash-preview`) |
+| `graphify` | `binary`, `stages`, `output_root`, `timeout_s`, `analysis_depth`, `token_budget`, `llm_backend`, `llm_model` | Graphify CLI invocation; `analysis_depth=semantic` adds a `graphify label` community-naming pass via `llm_backend`/`llm_model` (shipped default OpenAI `gpt-4.1-mini`) |
 | `vault` | `vault_root`, `raw_dir_name`, `wiki_dir_name`, `hot_top_n`, `index_read_first_count` | Obsidian vault layout + hot/index sizing |
 | `analysis` | `confidence_floor`, `confidence_strong`, `duplicate_similarity_threshold` | edge-triage confidence band + duplicate threshold (0.91) |
 | `deliverables` | `output_dir`, `mermaid_direction`, `match_confidence_threshold` | reverse-engineering deliverable settings |

@@ -1,7 +1,7 @@
 {
   "amortization": {
     "break_even_queries": 2,
-    "graph_build_tokens": 148169,
+    "graph_build_tokens": 135948,
     "per_query_savings": 132858
   },
   "cost_totals": {

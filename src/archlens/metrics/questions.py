@@ -9,6 +9,7 @@ from pathlib import Path
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from ..shared.config import check_config_version
 from ..shared.constants import QUESTIONS_FILE
 
 
@@ -28,6 +29,7 @@ def load_questions(path: str | Path = QUESTIONS_FILE) -> list[Question]:
     if not source.is_file():
         raise FileNotFoundError(f"questions file not found: {source}")
     raw = json.loads(source.read_text(encoding="utf-8"))
+    check_config_version(raw.get("version", ""), source)  # runtime config-version match (R7)
     questions = [Question.model_validate(item) for item in raw["questions"]]
     ids = [q.id for q in questions]
     if len(set(ids)) != len(ids):

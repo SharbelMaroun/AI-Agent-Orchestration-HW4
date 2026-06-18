@@ -19,6 +19,7 @@ from ..sdk.knowledge_mixin import KnowledgeMixin
 from ..sdk.llm_mixin import LLMMixin
 from ..sdk.metrics_mixin import MetricsMixin
 from ..sdk.orchestration_mixin import OrchestrationMixin
+from ..sdk.plugins import PluginRegistry
 from ..sdk.refactor_mixin import RefactorMixin
 from ..sdk.repo_config import select_repo
 from ..sdk.research_mixin import ResearchMixin
@@ -29,6 +30,7 @@ from ..shared.dotenv import load_dotenv
 from ..shared.version import get_version
 from ..vault.builder import build_vault as _build_vault
 from ..vault.layout import VaultLayout
+from ..vault.raw_ingest import default_graph_raw_sources
 
 
 class ArchLensSDK(GraphAnalysisMixin, DeliverablesMixin, OrchestrationMixin, MetricsMixin,
@@ -39,6 +41,7 @@ class ArchLensSDK(GraphAnalysisMixin, DeliverablesMixin, OrchestrationMixin, Met
         load_dotenv()  # read .env so a pasted API key enables live LLM mode automatically
         self._setup = setup
         self._gatekeeper = gatekeeper
+        self._plugin_registry: PluginRegistry | None = None
 
     def _config(self) -> SetupConfig:
         if self._setup is None:
@@ -55,6 +58,20 @@ class ArchLensSDK(GraphAnalysisMixin, DeliverablesMixin, OrchestrationMixin, Met
     def version(self) -> str:
         """Return the ArchLens version string."""
         return get_version()
+
+    def agent_plugins(self) -> PluginRegistry:
+        """The agent-plugin extension registry (allowlist from config.sdk.plugin_allowlist).
+
+        Owned by the SDK so the AgentPlugin extension point is a first-class production seam, not
+        only exercised by tests. Registered plugins are the documented way to add agents.
+        """
+        if self._plugin_registry is None:
+            self._plugin_registry = PluginRegistry(self._config().sdk.plugin_allowlist)
+        return self._plugin_registry
+
+    def register_agent_plugin(self, name: str, plugin: object) -> bool:
+        """Register an agent plugin through the SDK; honors the configured allowlist."""
+        return self.agent_plugins().register_agent_plugin(name, plugin)
 
     def clone_target_repo(self, run_id: str, use_fallback: bool = False) -> Path:
         """Clone the configured repo into a sandboxed per-run directory via the gatekeeper."""
@@ -92,7 +109,10 @@ class ArchLensSDK(GraphAnalysisMixin, DeliverablesMixin, OrchestrationMixin, Met
 
         Accepts a real Graphify graph.json (node-link) or our canonical schema via the adapter.
         """
-        graph = graph_source if isinstance(graph_source, Graph) else load_graphify_graph(graph_source)
+        is_graph = isinstance(graph_source, Graph)
+        graph = graph_source if is_graph else load_graphify_graph(graph_source)
+        if raw_sources is None and not is_graph:
+            raw_sources = default_graph_raw_sources(graph_source)
         return _build_vault(graph, self._config().vault, raw_sources)
 
     def validate_config(self, setup_path: str = "config/setup.json",

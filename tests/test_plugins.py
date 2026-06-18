@@ -32,3 +32,15 @@ def test_names_lists_registered_plugins_sorted():
     registry.register_agent_plugin("b", object())
     registry.register_agent_plugin("a", object())
     assert registry.names() == ["a", "b"]
+
+
+def test_sdk_owns_the_plugin_registry_and_honors_config_allowlist():
+    # Production owner of the extension seam: the SDK, with the allowlist read from config.
+    from types import SimpleNamespace
+
+    from archlens.sdk.sdk import ArchLensSDK
+
+    sdk = ArchLensSDK(setup=SimpleNamespace(sdk=SimpleNamespace(plugin_allowlist=["ok"])))
+    assert sdk.register_agent_plugin("ok", object()) is True
+    assert sdk.register_agent_plugin("blocked", object()) is False
+    assert sdk.agent_plugins().names() == ["ok"]

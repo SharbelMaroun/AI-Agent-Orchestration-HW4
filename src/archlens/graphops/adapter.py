@@ -83,6 +83,16 @@ def _edge(raw: dict) -> Edge:
     )
 
 
+def _hyperedge(raw: dict) -> Hyperedge:
+    """Map a Graphify hyperedge (member ids under ``nodes``, plus label/score extras) to the model."""
+    return Hyperedge(
+        id=raw["id"],
+        relation=raw["relation"],
+        member_node_ids=raw.get("member_node_ids", raw.get("nodes", [])),
+        source_file=raw.get("source_file", ""),
+    )
+
+
 def _communities(nodes_raw: list, data: dict) -> list[Community]:
     groups: dict = {}
     for node in nodes_raw:
@@ -109,5 +119,5 @@ def load_graphify_graph(source) -> Graph:
         nodes=[_node(n) for n in nodes_raw],
         edges=[_edge(e) for e in edges_raw],
         communities=_communities(nodes_raw, data),
-        hyperedges=[Hyperedge.model_validate(h) for h in data.get("hyperedges", []) if "relation" in h],
+        hyperedges=[_hyperedge(h) for h in data.get("hyperedges", []) if "relation" in h],
     )

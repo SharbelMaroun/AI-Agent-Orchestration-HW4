@@ -51,3 +51,12 @@ class UndoRegistry:
 
     def rollback(self, path: str | Path) -> None:
         Path(path).write_text(self._snapshots[str(path)], encoding="utf-8")
+
+    def rollback_all(self) -> None:
+        """Restore every snapshotted file to its pre-write content (byte-identical)."""
+        for path in list(self._snapshots):
+            self.rollback(path)
+
+    def paths(self) -> list[str]:
+        """Return the snapshotted paths, for auditing which files a fix touched."""
+        return sorted(self._snapshots)

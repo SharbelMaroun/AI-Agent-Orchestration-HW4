@@ -17,7 +17,8 @@ def test_run_loop_exits_early_when_stop_conditions_met(tmp_path):
         def run_graphify_pipeline(self, repo):
             return SimpleNamespace(
                 graph_json="g.json", node_count=10, edge_count=8, report_md="R.md",
-                diff={"dependency_loss": 0, "modularity_improved": True, "new_isolates": False},
+                # SC-1 converges when the bottleneck shed dependencies (dependency_loss > 0).
+                diff={"dependency_loss": 1, "modularity_improved": True, "new_isolates": False},
             )
 
     result = _MetSDK().run_loop(db_path=str(tmp_path / "m.sqlite"))

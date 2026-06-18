@@ -5,8 +5,15 @@ from ..vault.config import VaultConfig
 from ..vault.wikilinks import render_link
 
 
-def render_index(graph: Graph, cfg: VaultConfig, project: str = "archlens-target") -> str:
-    """Render the hub note: read-first banner, 2-3 curated links, full community map, artifacts."""
+def render_index(
+    graph: Graph, cfg: VaultConfig, project: str = "archlens-target",
+    artifacts: list[str] | None = None,
+) -> str:
+    """Render the hub note: read-first banner, 2-3 curated links, full community map, artifacts.
+
+    The Artifacts section links only files actually ingested into raw/ (``artifacts``), so a
+    vault never ships dead links; when nothing was ingested the section is omitted entirely.
+    """
     labels = [c.label for c in graph.communities]
     lines = [
         "# Index",
@@ -22,5 +29,8 @@ def render_index(graph: Graph, cfg: VaultConfig, project: str = "archlens-target
         lines.append(f"- {render_link(label)} - community overview")
     lines += ["", "## Communities", ""]
     lines += [f"- {render_link(label)}" for label in labels]
-    lines += ["", "## Artifacts", "", "- raw/graph.json", "- raw/REPORT.md"]
+    if artifacts:
+        lines += ["", "## Artifacts", "",
+                  "_Raw provenance ingested into raw/ (Part B raw layer):_", ""]
+        lines += [f"- raw/{name}" for name in sorted(artifacts)]
     return "\n".join(lines) + "\n"

@@ -23,3 +23,15 @@ def test_all_communities_linked(vault_graph, vault_cfg):
     communities = index.split("## Communities")[1]
     assert "[[payments]]" in communities
     assert "[[auth]]" in communities
+
+
+def test_artifacts_section_omitted_when_nothing_ingested(vault_graph, vault_cfg):
+    # No raw/ ingestion -> no Artifacts section, so the vault never ships dead links.
+    assert "## Artifacts" not in render_index(vault_graph, vault_cfg)
+
+
+def test_artifacts_section_lists_only_real_files(vault_graph, vault_cfg):
+    index = render_index(vault_graph, vault_cfg, artifacts=["graph.json", "GRAPH_REPORT.md"])
+    assert "- raw/graph.json" in index
+    assert "- raw/GRAPH_REPORT.md" in index
+    assert "raw/REPORT.md" not in index  # the old hardcoded dead link is gone

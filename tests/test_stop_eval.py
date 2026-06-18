@@ -4,8 +4,11 @@ from langgraph.graph import END
 
 from archlens.agents.routing import route_from_supervisor
 from archlens.agents.stop_eval import make_stop_eval_node
+from archlens.agents.supervisor import supervise
 
-_GOOD = {"dependency_loss": 0, "modularity_improved": True, "new_isolates": False}
+# SC-1 converges when the bottleneck SHED dependencies (loss is the goal, Part C p21), so the
+# all-met "good" diff carries a positive dependency_loss.
+_GOOD = {"dependency_loss": 1, "modularity_improved": True, "new_isolates": False}
 
 
 def _state(diff=None, tests=True, ruff=True, iteration=0):
@@ -24,8 +27,9 @@ def test_conditions_all_met_sets_met_true():
     assert _verdict()["met"] is True
 
 
-def test_conditions_dependency_loss_blocks_met():
-    assert _verdict(diff={**_GOOD, "dependency_loss": 2})["met"] is False
+def test_conditions_no_dependency_loss_blocks_met():
+    # SC-1 unmet when the bottleneck did NOT shed dependencies (the fix did not bite).
+    assert _verdict(diff={**_GOOD, "dependency_loss": 0})["met"] is False
 
 
 def test_conditions_no_modularity_improvement_blocks_met():
@@ -52,3 +56,12 @@ def test_hard_cap_increments_loop_iteration_when_unmet():
 def test_hard_cap_routes_end_at_iteration_five():
     state = {"loop_iteration": 5, "target_repo": {}, "graph_snapshot": {}}
     assert route_from_supervisor(state) == END
+
+
+def test_converged_state_ends_the_supervisor_loop():
+    # Live-path convergence: all 5 SC met (bottleneck shed deps) -> supervisor ENDs, not hard_cap.
+    out = make_stop_eval_node()(_state())
+    assert out["stop_eval"]["met"] is True
+    assert "loop_iteration" not in out  # met -> no further iteration is queued
+    decision = supervise({"stop_eval": out["stop_eval"], "loop_iteration": 1})
+    assert decision == {"next": "END", "reason": "stop conditions met"}

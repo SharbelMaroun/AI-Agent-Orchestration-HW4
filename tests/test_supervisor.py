@@ -41,6 +41,11 @@ def test_decision_carries_a_reason():
     assert supervise({})["reason"]
 
 
+def test_pending_approval_routes_to_the_approval_agent():
+    state = {**_ANALYZE, "approvals": [{"action": "git push --force", "status": "pending"}]}
+    assert supervise(state)["next"] == "ApprovalAgent"
+
+
 def test_validated_bug_already_selected_is_not_rerouted_to_refactor():
     # RefactorAgent appended a "selected" copy; the original "open" record must not re-trigger it.
     bug = {**_bug(), "id": "validated-gate"}

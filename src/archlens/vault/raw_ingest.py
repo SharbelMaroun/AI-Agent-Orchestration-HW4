@@ -5,8 +5,19 @@ import shutil
 from datetime import datetime, timezone
 from pathlib import Path
 
+from ..shared.constants import GRAPHIFY_REPORT_MD
 from ..vault.layout import VaultLayout
 from ..vault.log_journal import append_entry
+
+
+def default_graph_raw_sources(graph_path) -> list[str]:
+    """Raw-layer provenance for a graph.json: the graph itself plus a sibling GRAPH_REPORT.md.
+
+    Lets ``build_vault`` populate raw/ from a real Graphify run by default so the Karpathy
+    raw -> wiki -> index -> log layer is demonstrated end-to-end, not left empty (Part B p5-8).
+    """
+    path = Path(graph_path)
+    return [str(p) for p in (path, path.with_name(GRAPHIFY_REPORT_MD)) if p.is_file()]
 
 
 def provenance_header(source, when: datetime | None = None) -> str:

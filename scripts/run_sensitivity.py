@@ -2,9 +2,9 @@
 
 NOTE: the committed results/sensitivity/*.json and results/variance/*.json are from REAL live
 measurement (token/top_k cost on gpt-4.1-mini; rate-limit wait through the real limiter; similarity
-and modularity from the real httpie graph). This offline script regenerates deterministic stand-in
-values for analysis_depth/top_k_pages/rate_limits so it runs without an API key in CI — re-run it only
-to refresh the offline fallback, not to reproduce the committed real numbers.
+and modularity from the real httpie graph). This script is NON-DESTRUCTIVE: it never overwrites a
+committed real artifact. It recomputes summary.csv from the existing real variance runs, and only
+generates a deterministic offline stand-in for an artifact that is MISSING (e.g. a fresh CI checkout).
 Run: uv run python scripts/run_sensitivity.py
 """
 
@@ -30,6 +30,12 @@ def _modularity() -> int:
 def _assisted_tokens() -> int:
     cfg = load_setup()
     return load_ledger(ledger_path(cfg.metrics.assisted_ledger)).total_tokens()
+
+
+def _existing_runs() -> list[dict]:
+    """Load the committed REAL variance runs if present (so we never overwrite them)."""
+    files = sorted((RESULTS / "variance").glob("run_*.json"))
+    return [json.loads(path.read_text(encoding="utf-8")) for path in files]
 
 
 def _baseline_runs(tokens: int, modularity: int) -> list[dict]:
@@ -72,19 +78,22 @@ def _similarity_runner(config):
 
 def main() -> int:
     sdk = ArchLensSDK()
-    runs = _baseline_runs(_assisted_tokens(), _modularity())
+    # Prefer the committed real runs; only synthesize stand-ins when none exist (fresh checkout).
+    runs = _existing_runs() or _baseline_runs(_assisted_tokens(), _modularity())
     write_summary_csv(variance_stats(runs, ["tokens", "modularity", "runtime"]),
                       RESULTS / "variance" / "summary.csv")
     sweeps = {"analysis_depth": _depth_runner, "top_k_pages": _topk_runner,
               "rate_limits": _rate_runner, "similarity_threshold": _similarity_runner}
     param_key = {"rate_limits": "rate_limit_rpm"}
     for name, runner in sweeps.items():
+        if (RESULTS / "sensitivity" / f"{name}.json").exists():
+            continue  # never overwrite a committed real measurement
         sdk.run_sensitivity(param_key.get(name, name), runner, RESULTS / "sensitivity")
         if name in param_key:
             (RESULTS / "sensitivity" / f"{param_key[name]}.json").rename(
                 RESULTS / "sensitivity" / f"{name}.json")
     print("variance runs:", len(runs), "| modularity:", runs[0]["modularity"])
-    print("sweeps written:", sorted(sweeps))
+    print("summary.csv recomputed from", len(runs), "runs; existing sweeps preserved")
     return 0
 
 

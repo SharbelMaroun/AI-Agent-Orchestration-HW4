@@ -7,6 +7,7 @@ SDK, so this agent never imports a client.
 """
 
 from ..agents.evidence import EvidenceFinding
+from ..shared.constants import EXTRACTED_CONFIDENCE
 
 _ARCHITECT_SYSTEM = (
     "You are a senior software architect reverse-engineering an unfamiliar codebase from its "
@@ -16,10 +17,16 @@ _ARCHITECT_SYSTEM = (
 
 
 def _finding(finding_id: str, category: str, source_file: str, relation: str,
-             level: str = "EXTRACTED", **extra) -> dict:
+             level: str = "EXTRACTED", confidence: float = EXTRACTED_CONFIDENCE, **extra) -> dict:
     evidence = EvidenceFinding(id=finding_id, category=category, level=level,
-                               relation=relation, confidence=0.95, source_file=source_file)
+                               relation=relation, confidence=confidence, source_file=source_file)
     return {**evidence.model_dump(), "from": "bughunter", "status": "open", **extra}
+
+
+def _spof_confidence(spof) -> float:
+    """The weakest-link confidence along the SPOF's real per-hop citation chain (not a fixed 0.95)."""
+    return min((getattr(c, "confidence", EXTRACTED_CONFIDENCE) for c in spof.citations),
+               default=EXTRACTED_CONFIDENCE)
 
 
 def _graph_context(graph, node_id: str) -> str:
@@ -52,7 +59,8 @@ def make_bughunter_node(sdk):
         findings: list[dict] = []
         for spof in sdk.single_points_of_failure(graph):
             location = spof.citations[0].source_file if spof.citations else spof.node_id
-            findings.append(_finding(f"spof-{spof.node_id}", "SPOF", location, "critical_path"))
+            findings.append(_finding(f"spof-{spof.node_id}", "SPOF", location, "critical_path",
+                                     confidence=_spof_confidence(spof)))
         bottlenecks = [v for v in sdk.classify_nodes(graph) if v.verdict == "BOTTLENECK"]
         for verdict in bottlenecks:
             findings.append(_finding(f"god-{verdict.node_id}", "god_node",

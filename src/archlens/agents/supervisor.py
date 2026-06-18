@@ -24,6 +24,10 @@ def _open_validated(state: dict) -> list:
             and f.get("id") not in handled]
 
 
+def _pending_approval(state: dict) -> bool:
+    return any(a.get("status") == "pending" for a in (state.get("approvals") or []))
+
+
 def supervise(state: dict) -> dict:
     """Return the next-agent decision plus a reason string from the current state."""
     if state.get("loop_iteration", 0) >= MAX_LOOP_ITERATIONS:
@@ -31,6 +35,8 @@ def supervise(state: dict) -> dict:
     stop = state.get("stop_eval") or {}
     if stop.get("met") is True:
         return _decision("END", "stop conditions met")
+    if _pending_approval(state):  # an irreversible action awaits human sign-off (Part B guardrails)
+        return _decision("ApprovalAgent", "pending approval: human sign-off required")
     if not state.get("target_repo"):
         return _decision("RepoAgent", "initial: clone the target repo")
     if not state.get("graph_snapshot"):

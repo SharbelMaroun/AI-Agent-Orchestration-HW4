@@ -4,18 +4,35 @@ A deque guarded by a Condition: enqueue blocks while at max depth (backpressure)
 dropping, so dropped_count stays 0 under saturation. Depth is exposed as a gauge.
 """
 
+import logging
 import threading
 from collections import deque
+
+from ..shared.constants import LOGGER_NAME
+
+logger = logging.getLogger(f"{LOGGER_NAME}.overflow_queue")
 
 
 class OverflowQueue:
     """Bounded FIFO queue; enqueue blocks at capacity instead of rejecting."""
 
-    def __init__(self, max_depth: int):
+    def __init__(self, max_depth: int, warn_ratio: float = 0.0):
         self._capacity = max_depth
+        self._warn_at = int(max_depth * warn_ratio) if warn_ratio else 0
         self._items: deque = deque()
         self._cond = threading.Condition()
         self.dropped_count = 0
+        self.backpressure_alerts = 0  # monitorable count of warn-ratio crossings
+        self._warned = False
+
+    def _maybe_warn(self, depth: int) -> None:
+        """Raise a one-shot backpressure alert (gauge + log) when depth crosses the warn ratio."""
+        if self._warn_at and depth >= self._warn_at and not self._warned:
+            self._warned = True
+            self.backpressure_alerts += 1
+            logger.warning("overflow backpressure: queue depth %d/%d at warn ratio", depth, self._capacity)
+        elif depth < self._warn_at:
+            self._warned = False  # re-arm so a later re-crossing alerts again
 
     @property
     def capacity(self) -> int:
@@ -34,6 +51,7 @@ class OverflowQueue:
                 if not self._cond.wait(timeout):
                     raise TimeoutError("enqueue timed out")
             self._items.append(item)
+            self._maybe_warn(len(self._items))
             self._cond.notify_all()
 
     def dequeue(self, timeout: float | None = None):

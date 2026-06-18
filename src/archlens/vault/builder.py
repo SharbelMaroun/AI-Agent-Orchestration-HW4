@@ -20,7 +20,8 @@ def build_vault(graph: Graph, cfg: VaultConfig, raw_sources: list | None = None)
     if raw_sources:
         ingest_raw(layout, raw_sources)
     write_community_pages(graph, layout)
+    artifacts = sorted(p.name for p in layout.raw_dir.iterdir() if p.is_file())
     layout.hot_md.write_text(render_hot(graph, cfg), encoding="utf-8")
-    layout.index_md.write_text(render_index(graph, cfg), encoding="utf-8")
+    layout.index_md.write_text(render_index(graph, cfg, artifacts=artifacts), encoding="utf-8")
     append_entry(layout.log_md, "vault-build", f"{len(graph.nodes)} nodes")
     return layout

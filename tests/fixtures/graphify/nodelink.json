@@ -1,0 +1,20 @@
+{
+  "directed": true,
+  "multigraph": false,
+  "graph": {},
+  "nodes": [
+    {"id": "g_a", "label": "a.py", "file_type": "code", "source_file": "src/pkg/graphops/a.py", "community": 0},
+    {"id": "g_b", "label": "b.py", "file_type": "code", "source_file": "src/pkg/graphops/b.py", "community": 0},
+    {"id": "k_c", "label": "c.py", "file_type": "code", "source_file": "src/pkg/gatekeeper/c.py", "community": 1},
+    {"id": "k_d", "label": "d.py", "file_type": "code", "source_file": "src/pkg/gatekeeper/d.py", "community": 1}
+  ],
+  "links": [
+    {"source": "g_a", "target": "g_b", "relation": "calls", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "src/pkg/graphops/a.py"},
+    {"source": "g_a", "target": "k_c", "relation": "imports", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "src/pkg/graphops/a.py"},
+    {"source": "g_b", "target": "k_d", "relation": "uses", "confidence": "INFERRED", "confidence_score": 0.7, "source_file": "src/pkg/graphops/b.py"}
+  ],
+  "hyperedges": [
+    {"id": "h1", "label": "ArchLens context", "nodes": ["g_a", "k_c"], "relation": "participate_in", "confidence": "EXTRACTED", "confidence_score": 0.75, "source_file": "docs/diagrams/plan_01.svg"}
+  ],
+  "built_at_commit": "testfixture"
+}

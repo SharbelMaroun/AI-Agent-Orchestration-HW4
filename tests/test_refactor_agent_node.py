@@ -1,5 +1,7 @@
 """TDD tests for the RefactorAgent orchestration node (tasks 10.021-10.022)."""
 
+from types import SimpleNamespace
+
 from archlens.agents.refactor_agent import make_refactor_node
 
 
@@ -7,6 +9,10 @@ class _SDK:
     def __init__(self, applied=False):
         self._applied = applied
         self.apply_calls = []
+
+    def _config(self):
+        return SimpleNamespace(
+            improvement_loop=SimpleNamespace(allowed_evidence_levels=["EXTRACTED", "VALIDATED"]))
 
     def ask_llm(self, prompt, *, system=None, agent="orchestrator", max_tokens=512):
         return "extract the request-routing helper into its own module"
@@ -56,3 +62,32 @@ def test_refactor_is_noop_without_a_validated_finding():
 def test_refactor_rationale_is_authored_by_the_llm():
     out = make_refactor_node(_SDK())(_state())
     assert out["findings"][0]["plan"]["rationale"].startswith("extract the request-routing")
+
+
+def test_refactor_blocks_a_finding_without_a_full_citation():
+    bug = {**_validated_bug(), "relation": ""}  # no relation -> evidence gate blocks execution
+    sdk = _SDK(applied=True)
+    out = make_refactor_node(sdk)({"findings": [bug], "target_repo": {"local_path": "/c"}})
+    assert out["findings"][0]["status"] == "selected"
+    assert out["findings"][0]["blocked_by"] == "evidence_gate"
+    assert sdk.apply_calls == []  # gated findings never reach the writer
+
+
+def test_refactor_defers_an_irreversible_action_to_human_approval():
+    bug = {**_validated_bug(), "source_file": "deploy.py"}  # 'deploy' -> irreversible guardrail tier
+    sdk = _SDK(applied=True)
+    out = make_refactor_node(sdk)({"findings": [bug], "target_repo": {"local_path": "/c"}})
+    assert sdk.apply_calls == []  # irreversible work is never auto-applied
+    assert out["approvals"][0]["status"] == "pending"
+    assert out["findings"][0]["status"] == "selected"
+
+
+def test_refactor_records_an_auto_approved_guardrail_for_a_reversible_fix():
+    out = make_refactor_node(_SDK(applied=True))(_state())
+    assert out["approvals"][0]["status"] == "auto-approved"
+    assert out["approvals"][0]["tier"] == "reversible"
+
+
+def test_refactor_skips_a_finding_whose_approval_was_denied():
+    state = {**_state(), "approvals": [{"finding": "spof-ss", "status": "denied"}]}
+    assert make_refactor_node(_SDK())(state) == {}
