@@ -58,3 +58,14 @@ def test_spof_finding_carries_real_citation_confidence_not_a_fixed_0_95():
     findings = make_bughunter_node(_Conf())({"graph_snapshot": {"graph_json": "g.json"}})["findings"]
     spof = next(f for f in findings if f["category"] == "SPOF")
     assert spof["confidence"] == 0.7  # weakest hop of the real citation chain, not hardcoded 0.95
+
+
+def test_healthy_hubs_are_emitted_as_observed_findings():
+    class _Hub(_SDK):
+        def classify_nodes(self, graph):
+            return [SimpleNamespace(node_id="util", verdict="HUB", source_file="util.py")]
+
+    findings = make_bughunter_node(_Hub())({"graph_snapshot": {"graph_json": "g.json"}})["findings"]
+    hub = next(f for f in findings if f["category"] == "hub")
+    assert hub["level"] == "OBSERVED"  # the bottom rung of the evidence ladder is now genuinely used
+    assert not [f for f in findings if f["level"] == "VALIDATED"]  # a healthy hub is not escalated

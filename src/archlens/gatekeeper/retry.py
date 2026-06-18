@@ -1,8 +1,9 @@
 """Retry policy with config-driven backoff over the injectable Clock (tasks 9.023, 9.024).
 
 Transient UpstreamAPIErrors are retried up to max_retries, sleeping retry_after_seconds between
-attempts (virtual time under FakeClock). On exhaustion the request is handed to on_exhausted
-(requeue) so the caller never sees an exception — honouring the never-reject contract.
+attempts (virtual time under FakeClock). On exhaustion the request is handed to on_exhausted,
+which the executor uses to log the failure and resolve the call to None (never raising) —
+honouring the never-reject contract. With no on_exhausted, a RetryExhaustedSignal is raised.
 """
 
 from .errors import RetryExhaustedSignal, UpstreamAPIError

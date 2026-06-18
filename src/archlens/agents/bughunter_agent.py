@@ -61,10 +61,15 @@ def make_bughunter_node(sdk):
             location = spof.citations[0].source_file if spof.citations else spof.node_id
             findings.append(_finding(f"spof-{spof.node_id}", "SPOF", location, "critical_path",
                                      confidence=_spof_confidence(spof)))
-        bottlenecks = [v for v in sdk.classify_nodes(graph) if v.verdict == "BOTTLENECK"]
+        verdicts = sdk.classify_nodes(graph)
+        bottlenecks = [v for v in verdicts if v.verdict == "BOTTLENECK"]
         for verdict in bottlenecks:
             findings.append(_finding(f"god-{verdict.node_id}", "god_node",
                                      verdict.source_file, "betweenness"))
+        for verdict in verdicts:
+            if verdict.verdict != "BOTTLENECK":  # a healthy hub is an OBSERVED fact, not actionable
+                findings.append(_finding(f"hub-{verdict.node_id}", "hub", verdict.source_file,
+                                         "betweenness", level="OBSERVED"))
         if bottlenecks:
             findings.append(_validate_top(sdk, bottlenecks[0], graph))
         return {"findings": findings}

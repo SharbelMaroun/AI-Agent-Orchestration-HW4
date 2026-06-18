@@ -13,13 +13,14 @@ Full documentation lives in `docs/` (PRD, PLAN, specialized PRDs, TODO, prompt b
 
 1. [Quickstart (uv only)](#quickstart-uv-only)
 2. [Installation](#installation)
-3. [CLI usage](#cli-usage)
+3. [CLI usage](#cli-usage) — incl. [Screenshots](#screenshots)
 4. [Architecture](#architecture)
 5. [Configuration reference](#configuration-reference)
-6. [Token economics](#token-economics)
-7. [Report](#report)
-8. [Contributing](#contributing)
-9. [License & credits](#license--credits)
+6. [LLM modes (provider-agnostic live API vs offline mock)](#llm-modes-provider-agnostic-live-api-vs-offline-mock)
+7. [Token economics](#token-economics)
+8. [Report](#report)
+9. [Contributing](#contributing)
+10. [License & credits](#license--credits)
 
 ## Quickstart (uv only)
 
@@ -105,7 +106,7 @@ upload, which only the submitter can do). All lecturer-approval gates were grant
 
 ```text
 $ uv run pytest --cov=archlens --cov-branch
-929 passed
+930 passed
 Required test coverage of 85.0% reached. Total coverage: 96.8%
 
 $ uv run ruff check .
@@ -276,7 +277,7 @@ the system temp directory. Full honest log trail: `docs/REPO_SELECTION.md` §3.
 
 ### What is verifiable right now
 
-- `uv run pytest` — 929 tests across the repo module, the Graphify pipeline (models,
+- `uv run pytest` — 930 tests across the repo module, the Graphify pipeline (models,
   validating parser, node-link adapter, diff engine, orchestrator), the graph-analysis
   engine, the Obsidian vault generator (hot.md golden file, broken-link/orphan validation,
   deterministic rebuild), the LangGraph multi-agent orchestration (supervisor + 7 agents +

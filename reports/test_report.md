@@ -2,7 +2,7 @@
 
 Version: 1.00 | Course: AI Agent Orchestration — HW4 (EX04)
 
-Totals: 929 passed, 0 failed.
+Totals: 930 passed, 0 failed.
 
 | Test | Expected | Status |
 |---|---|---|
@@ -205,6 +205,7 @@ Totals: 929 passed, 0 failed.
 | test_bughunter_reports_spof_and_god_node | - | PASS |
 | test_bughunter_escalates_the_top_bottleneck_to_a_validated_llm_review | - | PASS |
 | test_spof_finding_carries_real_citation_confidence_not_a_fixed_0_95 | - | PASS |
+| test_healthy_hubs_are_emitted_as_observed_findings | - | PASS |
 | test_call_record_has_all_six_fields | - | PASS |
 | test_exactly_one_json_record_emitted | - | PASS |
 | test_api_key_value_is_redacted | - | PASS |
