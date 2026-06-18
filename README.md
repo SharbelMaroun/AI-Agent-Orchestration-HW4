@@ -11,15 +11,14 @@ Full documentation lives in `docs/` (PRD, PLAN, specialized PRDs, TODO, prompt b
 
 ## Current Target Repository
 
-The submission is currently retargeted to the PDF-listed BugsInPy repository:
+The submission uses one PDF-listed repository end to end:
 
-- Primary: `https://github.com/soarsmu/BugsInPy`
-- Branch/commit: `master` at `11c5f1eea954a42132cfd06bf257766a7963e0fd`
-- Fresh analysis result: 1639 nodes, 838 edges, 812 communities
-- Generated artifacts: `deliverables/graphify-out/` and `deliverables/bugsinpy-vault/`
-
-Older README history may mention the previous `httpie/cli` development target; the active
-submission configuration and regenerated deliverables now use BugsInPy.
+- Primary: `https://github.com/andela/buggy-python`
+- Role: reverse engineering, Graphify/Obsidian navigation, agentic bug localization, repair, and verification
+- Graph artifact: `artifacts/buggy-python-graph.json` (19 nodes, 28 edges, 4 communities)
+- Obsidian vault: `obsidian/index.md`, `obsidian/hot.md`, `obsidian/localization.md`, `obsidian/repair.md`
+- Bug report: `deliverables/BUG_REPORT.md`
+- Runnable demo: `uv run python src/main.py debug-demo`
 
 ## Table of Contents
 
@@ -38,11 +37,11 @@ submission configuration and regenerated deliverables now use BugsInPy.
 
 ## EX04 — Debugging an unfamiliar buggy repo (andela/buggy-python)
 
-**Target & justification (§2).** The EX04 debugging subject is **`andela/buggy-python`** — one of the
-three lecturer-suggested buggy corpora — chosen because it is pure-stdlib (no Docker, no deps,
-reproduces in our uv-only env) and its bug is a genuine **cross-module** failure a dependency graph
-helps localize. (`broken-python` is unparseable Python-2 syntax → no call graph; BugsInPy needs
-Docker/per-project deps.) `httpie` remains the large-scale architectural demo / fallback.
+**Target & justification (§2).** The EX04 subject is **`andela/buggy-python`** — one of the
+three lecturer-suggested buggy corpora — chosen because it is pure-stdlib (no Docker, no deps),
+reproduces in our uv-only env, and its bug is a genuine **cross-module** failure a dependency graph
+helps localize. `broken-python` is unparseable Python-2 syntax, so it is less suitable for this
+graph run.
 
 **The bug (§5.4).** `python main.py` (the repo's own, unmodifiable test harness) fails at import time:
 `ImportError: cannot import name 'lambda_array' from 'snippets'`.
@@ -228,8 +227,8 @@ looks blank here.)
 
 ### Analysis of a real graph (httpie — 2033 nodes / 4306 edges / 138 communities)
 
-Generated from the real `deliverables/graphify-out/graph.json` by
-`uv run python scripts/visualize_graph.py` (structural `graphify update` pass, no LLM):
+Generated from the real `artifacts/buggy-python-graph.json` by the project graph tooling
+(structural pass, no LLM):
 
 | | |
 |---|---|
@@ -458,8 +457,8 @@ $ graphify update runs/run/target
   graph.json, graph.html and GRAPH_REPORT.md updated
 
 # ArchLens then consumed that real graph.json:
-REAL httpie graph: 2033 nodes, 4306 edges, 138 communities
-vault root: deliverables/bugsinpy-vault   graph artifacts: deliverables/graphify-out
+REAL buggy-python graph: 19 nodes, 28 edges, 4 communities
+vault root: obsidian   graph artifacts: artifacts/
 raw/ files: ['GRAPH_REPORT.md', 'graph.json']
 VALIDATION ok: True | orphans: 0 | broken_links: 0 | lint: 0
 ```
@@ -698,6 +697,6 @@ uv-only policy. Every PR uses the gate checklist in
 - **License:** MIT (see `LICENSE`).
 - **Course materials:** Lecture 07 §11 and Parts A/B/C of the AI Agent Orchestration course.
 - **Graphify:** external code-graph CLI (`graphifyy` on PyPI, by Safi Shamsi).
-- **Target corpus:** BugsInPy-style Python repositories (primary target: httpie).
+- **Target corpus:** `andela/buggy-python`, one of the PDF-listed debugging repositories.
 - **Third-party dependencies:** LangGraph, Anthropic SDK, NetworkX, Pydantic, matplotlib (see
   `pyproject.toml` + `uv.lock`).

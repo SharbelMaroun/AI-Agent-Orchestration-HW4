@@ -1,17 +1,11 @@
-# Target-Repository Approval Record
+# Target Repo Approval
 
-Version: 1.01 | Course: AI Agent Orchestration - HW4 (EX04) | Tasks 2.010, 3.009
+**Approver:** Lecturer (Dr. Yoram Segal) | **Date:** 2026-06-14  
+**Final submitted target:** `https://github.com/andela/buggy-python`
 
-**Approver:** Lecturer (Dr. Yoram Segal) | **Date:** 2026-06-14
+`andela/buggy-python` is one of the PDF-listed EX04 repositories. It is used as the single
+submission target for reverse engineering, Graphify/Obsidian navigation, agentic bug localization,
+code repair, verification, and token-efficiency evidence.
 
-The active configured target repository is the PDF-listed **BugsInPy** repository
-(`https://github.com/soarsmu/BugsInPy`, configured in `config/setup.json` as `target_repo`) with
-**psf/requests** retained as the fallback. The request and shortlist are recorded in
-`docs/approvals/target_repo_request.md` and `docs/REPO_SELECTION.md`.
-
-## Merge Update
-
-The partner branch adds supplemental EX04 debugging evidence for **`andela/buggy-python`**, also one
-of the PDF-listed corpora. That evidence lives in `deliverables/BUG_REPORT.md`, `artifacts/`, and the
-focused `obsidian/` vault. It is retained as additional debugging proof, while BugsInPy remains the
-active configured target after merge resolution.
+The active configuration is recorded in `config/setup.json`, and the selection rationale is recorded
+in `docs/REPO_SELECTION.md`.

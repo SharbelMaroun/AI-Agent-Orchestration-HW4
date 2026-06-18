@@ -80,4 +80,4 @@ def test_clone_url_rejects_a_disallowed_url_scheme():
 
 def test_config_exposes_the_lecturers_suggested_repos():
     names = {r.name for r in load_setup().suggested_repos}
-    assert {"httpie", "requests", "BugsInPy"} <= names
+    assert {"buggy-python", "broken-python", "requests"} <= names

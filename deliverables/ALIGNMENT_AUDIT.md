@@ -1642,10 +1642,6 @@ Version: 1.00
 - projects_youtube_dl_bugs_7_run_test_sh_7_run_test (degree 1) has no mapped requirement [EXTRACTED].
 - projects_youtube_dl_bugs_8_run_test_sh_8_run_test (degree 1) has no mapped requirement [EXTRACTED].
 - projects_youtube_dl_bugs_9_run_test_sh_9_run_test (degree 1) has no mapped requirement [EXTRACTED].
-- readme_bugsinpy (degree 1) has no mapped requirement [EXTRACTED].
-- readme_bugsinpy_command (degree 1) has no mapped requirement [EXTRACTED].
-- readme_example_bugsinpy_command (degree 1) has no mapped requirement [EXTRACTED].
-- readme_steps_to_set_up_bugsinpy (degree 1) has no mapped requirement [EXTRACTED].
 - readme_use_docker (degree 1) has no mapped requirement [EXTRACTED].
 
 ## Shared Flows

@@ -13,11 +13,11 @@ config-driven, and external calls route through the single gatekeeper egress.
 - **Token savings: 97.08%** - naive full-context baseline 1,368,538 tokens vs Graphify-assisted
   39,950 tokens over 10 standard questions on the historical httpie scale study. Break-even after
   **2 queries** even counting the one-time graph-build cost.
-- **BugsInPy retarget:** the active configured target is now the PDF-listed BugsInPy repository.
-  Its regenerated knowledge-quality proxy is recorded as inconclusive rather than inflated.
-- **Supplemental debugging evidence:** the partner merge adds a concrete `andela/buggy-python`
-  bug-localization track (`deliverables/BUG_REPORT.md`, `obsidian/`, `artifacts/`).
-- **Quality gates:** merge verification passed with 936 tests, 1 skipped, 96.77% coverage, Ruff 0,
+- **Single submitted target:** the active configured target is now the PDF-listed
+  `andela/buggy-python` repository.
+- **Debugging evidence:** the submission includes a concrete graph-first bug-localization and repair
+  track (`deliverables/BUG_REPORT.md`, `obsidian/`, `artifacts/`).
+- **Quality gates:** merge verification passed with 938 tests, 1 skipped, 96.75% coverage, Ruff 0,
   line cap OK, forbidden-tooling 0, and mutation spot checks retained.
 
 ## Lessons Learned
@@ -35,7 +35,7 @@ config-driven, and external calls route through the single gatekeeper egress.
 
 1. **Obsidian vault community pages are titled by number, not topic.** Planned fix: consume Graphify
    labels and render readable aliases in `index.md`.
-2. **Some research artifacts are scoped as historical or inconclusive.** The project keeps them
-   honest rather than presenting stale measurements as current BugsInPy proof.
-3. **The full 10-task blind quality rubric remains the best next expansion.** The current BugsInPy
-   proxy is not fabricated, but it is not as strong as a live full-rubric run.
+2. **Some research artifacts are scoped as historical or supportive.** The project keeps them honest
+   rather than presenting stale measurements as current target proof.
+3. **The full 10-task blind quality rubric remains the best next expansion.** The current debug
+   study is honest and reproducible, but a live full-rubric run would be stronger.

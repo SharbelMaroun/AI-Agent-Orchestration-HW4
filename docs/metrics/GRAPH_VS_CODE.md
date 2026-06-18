@@ -1,40 +1,24 @@
-# With vs Without Graphify - Tokens AND Quality
+# With vs Without Graphify - Tokens and Quality
 
-Version: 1.01 | Course: AI Agent Orchestration - HW4 (EX04)
+Version: 1.02 | Course: AI Agent Orchestration - HW4 (EX04)
 
-This evaluation compares answering the same architecture question from a node's Graphify
-neighbourhood versus from the broader source context.
+This evaluation compares the `andela/buggy-python` bug investigation in two modes:
 
-Code: `src/archlens/metrics/graph_vs_code.py` (via `sdk.compare_graph_vs_code`). Reproduce:
+- Naive: read the entry point plus all source files in `snippets/`.
+- Graph-guided: read the Obsidian index/suspect notes derived from
+  `artifacts/buggy-python-graph.json`.
 
-```bash
-uv run python scripts/compare_graph_vs_code.py runs/run/target/graphify-out/graph.json runs/run/target 3
-```
+Committed artifact: `metrics/out/debug_token_study.json`.
 
-## Current BugsInPy Result
+## Result
 
-Committed artifact: `metrics/out/graph_vs_code.json`.
+| Metric | Naive | Graph-guided |
+|---|---:|---:|
+| Input tokens | 802 | 685 |
+| Files / units read | 5 | 2 |
+| Investigation cycles | 2 | 1 |
+| Correct first fix site | `snippets/__init__.py` | `snippets/__init__.py` |
 
-The project was retargeted to the PDF-listed BugsInPy repository and this comparison was
-regenerated. The local run used the offline/canned response path, so the result is recorded as
-inconclusive rather than as a live quality win.
-
-| Node | Quality WITH | Quality WITHOUT |
-| --- | :---: | :---: |
-| `pysnooper_verify_my_function` | 0 | 0 |
-| `ansible_verify_my_function` | 0 | 0 |
-| `cookiecutter_verify_my_function` | 0 | 0 |
-
-| Metric | With Graphify | Without Graphify |
-| --- | ---: | ---: |
-| Total tokens | 45 | 45 |
-| Avg quality | 0.0 | 0.0 |
-
-Result: 0.0% token savings in this offline proxy. A live-key rerun over a 10-question rubric is the
-remaining work if the grader requires a full Part B quality study on the retargeted BugsInPy corpus.
-
-## Historical Note
-
-The earlier httpie development run measured 84.0% fewer tokens in this graph-vs-code comparison and
-97.08% savings in the separate token-economics ledger. Those numbers remain development history, but
-they are not claimed as BugsInPy-specific evidence.
+On this small target, both approaches eventually find the correct root cause. The graph-guided path
+is still more efficient: it reads 60% fewer files/units, uses 14.6% fewer input tokens, and reaches
+the package re-export hub in one investigation cycle.

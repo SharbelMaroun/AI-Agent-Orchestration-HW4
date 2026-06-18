@@ -98,8 +98,8 @@ failed, and how the prompt was refined* (L07, section 11; Guidelines V3).
 - **Date:** implemented — prompts live in `src/archlens/agents/prompts/{repo,graph,analyst,bughunter,refactor,qa,metrics}.md`
 - **Model:** selected per `config/setup.json`; routed via `gatekeeper/gatekeeper.py`
 - **Context / Goal:** Author and iterate the system prompts for the LangGraph roster:
-  - **RepoAgent** — clone/validate the target repo (BugsInPy candidate or lecturer-approved
-    simpler repo); refuse to proceed on dirty clone state; uv-managed env only.
+  - **RepoAgent** — clone/validate the configured target repo (`andela/buggy-python` for this
+    submission); refuse to proceed on dirty clone state; uv-managed env only.
   - **AnalystAgent** — compute degree/betweenness centrality, community detection,
     hub-vs-bottleneck classification, bridge analysis; triage every edge as
     EXTRACTED / INFERRED / AMBIGUOUS with confidence in [0.55, 0.95] (Part C).

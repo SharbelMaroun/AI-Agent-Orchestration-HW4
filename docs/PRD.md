@@ -83,7 +83,7 @@ Each story includes acceptance criteria (AC). Stories are testable by P-2's AI g
 | ID | Story | Acceptance criteria |
 | --- | --- | --- |
 | US-01 | As a student operator, I configure the target repo URL in `config/setup.json` and run one command so that the whole pipeline executes without manual steps. | AC: `uv run python src/main.py` (or `uv run archlens`) completes clone → graph → vault → analysis with exit code 0; no value is hardcoded in code. |
-| US-02 | As a student operator, I want RepoAgent to clone and validate a BugsInPy candidate, so I can target real-world bugs. | AC: repo cloned to configured path; Python project detected; if environment setup fails, the documented fallback-repo path in `setup.json` is used and the switch is logged. |
+| US-02 | As a student operator, I want RepoAgent to clone and validate `andela/buggy-python`, so I can target a PDF-listed runnable bug corpus. | AC: repo cloned to configured path; Python project detected; if environment setup fails, the documented fallback-repo path in `setup.json` is used and the switch is logged. |
 | US-03 | As a student operator, I want GraphAgent to run the Graphify pipeline so I get graph.json, graph.html and REPORT.md. | AC: all three artifacts exist after stage `export`; pipeline stages detect → extract → build → cluster → export each log start/end. |
 | US-04 | As a student operator, I want an Obsidian vault generated so I can navigate the target like Wikipedia. | AC: vault contains `hot.md`, `index.md`, `wiki/` pages, `log.md`; every wiki page has YAML frontmatter and at least one wikilink; vault opens in Obsidian without errors. |
 | US-05 | As a grader, I want every detected architectural bug to cite its evidence so I can audit claims. | AC: each finding lists evidence-ladder level (OBSERVED/INFERRED/EXTRACTED/VALIDATED), the relation, a confidence value, and a source_file path. |
@@ -103,7 +103,7 @@ Each story includes acceptance criteria (AC). Stories are testable by P-2's AI g
 ### 6.1 Target-repo management
 
 - **FR-01** — The system SHALL read the target repository URL, branch/commit, local clone path, and fallback repository from `config/setup.json`. No repo identifiers may appear in source code.
-- **FR-02** — RepoAgent SHALL clone the configured GitHub repository (BugsInPy candidate with a uv-managed environment, or a simpler lecturer-approved repo) and validate it: directory exists, is a git repo, contains Python sources.
+- **FR-02** — RepoAgent SHALL clone the configured GitHub repository (`andela/buggy-python` for this submission) and validate it: directory exists, is a git repo, contains Python sources.
 - **FR-03** — If environment preparation of the primary target fails (drivers, native libs, broken installs), RepoAgent SHALL switch to the configured fallback repository, log the decision in `log.md`, and continue — per L07 §11.2 "do not get stuck".
 - **FR-04** — RepoAgent SHALL record the resolved commit hash so every downstream artifact (graph, vault, metrics) is traceable to an exact target state.
 - **FR-40** — Every clone SHALL land in a sandboxed per-run directory under the configured `workdir_root`; path containment is enforced (no resolved path may escape the sandbox root) and cleanup is idempotent.
@@ -214,7 +214,7 @@ Each story includes acceptance criteria (AC). Stories are testable by P-2's AI g
 
 ### 9.1 In scope
 
-- One target Python repository per run (BugsInPy candidate or approved fallback), configured in `config/setup.json`.
+- One target Python repository per run (`andela/buggy-python` for this submission), configured in `config/setup.json`.
 - Full Graphify pipeline, Obsidian vault generation, 7-agent LangGraph orchestration, improvement loop, token economics, all documentation and knowledge assets listed herein.
 - Re-running Graphify at loop checkpoints (after each applied fix).
 
@@ -249,7 +249,7 @@ Each story includes acceptance criteria (AC). Stories are testable by P-2's AI g
 | --- | --- | --- | --- | --- |
 | R-1 | **Token-cost amortization fails:** initial Graphify scan + vault build costs exceed savings on a small target, missing the 70% target. | Medium | High | Measure honestly; FR-35 mandates a written explanation with amortization analysis (Part A reality check); choose a target large enough for savings to dominate. |
 | R-2 | **Graphify output instability:** schema drift or non-deterministic graph.json between runs breaks diff metrics. | Medium | High | Pin Graphify version; validate graph.json against an internal schema on load; compare graphs structurally (node/edge sets), not byte-wise. |
-| R-3 | **BugsInPy environment complexity:** legacy dependencies fail to install under uv. | High | Medium | FR-03 fallback-repo plan, pre-approved by lecturer; switch early, log the decision; "repository choice does not affect the grade" (L07 §11.2). |
+| R-3 | **Target environment complexity:** target dependencies or harness setup fail under uv. | Medium | Medium | FR-03 fallback-repo plan; switch early, log the decision; "repository choice does not affect the grade" (L07 §11.2). |
 | R-4 | **LLM hallucination** in inferred edges or bug claims. | High | High | Evidence ladder (OBSERVED → INFERRED → EXTRACTED → VALIDATED); confidence bounds 0.55–0.95; AMBIGUOUS edges require human review; no fix applied on unvalidated claims. |
 | R-5 | **Refactor regressions** in the target repo. | Medium | High | Unit tests after EVERY change (FR-29); red suite → automatic revert; one fix per iteration keeps diffs small. |
 | R-6 | **Rate-limit storms / API outages** mid-run. | Medium | Medium | Gatekeeper FIFO queue (never reject, never crash), retry_after 30 s, max_retries 3; resumable pipeline stages. |
@@ -307,7 +307,7 @@ Mapping of all 5 L07 §11 EX04 core tasks to functional requirements (zero unmap
 
 | # | EX04 core task (L07 §11) | Covering FRs |
 |---|---|---|
-| 1 | Code cloning (GitHub repo, lecturer-approved; BugsInPy or simpler fallback) | FR-01, FR-02, FR-03, FR-04, FR-40, FR-41, FR-42, FR-43 |
+| 1 | Code cloning (GitHub repo, lecturer-approved; `andela/buggy-python`) | FR-01, FR-02, FR-03, FR-04, FR-40, FR-41, FR-42, FR-43 |
 | 2 | Run Graphify — graph, index, navigation pages (`hot.md`), display in Obsidian | FR-05, FR-06, FR-07, FR-08, FR-09, FR-10, FR-11, FR-12 |
 | 3 | Reverse engineering — block diagram + OOP class schema | FR-20, FR-21, FR-22 |
 | 4 | AI agents (LangGraph) for analysis, identification, and fixing of architectural bugs | FR-13–FR-19, FR-23–FR-27 |
@@ -317,22 +317,19 @@ Mapping of all 5 L07 §11 EX04 core tasks to functional requirements (zero unmap
 
 ## Appendix B — Target-Repository Shortlist (approved 2026-06-14)
 
-Selection criteria: pure Python (AST-friendly), real test suite (the improvement loop
-needs a green baseline), uv-compatible installation, small enough for the 5-hour
-budget, present in BugsInPy where possible (L07 §11.2). Repo choice does not affect
-the grade — L07 §11.2.
+Selection criteria: pure Python (AST-friendly), runnable failing harness, uv-compatible execution,
+small enough for the 5-hour budget, and listed in the EX04 PDF. Repo choice does not affect the
+grade — L07 §11.2.
 
-| # | Repository | BugsInPy? | uv compatibility (measured — see docs/REPO_SELECTION.md) | Test suite |
+| # | Repository | PDF-listed? | uv compatibility (measured — see docs/REPO_SELECTION.md) | Test suite |
 |---|---|---|---|---|
-| 1 (primary) | https://github.com/soarsmu/BugsInPy | Assignment-listed repo | cloned and Graphify-analyzed successfully (1639 nodes / 838 edges) | bug corpus + project verification scripts |
-| 2 | https://github.com/tqdm/tqdm | Yes | `uv sync` FAIL (dep conflict); `--with-editable` OK | pytest, 20 test files |
-| 3 | https://github.com/nvbn/thefuck | Yes | setup.py-only; `uv sync` FAIL | pytest, 204 test files |
+| 1 (primary) | https://github.com/andela/buggy-python | Yes | stdlib-only; no dependency install required | `main.py` assertion harness |
+| 2 | https://github.com/martinpeck/broken-python | Yes | older syntax makes graph parsing less reliable | snippet exercises |
 | F (fallback) | https://github.com/psf/requests | No | modern packaging, uv-friendly | pytest, extensive |
 
 Fallback policy: FR-03 — if primary environment preparation fails, switch to F and
-log the decision (L07 §11.2 "do not get stuck"; a virtual environment is mandatory
-for BugsInPy work and is provided by the uv-managed environment, satisfying both the
-L07 requirement and the Guidelines V3 venv prohibition).
+log the decision (L07 §11.2 "do not get stuck"). The submitted run uses the primary
+`andela/buggy-python` target.
 
 ## Appendix C — Change Log & Self-Review
 

@@ -45,7 +45,7 @@ Two architectural invariants govern everything (Guidelines V3):
 flowchart TB
     student["Student / Lecturer<br/>(human approver)"]
     archlens["ArchLens<br/>Multi-agent reverse-engineering<br/>and refactoring system"]
-    github["GitHub<br/>(target repo: BugsInPy candidate<br/>or lecturer-approved)"]
+    github["GitHub<br/>(target repo: andela/buggy-python)"]
     anthropic["Anthropic API<br/>(LLM)"]
     graphify["Graphify CLI<br/>(knowledge-graph generator)"]
     obsidian["Obsidian app<br/>(vault viewer)"]

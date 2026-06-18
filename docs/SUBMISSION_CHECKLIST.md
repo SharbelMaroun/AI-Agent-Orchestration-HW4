@@ -8,25 +8,25 @@ Version: 1.00 | Course: AI Agent Orchestration - HW4 (EX04) | Task 16.041
 - [x] 5 specialized PRDs (gatekeeper, orchestration, improvement-loop, graph-pipeline, token-metrics)
 - [x] 10 ADRs + ADR index (`docs/adr/`)
 - [x] Target-repo module + validation (RepoAgent)
-- [x] Graphify pipeline integration + `graph.json` / `graph.html` / `GRAPH_REPORT.md` (`deliverables/graphify-out/`)
-- [x] Obsidian vault: `hot.md`, `index.md`, `wiki/`, `raw/`, `log.md` (`deliverables/bugsinpy-vault/`)
+- [x] Graphify graph/report for `andela/buggy-python` (`artifacts/buggy-python-graph.json`, `artifacts/buggy-python-GRAPH_REPORT.md`)
+- [x] Obsidian investigation vault: `index.md`, `hot.md`, `localization.md`, `repair.md`, `architecture.md`, `findings.md` (`obsidian/`)
 - [x] Graph analysis engine (centrality, communities, hub/bottleneck, bridges, SPOF, triage)
 - [x] Reverse-engineering deliverables: block diagram, OOP class schema, PRD-vs-code audit (`deliverables/`)
 - [x] SDK single entry point + thin CLI
 - [x] API gatekeeper: rate limiting + FIFO never-reject overflow queue
 - [x] Multi-agent LangGraph orchestration (supervisor + 7 agents)
 - [x] Improvement loop + 5 stop conditions + 5-iteration cap
-- [x] Token measurement: baseline vs assisted ledger, **97.08% savings** from the persisted billed development run; BugsInPy graph-vs-code proxy regenerated as inconclusive (`metrics/out/`)
+- [x] Token measurement: graph-guided vs naive debug study (`metrics/out/debug_token_study.json`) plus persisted development ledger (`metrics/out/`)
 - [x] SKILL.md files with guardrails + LLM wiki (raw -> wiki -> index -> log)
-- [x] 4 knowledge-quality metrics regenerated for BugsInPy as an honest inconclusive proxy (`metrics/out/knowledge_quality_metrics.json`, `docs/metrics/KNOWLEDGE_QUALITY_METRICS.md`)
+- [x] 4 knowledge-quality metrics documented for the `buggy-python` investigation (`deliverables/BUG_REPORT.md`, `obsidian/findings.md`, `metrics/out/debug_token_study.json`)
 - [x] Research notebook + sensitivity analysis + charts (`notebooks/`, `docs/assets/`)
 - [x] README.md, CONTRIBUTING.md, LICENSE
 - [x] CI/CD workflow (`.github/workflows/ci.yml`) + PR template
 
 ## Quality Gates
 
-- [x] Tests green (936 tests)
-- [x] Branch coverage >= 85% (96.81%)
+- [x] Tests green (938 passed, 1 skipped)
+- [x] Branch coverage >= 85% (96.75%)
 - [x] Ruff 0 violations
 - [x] 150 effective-line cap on every file (incl. tests)
 - [x] uv-only toolchain; no pip/virtualenv/venv/requirements.txt
@@ -36,7 +36,7 @@ Version: 1.00 | Course: AI Agent Orchestration - HW4 (EX04) | Task 16.041
 
 ## Release
 
-- [x] Annotated git tag `v1.00` created on the green-gate commit
+- [x] Submission branch is green; create/update final tag after this single-target cleanup commit
 
 ## Approvals
 
