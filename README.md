@@ -16,7 +16,7 @@ debugging with a naive source-reading path.
 From the project root:
 
 ```powershell
-uv sync; uv run python src/main.py --version; uv run python src/main.py debug-demo; uv run python src/main.py analyze; uv run pytest --cov=archlens --cov-branch
+uv sync; uv run python src/main.py --version; uv run python src/main.py submission-demo; uv run python src/main.py analyze; uv run pytest --cov=archlens --cov-branch
 ```
 
 Expected high-level output:
@@ -25,7 +25,7 @@ Expected high-level output:
 - debug target: `https://github.com/andela/buggy-python`
 - first suspect: `snippets/__init__.py`
 - analysis graph: `19` nodes, `28` edges
-- tests: `939 passed, 1 skipped`
+- tests: `941 passed, 1 skipped`
 - coverage: about `96.80%`
 
 ## Submitted Target
@@ -40,6 +40,7 @@ Expected high-level output:
 | Graph report | `artifacts/buggy-python-GRAPH_REPORT.md` |
 | Obsidian vault | `obsidian/` |
 | Bug report | `deliverables/BUG_REPORT.md` |
+| Fix patch | `deliverables/buggy-python-fix.patch` |
 | Token study | `metrics/out/debug_token_study.json` |
 
 The committed Graphify report has 19 nodes, 28 edges, and 4 Graphify communities. The ArchLens
@@ -55,6 +56,15 @@ The committed Graphify report has 19 nodes, 28 edges, and 4 Graphify communities
 4. Identifies `snippets/__init__.py` as the first file to fix.
 5. Explains the root cause and repair path.
 6. Points to the Obsidian notes, bug report, and token study.
+
+`uv run python src/main.py submission-demo` prints the fuller grader-facing path:
+
+```text
+RepoAgent -> GraphAgent -> BugLocalizer/BugHunterAgent -> RefactorAgent -> QAAgent -> MetricsAgent
+```
+
+It also points to the graph artifact, Obsidian vault, fix patch, bug report, token study, and
+verification commands.
 
 `uv run python src/main.py analyze` reads the submitted graph artifact and reports the architectural
 summary:
@@ -159,7 +169,7 @@ files/units and reaches the correct hub in one cycle.
 | Obsidian documentation | `obsidian/` |
 | Reverse engineering | `deliverables/ARCHITECTURE.md`, `deliverables/CLASS_SCHEMA.md`, `obsidian/architecture.md` |
 | Agentic debugging | `src/archlens/agents/bug_localizer.py`, `obsidian/localization.md` |
-| Code repair | `deliverables/BUG_REPORT.md` |
+| Code repair | `deliverables/BUG_REPORT.md`, `deliverables/buggy-python-fix.patch` |
 | Token proof | `metrics/out/debug_token_study.json`, `docs/metrics/GRAPH_VS_CODE.md` |
 | Quality gates | `uv run pytest --cov=archlens --cov-branch` |
 
@@ -169,6 +179,7 @@ files/units and reaches the correct hub in one cycle.
 uv sync
 uv run python src/main.py --version
 uv run python src/main.py debug-demo
+uv run python src/main.py submission-demo
 uv run python src/main.py analyze
 uv run pytest --cov=archlens --cov-branch
 uv run ruff check .

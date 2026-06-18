@@ -58,6 +58,8 @@ shows the original `!==` was both a syntax error *and* the wrong comparison).
 
 ### Fix diff (4 files, +28 / −26)
 
+The exact standalone patch is committed at `deliverables/buggy-python-fix.patch`.
+
 ```diff
 # snippets/__init__.py — restore the re-export hub
 -# from .loop import lambda_array
@@ -120,6 +122,13 @@ All eight assertions pass on the **unmodified** harness: `lambdas[0](10) == 19`,
 | What we knew | one opaque line — `ImportError: cannot import name 'lambda_array' from 'snippets'`; no idea which of 5 files, or whether it is one bug or many | the failure is a **chain** — entry `main.py` → re-export **hub** `snippets/__init__.py` (the #1-centrality SPOF) → 3 leaf modules, with **4 distinct defects** mapped |
 | Obsidian pages | none | `index.md`, `hot.md`, `suspects.md`, `localization.md`, `repair.md`, `architecture.md` |
 | Graph evidence | none | the BugLocalizer agent names the hub from its degree + import edges; `contains`/`imports` edges map the leaf defects |
+| Code repair evidence | none | `deliverables/buggy-python-fix.patch` plus the passing target harness transcript |
+
+| Architecture view | Before repair | After repair |
+|---|---|---|
+| Import hub | `snippets/__init__.py` exposes only `foo`; package imports fail at the hub | Hub exports all symbols required by `main.py` |
+| Leaf modules | `loop.py`, `io.py`, and `foobar.py` are unreachable or broken behind the failed import | Leaf defects are mapped and repaired while preserving the target harness |
+| Verification | Import-time failure, exit 1 | `main.py` prints `All test passed successfully!!`, exit 0 |
 
 The agent + vault turned a single unexplained `ImportError` into a ranked, cited investigation that
 named the fix site (the hub) **before** any leaf source was read.
@@ -129,7 +138,7 @@ named the fix site (the hub) **before** any leaf source was read.
 ```bash
 git clone --depth 1 https://github.com/andela/buggy-python runs/buggy-python
 cd runs/buggy-python && PYTHONIOENCODING=utf-8 python main.py   # FAILS: ImportError (exit 1)
-# apply the diff in §3 to snippets/{__init__,loop,io,foobar}.py
+# apply deliverables/buggy-python-fix.patch to snippets/{__init__,loop,io,foobar}.py
 PYTHONIOENCODING=utf-8 python main.py                            # PASSES: "All test passed successfully!!" (exit 0)
 ```
 

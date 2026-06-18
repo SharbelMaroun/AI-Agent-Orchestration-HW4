@@ -15,6 +15,7 @@ _EXAMPLES = """Examples:
   uv run python src/main.py analyze
   uv run python src/main.py tokens
   uv run python src/main.py debug-demo
+  uv run python src/main.py submission-demo
 """
 
 
@@ -54,6 +55,7 @@ def _build_parser() -> argparse.ArgumentParser:
     sub.add_parser("start", help="interactively pick a repo, clone it, then analyze it")
     sub.add_parser("analyze", help="run Repo->Graph->Analyst and print the analysis report")
     sub.add_parser("debug-demo", help="run the EX04 graph-guided bug-localization demo")
+    sub.add_parser("submission-demo", help="print the full EX04 submission evidence summary")
     sub.add_parser("loop", help="run the improvement loop and print the result")
     sub.add_parser("tokens", help="print the token-savings report")
     return parser
@@ -83,6 +85,9 @@ def main(argv: list[str] | None = None, sdk=None) -> int:
         return 0
     if args.command == "debug-demo":
         print(sdk.debug_demo())
+        return 0
+    if args.command == "submission-demo":
+        print(sdk.submission_demo())
         return 0
     if args.command == "loop":
         print(sdk.run_loop())

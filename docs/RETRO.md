@@ -16,7 +16,7 @@ config-driven, and external calls route through the single gatekeeper egress.
   `andela/buggy-python` repository.
 - **Debugging evidence:** the submission includes a concrete graph-first bug-localization and repair
   track (`deliverables/BUG_REPORT.md`, `obsidian/`, `artifacts/`).
-- **Quality gates:** verification passed with 939 tests, 1 skipped, 96.80% coverage, Ruff 0,
+- **Quality gates:** verification passed with 941 tests, 1 skipped, 96.80% coverage, Ruff 0,
   line cap OK, forbidden-tooling 0, and mutation spot checks retained.
 
 ## Lessons Learned

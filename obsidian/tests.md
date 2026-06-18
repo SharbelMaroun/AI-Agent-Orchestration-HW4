@@ -23,7 +23,7 @@ points to `../deliverables/BUG_REPORT.md` as the committed reproduction proof.
 
 ## This Project's Own Suite (ArchLens)
 
-- **939 passed, 1 skipped** across the repo module, Graphify pipeline, agents, gatekeeper, metrics,
+- **941 passed, 1 skipped** across the repo module, Graphify pipeline, agents, gatekeeper, metrics,
   and vault. Full report: **`../reports/test_report.md`**.
 - Coverage gate: `uv run pytest --cov=archlens --cov-branch` -> **96.80%**.
 - Ruff gate: `uv run ruff check .` -> **0 violations**.

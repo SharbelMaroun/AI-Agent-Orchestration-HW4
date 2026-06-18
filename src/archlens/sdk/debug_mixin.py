@@ -31,12 +31,45 @@ class DebugDemoMixin:
         lines.extend([
             f"Root cause: {loc.root_cause}",
             "Fix summary: restore package re-exports; repair loop/io/foobar leaf defects",
+            "Fix patch: deliverables/buggy-python-fix.patch",
             f"Bug report: {_display(report)}",
             f"Obsidian localization: {_display(loc_page)}",
             f"Obsidian repair: {_display(repair_page)}",
             "Token study: metrics/out/debug_token_study.json",
             f"Verification: {_verify_buggy_python()}",
         ])
+        return "\n".join(lines)
+
+    def submission_demo(self) -> str:
+        """Return the one-command EX04 evidence summary for graders."""
+        lines = [
+            "EX04 Submission Demo",
+            "Target repo: https://github.com/andela/buggy-python",
+            "Authoritative graph: artifacts/buggy-python-graph.json",
+            "Graph report: artifacts/buggy-python-GRAPH_REPORT.md",
+            "Obsidian vault: obsidian/index.md and obsidian/hot.md",
+            "",
+            "Agent workflow:",
+            "  RepoAgent -> GraphAgent -> BugLocalizer/BugHunterAgent -> RefactorAgent -> QAAgent -> MetricsAgent",
+            "  Framework: LangGraph StateGraph, documented in docs/PRD_agent_orchestration.md",
+            "",
+            "Bug localization:",
+            self.debug_demo(),
+            "",
+            "Repair evidence:",
+            "  Patch: deliverables/buggy-python-fix.patch",
+            "  Report: deliverables/BUG_REPORT.md",
+            "  Before/after architecture snapshot: deliverables/BUG_REPORT.md section 5",
+            "",
+            "Token comparison:",
+            "  Naive: 802 input tokens, 5 files/units, 2 cycles",
+            "  Graph-guided: 685 input tokens, 2 files/units, 1 cycle",
+            "  Explanation: docs/metrics/SAVINGS_EXPLANATION.md",
+            "",
+            "Verification commands:",
+            "  uv run python src/main.py analyze",
+            "  uv run pytest --cov=archlens --cov-branch",
+        ]
         return "\n".join(lines)
 
 
