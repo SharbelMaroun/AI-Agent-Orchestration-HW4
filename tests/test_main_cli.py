@@ -33,9 +33,14 @@ class _FakeSDK:
         self.called.append("vault")
         return SimpleNamespace(root="/vault")
 
+    def debug_demo(self):
+        self.called.append("debug-demo")
+        return "debug report"
+
 
 @pytest.mark.parametrize("command,marker", [
     ("analyze", "analyze"), ("loop", "loop"), ("tokens", "tokens"), ("vault", "vault"),
+    ("debug-demo", "debug-demo"),
 ])
 def test_subcommand_maps_to_sdk_method_and_exits_zero(command, marker):
     sdk = _FakeSDK()

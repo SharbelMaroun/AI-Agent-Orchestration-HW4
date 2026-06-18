@@ -14,6 +14,7 @@ from ..graphops.manifest import Manifest, save_manifest
 from ..graphops.orchestrator import run_pipeline
 from ..graphops.parser import Graph, parse_graph
 from ..sdk.analysis_mixin import GraphAnalysisMixin
+from ..sdk.debug_mixin import DebugDemoMixin
 from ..sdk.deliverables_mixin import DeliverablesMixin
 from ..sdk.knowledge_mixin import KnowledgeMixin
 from ..sdk.llm_mixin import LLMMixin
@@ -33,7 +34,7 @@ from ..vault.layout import VaultLayout
 from ..vault.raw_ingest import default_graph_raw_sources
 
 
-class ArchLensSDK(GraphAnalysisMixin, DeliverablesMixin, OrchestrationMixin, MetricsMixin,
+class ArchLensSDK(GraphAnalysisMixin, DeliverablesMixin, DebugDemoMixin, OrchestrationMixin, MetricsMixin,
                   KnowledgeMixin, ResearchMixin, LLMMixin, RefactorMixin):
     """Facade over all ArchLens capabilities; phase method groups are added via mixins."""
 
