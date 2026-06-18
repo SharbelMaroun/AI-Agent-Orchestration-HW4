@@ -17,7 +17,11 @@ class _SDK:
         self.analyzed_path = None
 
     def suggested_repos(self):
-        return [SimpleNamespace(name="httpie", url="https://github.com/httpie/cli", note="primary")]
+        return [SimpleNamespace(
+            name="buggy-python",
+            url="https://github.com/andela/buggy-python",
+            note="primary",
+        )]
 
     def clone_url(self, url):
         return self._clone(url)

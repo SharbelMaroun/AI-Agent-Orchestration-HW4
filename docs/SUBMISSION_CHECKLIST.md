@@ -25,8 +25,8 @@ Version: 1.00 | Course: AI Agent Orchestration - HW4 (EX04) | Task 16.041
 
 ## Quality Gates
 
-- [x] Tests green (938 passed, 1 skipped)
-- [x] Branch coverage >= 85% (96.75%)
+- [x] Tests green (939 passed, 1 skipped)
+- [x] Branch coverage >= 85% (96.80%)
 - [x] Ruff 0 violations
 - [x] 150 effective-line cap on every file (incl. tests)
 - [x] uv-only toolchain; no pip/virtualenv/venv/requirements.txt

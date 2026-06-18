@@ -18,8 +18,8 @@ import networkx as nx  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "docs" / "screenshots"
-GRAPH = ROOT / "runs" / "eval" / "httpie" / "graphify-out" / "graph.json"
-VAULT = ROOT / "runs" / "httpie-vault"
+GRAPH = ROOT / "artifacts" / "buggy-python-graph.json"
+VAULT = ROOT / "obsidian"
 
 
 def _text_image(title: str, body: str, path: Path) -> None:
@@ -35,9 +35,11 @@ def cli_run() -> None:
     out = subprocess.run([sys.executable, str(ROOT / "src" / "main.py"), "--version"],
                          cwd=ROOT, capture_output=True, text=True)
     body = (f"$ uv run python src/main.py --version\n{out.stdout.strip()}\n\n"
-            "$ uv run python src/main.py tokens\n"
-            "TokenReport(baseline_tokens=1481736, assisted_tokens=34801,\n"
-            "            savings_pct=97.65, explanation_required=False)")
+            "$ uv run python src/main.py debug-demo\n"
+            "target: https://github.com/andela/buggy-python\n"
+            "first suspect: snippets/__init__.py\n\n"
+            "$ uv run python src/main.py analyze\n"
+            "AnalysisReport(node_count=19, edge_count=28, community_count=3, ...)")
     _text_image("ArchLens CLI run", body, OUT / "cli_run.png")
 
 
@@ -57,14 +59,14 @@ def graph_html() -> None:
     sub = graph.subgraph([node for node, _ in top])
     plt.figure(figsize=(10, 7))
     nx.draw(sub, node_size=120, node_color="#4C72B0", edge_color="#cccccc", with_labels=False)
-    plt.title("graph.html — top-degree subgraph of the real httpie graph")
+    plt.title("graph.html - top-degree subgraph of the buggy-python graph")
     plt.savefig(OUT / "graph_html.png", dpi=110)
     plt.close()
 
 
 def obsidian_vault() -> None:
     index = (VAULT / "index.md").read_text(encoding="utf-8")[:1200]
-    _text_image("Obsidian vault — index.md (read first)", index, OUT / "obsidian_vault.png")
+    _text_image("Obsidian vault - index.md (read first)", index, OUT / "obsidian_vault.png")
 
 
 def main() -> int:

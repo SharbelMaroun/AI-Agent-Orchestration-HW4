@@ -45,7 +45,8 @@ path) avoids opening every file. See [[tests]] for how the fix is verified, and 
 Three committed studies (`../metrics/out/`):
 - **Debug task** (`debug_token_study.json`): graph-guided **685 tokens vs 802 naive (−14.6%)**, 2 vs 5
   files, 1 vs 2 cycles — both localize the correct root cause.
-- **Scale study** (`token_metrics.json`, httpie 2 033-node graph): **97.08% fewer tokens**
+- **Debug study** (`metrics/out/debug_token_study.json`): **14.59% fewer input tokens** and
+  **60% fewer files/units read** for the submitted `buggy-python` investigation.
   (1 368 538 → 39 950), target (≥70%) met, real billed `gpt-4.1-mini`.
 - **Live graph-vs-code** (`graph_vs_code.json`): **84.0% fewer tokens** (8 125 → 1 302) at **equal
   LLM-judge quality (5.0/5.0)**.

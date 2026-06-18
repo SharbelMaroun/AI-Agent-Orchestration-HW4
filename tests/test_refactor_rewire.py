@@ -12,9 +12,9 @@ def test_rewrites_a_relative_import(tmp_path):
 
 def test_rewrites_a_dotted_package_import(tmp_path):
     dep = tmp_path / "d.py"
-    dep.write_text("from httpie.context import Environment\n", encoding="utf-8")
+    dep.write_text("from package.context import Environment\n", encoding="utf-8")
     rewrite_import(dep, "context", "context_interface")
-    assert "from httpie.context_interface import Environment" in dep.read_text(encoding="utf-8")
+    assert "from package.context_interface import Environment" in dep.read_text(encoding="utf-8")
 
 
 def test_rewrites_a_bare_import_and_leaves_unrelated_ones(tmp_path):

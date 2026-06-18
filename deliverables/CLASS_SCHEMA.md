@@ -1,19 +1,24 @@
-# Class Schema
+# Class Schema - andela/buggy-python
 
-Version: 1.00
+Version: 1.00 | Course: AI Agent Orchestration - HW4 / EX04
 
-## Class Diagram
+## Result
+
+The submitted target is procedural Python. It contains modules and functions, but no classes.
 
 ```mermaid
 classDiagram
 ```
 
-## Inheritance
+## Interpretation
 
-| Base | Derived |
-| --- | --- |
+Because there are no classes, there is no inheritance or composition structure to render. The
+appropriate OOP-level finding is therefore:
 
-## Composition
+- no classes
+- no inheritance
+- no class composition
+- architecture is module/function based
 
-| Owner | Part |
-| --- | --- |
+The module/function architecture is documented in `deliverables/ARCHITECTURE.md` and
+`obsidian/architecture.md`.

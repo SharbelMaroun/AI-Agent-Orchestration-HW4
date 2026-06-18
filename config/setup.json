@@ -100,7 +100,6 @@
   "suggested_repos": [
     {"name": "buggy-python", "url": "https://github.com/andela/buggy-python", "note": "PDF-listed primary target: runnable bug-fix corpus"},
     {"name": "broken-python", "url": "https://github.com/martinpeck/broken-python", "note": "PDF-listed corpus; py2 snippets make it less suitable for this graph run"},
-    {"name": "requests", "url": "https://github.com/psf/requests", "note": "fallback (Apache-2.0)"},
-    {"name": "httpie", "url": "https://github.com/httpie/cli", "note": "previous scale demo / token-economics study"}
+    {"name": "requests", "url": "https://github.com/psf/requests", "note": "fallback (Apache-2.0)"}
   ]
 }

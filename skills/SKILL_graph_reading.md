@@ -29,10 +29,10 @@ Every claim MUST cite evidence in the order **relation → confidence → source
 triple). Read `index.md` first, follow at most 2–3 wiki links, and quote the graph edge backing
 each statement. Never assert a dependency that is not present as an edge in `graph.json`.
 
-Worked example (a real edge from `runs/eval/httpie/graphify-out/graph.json`):
+Worked example (a real edge from `artifacts/buggy-python-graph.json`):
 
-> `contributors_fetch` **contains** `contributors_fetch_debug` —
-> relation: `contains`, confidence: `EXTRACTED`, source_file: `docs/contributors/fetch.py`.
+> `main` **imports** `snippets_init` —
+> relation: `imports`, confidence: `EXTRACTED`, source_file: `main.py`.
 
 Report the answer as: claim, then the citation triple, then the 1–2 wiki pages consulted. If the
 graph has no edge supporting a claim, say so explicitly rather than inferring from source.

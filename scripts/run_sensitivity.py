@@ -1,8 +1,8 @@
 """Phase 15 variance runs + OAT sweeps -> results/ artifacts (tasks 15.013-15.018).
 
-NOTE: the committed results/sensitivity/*.json and results/variance/*.json are from REAL live
-measurement (token/top_k cost on gpt-4.1-mini; rate-limit wait through the real limiter; similarity
-and modularity from the real httpie graph). This script is NON-DESTRUCTIVE: it never overwrites a
+NOTE: the committed results/sensitivity/*.json and results/variance/*.json are from measured
+ArchLens runs (token/top_k cost, rate-limit wait through the real limiter, and similarity/modularity
+from the submitted buggy-python graph). This script is NON-DESTRUCTIVE: it never overwrites a
 committed real artifact. It recomputes summary.csv from the existing real variance runs, and only
 generates a deterministic offline stand-in for an artifact that is MISSING (e.g. a fresh CI checkout).
 Run: uv run python scripts/run_sensitivity.py
@@ -19,7 +19,7 @@ from archlens.shared.config import load_setup
 
 ROOT = Path(__file__).resolve().parents[1]
 RESULTS = ROOT / "results"
-GRAPH = ROOT / "runs" / "eval" / "httpie" / "graphify-out" / "graph.json"
+GRAPH = ROOT / "artifacts" / "buggy-python-graph.json"
 
 
 def _modularity() -> int:

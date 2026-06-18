@@ -10,14 +10,13 @@ config-driven, and external calls route through the single gatekeeper egress.
 
 ## Metrics Outcome
 
-- **Token savings: 97.08%** - naive full-context baseline 1,368,538 tokens vs Graphify-assisted
-  39,950 tokens over 10 standard questions on the historical httpie scale study. Break-even after
-  **2 queries** even counting the one-time graph-build cost.
+- **Debug token savings: 14.59%** - naive source reading used 802 input tokens vs 685 with
+  graph-guided navigation on the submitted `andela/buggy-python` investigation.
 - **Single submitted target:** the active configured target is now the PDF-listed
   `andela/buggy-python` repository.
 - **Debugging evidence:** the submission includes a concrete graph-first bug-localization and repair
   track (`deliverables/BUG_REPORT.md`, `obsidian/`, `artifacts/`).
-- **Quality gates:** merge verification passed with 938 tests, 1 skipped, 96.75% coverage, Ruff 0,
+- **Quality gates:** verification passed with 939 tests, 1 skipped, 96.80% coverage, Ruff 0,
   line cap OK, forbidden-tooling 0, and mutation spot checks retained.
 
 ## Lessons Learned

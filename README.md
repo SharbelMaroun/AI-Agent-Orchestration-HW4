@@ -1,702 +1,166 @@
 # ArchLens
 
-Version: 1.00 | Status: Living document | Course: AI Agent Orchestration — HW4 (EX04)
+Version: 1.00 | Course: AI Agent Orchestration - HW4 / EX04
 
-Multi-agent, graph-based reverse engineering of Python codebases — HW4/EX04 for the
-AI Agent Orchestration course. ArchLens clones a target repository, builds a knowledge
-graph with Graphify, navigates it in an Obsidian vault, detects architectural defects
-with LangGraph agents, fixes them in a measured improvement loop, and proves token savings.
+ArchLens is a graph-guided reverse-engineering and debugging project. The submitted EX04 run uses
+one PDF-listed repository end to end:
 
-Full documentation lives in `docs/` (PRD, PLAN, specialized PRDs, TODO, prompt book).
+`https://github.com/andela/buggy-python`
 
-## Current Target Repository
+The project builds and uses a code graph, documents the investigation in an Obsidian-style vault,
+localizes a real bug with a graph-first agent, explains the repair, and compares graph-guided
+debugging with a naive source-reading path.
 
-The submission uses one PDF-listed repository end to end:
+## Quick Run
 
-- Primary: `https://github.com/andela/buggy-python`
-- Role: reverse engineering, Graphify/Obsidian navigation, agentic bug localization, repair, and verification
-- Graph artifact: `artifacts/buggy-python-graph.json` (19 nodes, 28 edges, 4 communities)
-- Obsidian vault: `obsidian/index.md`, `obsidian/hot.md`, `obsidian/localization.md`, `obsidian/repair.md`
-- Bug report: `deliverables/BUG_REPORT.md`
-- Runnable demo: `uv run python src/main.py debug-demo`
+From the project root:
 
-## Table of Contents
+```powershell
+uv sync; uv run python src/main.py --version; uv run python src/main.py debug-demo; uv run python src/main.py analyze; uv run pytest --cov=archlens --cov-branch
+```
 
-> **EX04 debugging core:** [Debugging an unfamiliar buggy repo (buggy-python)](#ex04--debugging-an-unfamiliar-buggy-repo-andelabuggy-python) — bug → graph-first localization → fix → verify (failing→passing).
+Expected high-level output:
 
-1. [Quickstart (uv only)](#quickstart-uv-only)
-2. [Installation](#installation)
-3. [CLI usage](#cli-usage) — incl. [Screenshots](#screenshots)
-4. [Architecture](#architecture)
-5. [Configuration reference](#configuration-reference)
-6. [LLM modes (provider-agnostic live API vs offline mock)](#llm-modes-provider-agnostic-live-api-vs-offline-mock)
-7. [Token economics](#token-economics)
-8. [Report](#report)
-9. [Contributing](#contributing)
-10. [License & credits](#license--credits)
+- version: `1.00`
+- debug target: `https://github.com/andela/buggy-python`
+- first suspect: `snippets/__init__.py`
+- analysis graph: `19` nodes, `28` edges
+- tests: `939 passed, 1 skipped`
+- coverage: about `96.80%`
 
-## EX04 — Debugging an unfamiliar buggy repo (andela/buggy-python)
+## Submitted Target
 
-**Target & justification (§2).** The EX04 subject is **`andela/buggy-python`** — one of the
-three lecturer-suggested buggy corpora — chosen because it is pure-stdlib (no Docker, no deps),
-reproduces in our uv-only env, and its bug is a genuine **cross-module** failure a dependency graph
-helps localize. `broken-python` is unparseable Python-2 syntax, so it is less suitable for this
-graph run.
+| Item | Value |
+|---|---|
+| Repository | `https://github.com/andela/buggy-python` |
+| Reason | PDF-listed, pure Python, stdlib-only, small but cross-module |
+| Failing symptom | `ImportError: cannot import name 'lambda_array' from 'snippets'` |
+| First fix site | `snippets/__init__.py` |
+| Graph artifact | `artifacts/buggy-python-graph.json` |
+| Graph report | `artifacts/buggy-python-GRAPH_REPORT.md` |
+| Obsidian vault | `obsidian/` |
+| Bug report | `deliverables/BUG_REPORT.md` |
+| Token study | `metrics/out/debug_token_study.json` |
 
-**The bug (§5.4).** `python main.py` (the repo's own, unmodifiable test harness) fails at import time:
-`ImportError: cannot import name 'lambda_array' from 'snippets'`.
+The committed Graphify report has 19 nodes, 28 edges, and 4 Graphify communities. The ArchLens
+`analyze` command reports 3 density communities using the project's internal detector.
 
-**Graph-first localization (§5.3).** The Graphify import graph (19 nodes / 28 edges,
-`artifacts/buggy-python-graph.json`) shows the failure chain **entry → hub → leaf**: `main.py` needs
-6 symbols, the re-export **hub** `snippets/__init__.py` — the #1 centrality node (degree 9, found by
-ArchLens `node_centrality`) — supplies only 1, and the 5 missing edges point straight at the defect.
-Fixing the hub then surfaces defects in the leaf modules `loop.py` / `io.py` / `foobar.py`.
+## What The Run Does
 
-**Root cause & fix (§5.4).** Four defects: the hub's commented-out re-exports; JS-isms in `loop.py`
-(`{}` / `for i in 10` / `.push`); dict-as-call + `!==`/`is` + `sun`/`length` typos in `io.py` (the
-correct unpaid condition `== "unpaid"` was *derived from* the failing assertion total 11062); and a
-mutable default argument in `foobar.py`. Full diff + transcript: **`deliverables/BUG_REPORT.md`**.
+`uv run python src/main.py debug-demo` prints the assignment-aligned debugging flow:
 
-**Verification (failing → passing).** After the fix, `python main.py` prints
-`All test passed successfully!! 😀` (exit 0) — all 8 assertions green. The local gate is
-`tests/debug/test_buggy_python_entry.py` (it skips when the git-ignored clone is absent).
+1. Reads the committed `buggy-python` graph.
+2. Uses the `BugLocalizer` graph-first agent.
+3. Traces the failure from `main.py` to the package re-export hub.
+4. Identifies `snippets/__init__.py` as the first file to fix.
+5. Explains the root cause and repair path.
+6. Points to the Obsidian notes, bug report, and token study.
 
-**Knowledge before/after (§5.4) & the vault.** The bug-investigation Obsidian vault is committed under
-**`obsidian/`**: `index.md` (read-first bug overview), `hot.md` (the bug hotspot / suspect ranking),
-`suspects.md` (ranked candidates with graph evidence), `repair.md` (per-file root cause + fix),
-`architecture.md` (the §5.2 block + OOP-level diagrams of the target), `localization.md` (the
-BugLocalizer agent's graph-first output), `findings.md` (the eight §4 research questions, answered), and
-`tests.md` (how the fix is verified). The before/after knowledge table is in `deliverables/BUG_REPORT.md` §5.
+`uv run python src/main.py analyze` reads the submitted graph artifact and reports the architectural
+summary:
 
-**Graph-guided vs naive — token study (§5.5).** Asking *"which file must be fixed first?"* two ways
-(`scripts/compare_debug_tokens.py` → `metrics/out/debug_token_study.json`) over all four spec axes:
+```text
+AnalysisReport(node_count=19, edge_count=28, community_count=3,
+  hubs=('snippets_init', 'main', 'snippets_io', 'readme_buggy_python', 'snippets_foobar'),
+  bottlenecks=('snippets_io', 'readme_buggy_python', 'snippets_foobar', 'snippets_loop'),
+  spofs=())
+```
 
-| axis | naive (dump all source) | graph-guided (vault `index`+`suspects`) |
-|---|---|---|
-| input tokens | 802 | **685** (−14.6%) |
-| files / units read | 5 | **2** (−60%) |
-| investigation cycles | 2 (linear scan to the hub) | **1** |
-| quality (correct root cause) | ✅ `snippets/__init__.py` | ✅ `snippets/__init__.py` |
+## Bug Story
 
-On this tiny repo the token delta is modest and both localize correctly — the win is **fewer files
-(60%) and fewer investigation cycles**: the graph routes straight to the hub. The 97% study on the
-2k-node httpie graph below is the *scale* demonstration of the same effect.
+The target repo's `main.py` imports six symbols from `snippets`. The graph shows this path:
 
-**Research questions (§4).** *Architecture:* a 5-module package fronted by a re-export hub.
-*Central / "god" node:* the hub `snippets/__init__.py` (highest fan-in). *How the bug was found:*
-trace the graph from the failing entry point to the hub's missing edges, not linear file reading.
-*Graph/Obsidian advantage:* localize to 2 files instead of reading all 5.
+```text
+main.py -> snippets/__init__.py -> leaf modules
+```
 
-**Original extension (§5.6) — the graph-first `BugLocalizer` agent.** Beyond the assignment's
-read→summarize loop, we built a dedicated debugging agent (`src/archlens/agents/bug_localizer.py`,
-exposed as `sdk.localize_bug`). Given only the failing symbol and the dependency graph, it nominates
-the fix site from **graph structure alone** — it finds the highest-degree re-export hub, detects the
-*missing* import edges that explain the `ImportError`, and emits a deterministic evidence trace plus an
-LLM root-cause explanation **without reading any source file**. Its verbatim output is committed at
-`obsidian/localization.md`; it is covered by `tests/agents/test_bug_localizer.py`. This is the concrete
-debugging-specific capability the spec invites — turning the graph into the localizer, not just context.
+The re-export hub `snippets/__init__.py` exposes only part of the package API, so importing
+`lambda_array` fails before the test harness can run. After the hub is restored, the remaining leaf
+bugs are in:
 
-## Quickstart (uv only)
+- `snippets/loop.py`
+- `snippets/io.py`
+- `snippets/foobar.py`
 
-```bash
-uv tool install graphifyy==0.8.39   # prerequisite: the external Graphify code-graph CLI (pinned)
-uv sync                          # install the locked environment
-uv run pytest                    # run the test suite (coverage gate: 85%)
-uv run ruff check .              # lint gate: zero violations
+The full root-cause table, diff, and failing-to-passing transcript are in
+`deliverables/BUG_REPORT.md`.
+
+## Graph And Obsidian Evidence
+
+Read these files first:
+
+- `obsidian/index.md` - investigation overview
+- `obsidian/hot.md` - graph hotspots
+- `obsidian/localization.md` - BugLocalizer output
+- `obsidian/suspects.md` - ranked suspects
+- `obsidian/repair.md` - repair notes
+- `obsidian/architecture.md` - block/OOP diagrams
+- `obsidian/findings.md` - assignment research questions
+- `obsidian/tests.md` - verification notes
+
+## Token Efficiency
+
+The debug token study compares locating the first file to fix with and without graph navigation:
+
+| Metric | Naive | Graph-guided |
+|---|---:|---:|
+| Input tokens | 802 | 685 |
+| Files / units read | 5 | 2 |
+| Investigation cycles | 2 | 1 |
+| Correct first fix site | `snippets/__init__.py` | `snippets/__init__.py` |
+
+On this small repo, the token saving is modest (14.59%), but the graph path reads 60% fewer
+files/units and reaches the correct hub in one cycle.
+
+## Deliverables Map
+
+| PDF requirement | Evidence |
+|---|---|
+| Choose a PDF-listed repo | `config/setup.json`, `docs/REPO_SELECTION.md` |
+| Graphify representation | `artifacts/buggy-python-graph.json`, `artifacts/buggy-python-GRAPH_REPORT.md` |
+| Obsidian documentation | `obsidian/` |
+| Reverse engineering | `deliverables/ARCHITECTURE.md`, `deliverables/CLASS_SCHEMA.md`, `obsidian/architecture.md` |
+| Agentic debugging | `src/archlens/agents/bug_localizer.py`, `obsidian/localization.md` |
+| Code repair | `deliverables/BUG_REPORT.md` |
+| Token proof | `metrics/out/debug_token_study.json`, `docs/metrics/GRAPH_VS_CODE.md` |
+| Quality gates | `uv run pytest --cov=archlens --cov-branch` |
+
+## Useful Commands
+
+```powershell
+uv sync
 uv run python src/main.py --version
+uv run python src/main.py debug-demo
+uv run python src/main.py analyze
+uv run pytest --cov=archlens --cov-branch
+uv run ruff check .
+uv run python scripts/check_line_cap.py
+uv run python scripts/check_forbidden_tools.py
 ```
 
-All tooling goes through uv; this project never uses other package managers. Graphify
-(`graphifyy` on PyPI, command `graphify`, by Safi Shamsi) is an external CLI tool — like
-`git`, it is invoked through the gatekeeper and is **not** vendored into the repo. Its
-clones and outputs land under the git-ignored `runs/`.
-
-### Graphify modes (structural vs semantic)
-
-Graphify's CLI has **no semantic edge-extraction command** — its only build command is the
-zero-LLM, AST-based `graphify update` (the deep semantic extraction lives in the separate
-`/graphify` Claude-Code skill, not in this flow). Its one LLM-using CLI step is `graphify label`,
-which gives communities readable names. So:
-
-- **`analysis_depth: "structural"`** — runs `graphify update` only. No LLM, no key, free.
-- **`analysis_depth: "semantic"` (default)** — *additionally* runs `graphify label` to name communities via
-  `llm_backend`/`llm_model` (shipped default **OpenAI `gpt-4.1-mini`**, as set in `config/setup.json`),
-  which needs an `OPENAI_API_KEY`; if the quota is exhausted Graphify falls back to `Community N`
-  placeholders. (A `GEMINI_API_KEY` backend is also supported but is not the shipped default.)
-
-The **actual semantic reverse engineering** — finding the architectural problems — is done by the
-ArchLens **LLM agents reasoning over the graph** (with your OpenAI key), not by Graphify. See the
-graph-vs-code comparison in `docs/metrics/GRAPH_VS_CODE.md`.
-
-### Optional developer setup: the `/graphify` skill in Claude Code
-
-ArchLens drives Graphify through the gatekeeper, so this is **not required** to run the
-project. It only adds a `/graphify` slash command to your own Claude Code for ad-hoc
-graph queries:
-
-```bash
-graphify install --platform claude   # installs the skill into ~/.claude/skills/graphify/
-# then restart Claude Code (skills load at startup) and type:  /graphify .
-graphify uninstall                   # to remove it later
-```
-
-This writes to your per-machine `~/.claude/` (a `SKILL.md`, its `references/`, and a
-`graphify` section in `~/.claude/CLAUDE.md`) — it changes your local IDE, not this repo.
-
-## Report
-
-What was actually done on branch `Sharbel` (commits `ef5e993` → `88c33d8`,
-2026-06-12..15), including the real failures hit along the way. Everything below is
-reproducible from the repo.
-
-### Development methodology (built step by step, tested at every step)
-
-We built this project **incrementally and test-first** — not in one big drop. The work was split into
-small phases, and within each phase we added **one capability at a time**, wrote and ran its tests,
-and only moved on **once everything was green**: all tests passing, ruff at zero violations, branch
-coverage above the 85% gate, and every file within the 150-line cap. Each step was committed as a
-self-contained red→green slice, so the system grew in **verified increments** — add a piece, prove it
-works, then add the next. The phase-by-phase commit history below is that trail, and the same
-discipline (run the full suite before moving on) is how every later fix in this repo was made.
-
-### Timeline of work
-
-| Commit | Scope | Outcome |
-|---|---|---|
-| `ef5e993` | Course materials + full `docs/` suite | 9 documents incl. a 770-task TODO (statuses + DoD per task) |
-| `dc8348d` | **Phase 1 — Project setup & tooling** (45/45 tasks) | uv project `archlens` v1.00, package skeleton, config trio + pydantic loaders, SDK/Gatekeeper stubs, 21 TDD tests, pre-commit gates |
-| `a0b0b9f` | **Phase 2 — Documentation & approval gates** (40/45; 5 await the lecturer) | ADR-000..010 standalone files + index, GLOSSARY (44 terms), VERSIONING, README outline, PRD appendices, PLAN traceability matrix, all 7 diagrams compiled |
-| `1158695` | **Phase 3 — Target repository module** (44/45; approval task blocked) | Sandbox manager, gatekeeper-only git ops with typed errors + config-driven retry, 4 validation checks, RepoAgent node with fallback, measured repo-selection evidence |
-| `41881db` | **Phase 4 — Graphify pipeline integration** (49/50; 4.002 awaits lecturer) | graph.json models + validating parser, stage orchestrator, run layout/manifest, GraphDiff engine, SDK facade — built first against a *mocked* CLI (see correction below) |
-| `6b1b8d1` | **Phase 5 — Obsidian vault & navigation** (48/50; 5.002 + 5.046 blocked) | layout, frontmatter, wikilinks, hot.md/index.md/wiki pages, append-only log, raw ingest, orphan/broken-link validation, deterministic builder, `archlens vault` CLI + GraphAgent |
-| `77658a0` | **Graphify correction — real CLI + adapter, run for real** | rebuilt the wrapper to real `graphify update`/`extract`, added a node-link adapter, ran on httpie (2033 nodes / 4306 edges / 138 communities), built + validated a real vault |
-| `f359c08` | Pin prerequisite `graphifyy==0.8.39` | reproducible external-tool version |
-| `743a383` | **Phase 6 — Graph analysis engine** (55/55) | centrality, community detection (COMMUNITY≠FOLDER), bridges, critical paths/SPOF, edge triage + confidence policy, review queue, duplicates, macro/meso/micro views + query/path/explain/diff |
-| `8b9ad6b` | **Phase 7 — Reverse-engineering deliverables** (44/45) | architecture block diagram, OOP class schema (AST→classDiagram), PRD↔code alignment audit, traceability + evidence-ladder linter, deliverable generators + CLI |
-| `d93a776` | **Phase 8 — SDK layer & core architecture** (49/50) | constants/exceptions, frozen DTOs + serde, gatekeeper protocol, SDK orchestration facade (analyze/run_loop/measure_tokens), plugin registry, thin CLI subcommands, DRY + thread-safety audits |
-| `41efe45` | **Phase 10 — Multi-agent orchestration (LangGraph)** (55/55) | AgentState + per-key reducers, supervisor + conditional routing, 7 agent nodes, compiled StateGraph, SqliteSaver checkpointing + resume, guardrail tiers + human-approval interrupt, per-node retries, run trace, 7 prompt templates |
-| `4f6be68` | **Phase 11 — Improvement loop & stop conditions** (49/50) | fix priority policy + evidence gate + queue, iteration brancher (branch-isolation undo) + `git revert` rollback helper, refactor fixes (split/bottleneck/duplicate/SPOF), real-`pytest` test gate feeding SC-4, graph-diff metrics + load-shift SC-1, StopConditionEvaluator (5 SCs + 5-iter cap), LoopController subgraph + `--loop` CLI + E2E convergence |
-| `7ad35d0` | **Phase 9 — API gatekeeper & rate limiting** (49/50) | sliding-window limiters (30/min, 500/hr), concurrency semaphore, retry policy, FIFO overflow queue + blocking backpressure, drain loop, structured call log + key redaction, token-ledger hooks, Anthropic client + offline mock mode, `execute()` facade (saturation / never-reject / thread-safety) |
-| `…`→`209e0d4` | **Phases 12–15 — token economics, knowledge wiki, research** | baseline-vs-assisted token measurement (97.08% savings, cost tables), LLM raw→wiki→index→log + SKILL guardrails, research notebook + OAT sensitivity sweeps + charts |
-| `d75debe`→`ae9b40b` | **Phase 16 — packaging, CI, compliance** | gate scripts (line-cap + forbidden-tooling), CI workflow + CONTRIBUTING + PR template, README + LICENSE + screenshots, PROMPT_BOOK, Nielsen UX eval, Guidelines-V3 compliance sweep, annotated tag `v1.00`, live-LLM mode + `.env`, all approval gates closed |
-| `00e06ae`→`88c33d8` | **Ran it for real — 6 live-execution bug fixes (2026-06-15)** | loader node-link format, real graph.json path resolution, idempotent sandbox + Windows rmtree, O(V+E) hub/bottleneck classification, QAAgent quality gate — `analyze` and `loop` now complete end-to-end on a live httpie clone (see "Running the full pipeline live" below) |
-
-Task ledger after Phases 1–16: **769 / 770 DONE** (the lone open task, `16.043`, is the course-portal
-upload, which only the submitter can do). All lecturer-approval gates were granted on 2026-06-14
-(`docs/approvals/`). The orchestration is then proven not just by the mocked suite but by real
-`analyze`/`loop` runs on a live clone.
-
-### Quality-gate evidence (final state)
+## Project Structure
 
 ```text
-$ uv run pytest --cov=archlens --cov-branch
-936 passed
-Required test coverage of 85.0% reached. Total coverage: 96.76%
-
-$ uv run ruff check .
-All checks passed!
-
-$ uv run python scripts/check_line_cap.py
-line cap OK: all files within 150 effective lines
-
-$ uv run python src/main.py --version
-1.00
+artifacts/                 committed target graph/report
+config/setup.json           active target repo config
+deliverables/               submission reports
+docs/                       PRDs, plan, metrics, checklists
+metrics/out/                token and comparison outputs
+obsidian/                   Obsidian-style investigation vault
+skills/                     graph-reading/refactor guidance
+src/archlens/               application source
+tests/                      regression and quality tests
 ```
 
-### Architecture diagrams (compiled from PLAN.md)
+## Notes
 
-> **Reverse-engineered target diagrams (EX04 §5.2)** — the block architecture diagram and the OOP-level
-> module/function diagram **of the target `andela/buggy-python`** live in
-> [`obsidian/architecture.md`](obsidian/architecture.md) (rendered from
-> `artifacts/buggy-python-graph.json`). The target is procedural (0 classes), so the OOP deliverable is
-> the module/function dependency structure; a UML class diagram of the **tool** ArchLens is `plan_04` below.
+- `runs/` is git-ignored and used for local cloned repos or generated runs.
+- The target project is procedural, so the class schema intentionally contains no classes.
+- The skipped test is expected when `runs/buggy-python` is absent; `deliverables/BUG_REPORT.md`
+  documents how to reproduce the target harness manually.
 
-The seven diagrams below are of **ArchLens itself** (the tool). All are machine-verified (mermaid-cli
-exit 0) and rendered to SVG. (These `.svg`s embed labels as mermaid `<foreignObject>`, which GitHub's
-README image viewer renders blank; the **byte-identical inline-mermaid versions of all seven** live in
-[`docs/PLAN.md`](docs/PLAN.md) §3–§7 and render natively on github.com — open that file if a label
-looks blank here.)
+## License & Credits
 
-| | |
-|---|---|
-| ![C4 L1 — System context](docs/diagrams/plan_01.svg) | ![C4 L2 — Containers](docs/diagrams/plan_02.svg) |
-| ![C4 L3 — Agent layer](docs/diagrams/plan_03.svg) | ![UML class diagram](docs/diagrams/plan_04.svg) |
-| ![Improvement-loop sequence](docs/diagrams/plan_05.svg) | ![Supervisor state machine](docs/diagrams/plan_06.svg) |
-
-![Deployment diagram](docs/diagrams/plan_07.svg)
-
-### Analysis of a real graph (httpie — 2033 nodes / 4306 edges / 138 communities)
-
-Generated from the real `artifacts/buggy-python-graph.json` by the project graph tooling
-(structural pass, no LLM):
-
-| | |
-|---|---|
-| ![Top 15 hubs by degree](docs/diagrams/analysis_hubs.png) | ![Top 20 communities by size](docs/diagrams/analysis_communities.png) |
-| ![Node file-type mix](docs/diagrams/analysis_filetypes.png) | ![Top-hub neighbourhood subgraph](docs/diagrams/analysis_subgraph.png) |
-
-The hub chart surfaces httpie's real architecture: `http()` dominates at degree ~343 — a
-genuine god-node / single-point-of-failure candidate — followed by `Environment`,
-`MockEnvironment`, and `ExitStatus`. This is exactly the signal the AnalystAgent and
-BugHunterAgent consume to drive the improvement loop. (An interactive `graph.html` exists
-alongside the JSON; rendering it to a static screenshot needs a browser/GUI — see "Not yet
-captured" below — so these matplotlib charts are the headless-reproducible substitute.)
-
-### Running the full pipeline live (2026-06-15)
-
-Up to this point the multi-agent orchestration had been exercised only against *mocked* SDK
-fakes. We then ran it for real, end to end, on a freshly cloned + Graphify'd httpie — no mocks
-in the structural path. Both entry points now complete (delete `runs/checkpoints.sqlite` between
-fresh runs — LangGraph resumes a completed thread otherwise):
-
-```text
-$ uv run python src/main.py analyze
-AnalysisReport(node_count=2033, edge_count=4306, community_count=69,
-               hubs=(utils_init_http, httpie_context_environment, utils_init_mockenvironment,
-                     httpie_status_exitstatus, tests_test_httpie),
-               bottlenecks=(... 380 articulation points ...), spofs=())
-
-$ uv run python src/main.py loop
-LoopResult(iterations=5, stop_reason='hard_cap',
-           metric_diffs=(bottleneck_deps_lost=False, modularity_improved=False,
-                         no_new_isolates=True, tests_green=True, ruff_zero=True))
-```
-
-`analyze` drives Repo → Graph → Analyst; `loop` drives all seven agents through the improvement
-loop. On 2026-06-15 the loop was **plan-only** and stopped at the hard cap. Since then RefactorAgent
-has been wired to **apply a real fix** — for a bottleneck it inserts an interface **seam**
-(`sdk.apply_fix` → `RefactorFixes.break_bottleneck`) and rewires the dependents off it (package-aware
-imports) — GraphAgent computes a **real before/after diff**, and the loop reaches `stop_conditions_met`
-whenever an applied fix genuinely lowers inter-community edges and the tree still parses (proven by the
-integration + diff tests).
-
-**Honest finding on a real run.** On the live httpie clone the seam fix really applied — `context.py`
-got a `context_interface.py` seam and **26 dependent files were rewired onto it** — yet the loop still
-hit the cap: the *global* inter-community edge count went **+20** (one new seam node, 27 new edges),
-not down. A single localized refactor is tiny against a 4306-edge graph, and Graphify re-detects
-communities from scratch each run, so the strict "global inter-community edges strictly decreased"
-condition (SC-2) is essentially unreachable from one automated local change. The machinery is fully
-real and **does** converge when a fix genuinely improves the metric (the integration test proves it);
-reliable convergence on a large real repo needs either a coarser modularity-score metric or many
-coordinated edits — which is precisely why the lecturer pairs the loop with a 5-iteration cap and a
-human in the loop.
-
-**The six bugs the first live run surfaced.** Running against fakes had proven the wiring but not
-the execution; each gap below is a real defect that made the automation non-functional live, now
-fixed (commits `00e06ae`, `12bef7c`, `88c33d8`) with tests:
-
-| # | Bug | Fix |
-|---|---|---|
-| 1 | Loader ignored Graphify's real node-link output (`links`/`source`/`target`, string tiers) — 0 of 4306 edges loaded | normalize the native format in `graphops/loader.py` |
-| 2 | `graph_node` emitted the literal `"graph.json"` (the real Manifest lacks that attr) → AnalystAgent `FileNotFoundError` | resolve the real `<repo>/graphify-out/graph.json` path + node/edge counts |
-| 3 | Re-runs collided on the leftover clone directory (`destination ... already exists`) | idempotent `SandboxManager.fresh_target()` |
-| 4 | Windows `shutil.rmtree` failed on git's read-only pack files (`WinError 5`) | `onexc` handler clears the read-only bit and retries |
-| 5 | `classify` ran all-pairs node-connectivity max-flow per node → **hung indefinitely** on the degree-343 hub | exact O(V+E) articulation-points test (hang → 1.04s) |
-| 6 | `run_quality_gates()` existed only on the test fakes → `loop` crashed at QAAgent (`AttributeError`) | dependency-free AST-parse gate in `agents/quality_gates.py` |
-
-The lesson is the lecture's own: a green *mocked* suite proves the wiring, not the product. Only
-running the orchestration against a real clone exposed these — "the architect checks the product
-after it is completed, not while writing."
-
-### Errors actually encountered (and what they taught)
-
-**1. Session usage limits killed an entire 27-agent docs-generation run.** Every agent
-failed identically; the workflow was resumed after the reset and completed (33 agents,
-770 tasks merged). The six post-verification fix agents then hit the *next* window and
-were re-applied manually afterwards.
-
-```text
-[write:PRD] failed: You've hit your session limit · resets 6:40pm (Asia/Jerusalem)
-[todo:01-Project] failed: You've hit your session limit · resets 6:40pm (Asia/Jerusalem)
-... (27/27 agents, run 1) ...
-[fix:PRD.md] failed: You've hit your session limit · resets 12:20am (Asia/Jerusalem)
-```
-
-**2. The lint gate caught a real naming violation (Phase 1).** First `ruff check` run:
-
-```text
-N811 Constant `VERSION` imported as non-constant `__version__`
- --> src\archlens\__init__.py:3:37
-Found 1 error.
-```
-
-Fixed by importing `get_version()` and assigning `__version__` — the gate, not review,
-caught it.
-
-**3. The pre-commit hook provably rejects bad commits (task 1.042).** A deliberate
-`import os` (unused, F401) was staged and committed; the hook blocked it — verified by
-`git log` showing no such commit exists.
-
-**4. mermaid-cli found two real diagram bugs the eye missed (task 2.021).**
-
-```text
-Error: Parse error on line 5: Expecting 'SEMI', 'NEWLINE', ... got 'GRAPH'
-Error: Parse error on line 19: Expecting '()', 'SOLID_OPEN_ARROW', ... got 'NEWLINE'
-```
-
-Causes: a flowchart node named `graph` (reserved keyword) and `&lt;`/`&gt;` HTML
-entities in a sequence-diagram message — the entity's `;` terminates a mermaid
-statement mid-line. Both fixed in PLAN.md; all 7 diagrams now compile.
-
-**5. The planned primary target repo failed its environment check (Phase 3).**
-PRD Appendix B originally proposed tqdm. Measured:
-
-```text
-$ uv sync   # inside the tqdm clone
-hint: The `requires-python` value (>=3.7) includes Python versions that are
-not supported by your dependencies (e.g., pytest-asyncio>=0.25.0,<=1.2.0
-only supports >=3.9).
-```
-
-httpie/thefuck are `setup.py`-only, so plain `uv sync` fails there too. The working
-uv-only strategy is an ephemeral env — and it flipped the recommendation to httpie:
-
-```text
-$ uv run --with-editable <httpie clone> --with pytest python -c "import httpie"
-Installed 21 packages in 743ms
-httpie import OK 3.2.4
-
-$ uv run --with-editable ".[dev]" --with pytest pytest tests -q --collect-only
-1028 tests collected in 1.13s
-
-$ uv run --with-editable ".[dev]" --with pytest pytest tests/test_compress.py -q
-16 passed, 1 warning in 2.88s
-```
-
-**6. A measurement pitfall: uv workspace discovery produced fake evidence.** The first
-`uv sync` runs inside `runs/eval/<repo>` silently resolved *ArchLens's own* project
-(the clones sat inside our workspace and two had no `[project]` table). Detected
-because no `.venv` appeared inside the clones; all evaluations were re-run isolated in
-the system temp directory. Full honest log trail: `docs/REPO_SELECTION.md` §3.
-
-### What is verifiable right now
-
-- `uv run pytest` — 936 tests across the repo module, the Graphify pipeline (models,
-  validating parser, node-link adapter, diff engine, orchestrator), the graph-analysis
-  engine, the Obsidian vault generator (hot.md golden file, broken-link/orphan validation,
-  deterministic rebuild), the LangGraph multi-agent orchestration (supervisor + 7 agents +
-  SqliteSaver checkpointing + human-approval interrupts), the improvement loop (fix
-  selection, graph-diff stop conditions, end-to-end convergence in ≤5 iterations), and the
-  rate-limited gatekeeper (sliding windows, FIFO never-reject queue, 50×20-thread safety) —
-  plus guard tests proving no module outside `gatekeeper/` touches subprocess/git or imports
-  an API client.
-- **The full pipeline run live, end to end, on a real clone** (no mocks in the structural
-  path): `uv run python src/main.py analyze` returns a real `AnalysisReport`
-  (2033 nodes / 4306 edges / 69 communities, real hubs + ~380 bottlenecks) and
-  `uv run python src/main.py loop` runs all seven agents to the 5-iteration hard cap with
-  4/5 stop conditions green. See "Running the full pipeline live" above.
-- A **real Graphify run** on the httpie clone (`graphify update`, no LLM): 2033 nodes,
-  4306 edges, 138 communities → ArchLens built a 138-page Obsidian vault that passes
-  validation (0 broken links, 0 orphans). See the correction note below.
-- `uv run python -c "..."` config-switch demo — primary `httpie/cli`, fallback
-  `psf/requests`, no code change needed (see `docs/REPO_SELECTION.md` §5).
-- Lecturer-approval gates (PRD, all-docs, target repo) are closed and recorded in
-  `docs/approvals/`.
-
-### Earlier gaps — now closed
-
-Real `graph.json` / `graph.html` / `GRAPH_REPORT.md` exist (httpie, under the git-ignored
-`runs/`), a real Obsidian vault was generated and validated, the real graph is charted in the
-**Analysis** section above, the **token-economics** before/after tables are measured (97.08%
-savings — see the Token economics section), and the full `analyze`/`loop` pipeline now runs
-end-to-end on a live clone (above). **Now closed too:** live `graph.html` and Obsidian-vault
-**screenshots** are captured from a real browser/Obsidian session (see the Screenshots section), and
-the **semantic** community-labelling pass runs live via OpenAI (gpt-4.1-mini). The applied, code-mutating refactor is now wired — RefactorAgent calls
-`sdk.apply_fix` and the loop reaches "stop conditions met" when the fix genuinely improves
-modularity — so the remaining gap is reliable convergence on arbitrary large repos (a smarter,
-behaviour-preserving transform than the current module split).
-
-**Evaluation-driven hardening (latest).** A materials-based review of this repo drove a further pass:
-the architecture **block diagram** now renders from the real node-link `graph.json` (was empty on the
-live graph); the Karpathy **LLM-Wiki raw layer** is populated (no dead links); the improvement-loop
-**SC-1 polarity** was reconciled across both stop-condition modules and dependency-loss is measured
-for real; the **governance layer** (EvidenceGate, three-tier guardrails + UndoRegistry, the
-human-approval interrupt node, the plugin registry) is now wired into the live orchestration, not
-test-only; stale research artifacts (`results/variance/summary.csv`, `docs/metrics/COST_TABLES.md`,
-the test report) were regenerated from real data; and the with/without-Graphify study is now a
-committed live artifact (`metrics/out/graph_vs_code.json`: 84.0% fewer tokens at equal quality).
-
-### Correction (2026-06-13): Graphify integration rebuilt against the real CLI, then run for real
-
-We got something wrong in Phase 4 and fixed it. Recorded honestly, with before/after.
-
-**What we did wrong.** The Phase 4 Graphify wrapper was built against an *assumed*
-five-stage interface, `graphify --stage <s> --repo <p> --depth <d>`, and was only ever
-exercised against hand-authored `graph.json` fixtures with a **mocked** subprocess. So:
-
-- Graphify was **never actually run**; the httpie repo was **never analyzed**; no real
-  `graph.json` existed.
-- The real tool — **`graphifyy`** on PyPI (command `graphify`, by Safi Shamsi, *not*
-  Dr. Yoram Segal, who only teaches with it) — has **no** `--stage`/`--repo`/`--depth`
-  flags. Its real `graph.json` is networkx node-link JSON: edges under `links` with
-  `source`/`target`, an **open** AST relation vocabulary (`calls`, `contains`,
-  `imports_from`, `inherits`, `re_exports`, ...), the evidence tier in `confidence` plus
-  a numeric `confidence_score`, and community membership as a per-node `community` id.
-  Our PRD-spec models (`from`/`to`, closed relation enum, float `confidence`) did not
-  match it.
-
-**What we did to fix it.**
-
-1. Installed the real tool the uv-compliant way, pinned: `uv tool install graphifyy==0.8.39`.
-2. Rewrote `graphops/cli_wrapper.py` + `gatekeeper/graphify_ops.py` to call the real
-   commands — `graphify update <repo>` for the structural, no-LLM pass (the "almost
-   free" AST analysis) and `graphify label` for the semantic community-naming pass — through
-   the gatekeeper, exactly like `git`.
-3. Added `graphops/adapter.py` (`load_graphify_graph`) that normalizes real node-link
-   output (and our canonical fixtures) into the `Graph` aggregate, and relaxed the
-   models to reality (`relation` is now an open string; nodes carry `label` /
-   `source_location`; the adapter pins EXTRACTED confidence and maps `file_type`).
-4. **Ran it for real** on the httpie clone and rebuilt the vault end-to-end.
-
-**Real-run evidence (no LLM / no API key — structural `graphify update`):**
-
-```text
-$ graphify update runs/run/target
-  AST extraction: 188/188 files (100%) [8 workers]
-[graphify watch] Rebuilt: 2033 nodes, 4306 edges, 138 communities
-  graph.json, graph.html and GRAPH_REPORT.md updated
-
-# ArchLens then consumed that real graph.json:
-REAL buggy-python graph: 19 nodes, 28 edges, 4 communities
-vault root: obsidian   graph artifacts: artifacts/
-raw/ files: ['GRAPH_REPORT.md', 'graph.json']
-VALIDATION ok: True | orphans: 0 | broken_links: 0 | lint: 0
-```
-
-The wrapper, adapter, and models are now exercised by unit tests *and* proven against a
-real 2033-node Graphify graph. `graph.html` / vault screenshots are now captured (see the
-Screenshots section), and the semantic community-labelling pass runs live via OpenAI (gpt-4.1-mini).
-
-## Installation
-
-```bash
-git clone https://github.com/SharbelMaroun/AI-Agent-Orchestration-HW4
-cd AI-Agent-Orchestration-HW4
-cp .env-example .env             # then fill in ANTHROPIC_API_KEY / GITHUB_TOKEN
-uv sync                          # install the locked environment from pyproject.toml + uv.lock
-```
-
-`.env` is git-ignored; only `.env-example` (dummy values) is tracked. No secret ever appears in
-code, config, logs, or docs. Everything runs through `uv run`.
-
-## CLI usage
-
-The CLI (`src/main.py`) is a thin argparse shell that delegates everything to `ArchLensSDK`.
-
-```bash
-$ uv run python src/main.py --version
-1.00
-```
-
-```bash
-uv run python src/main.py vault <graph.json>          # build the Obsidian vault from a graph
-uv run python src/main.py deliverables --graph <g.json> --src src --prd docs/PRD.md
-uv run python src/main.py analyze                     # Repo -> Graph -> Analyst report
-uv run python src/main.py tokens                      # token-savings report
-uv run python src/main.py loop                        # full multi-agent improvement loop
-uv run python src/main.py --loop                      # Phase-11 LoopController (real `uv run pytest` gate)
-```
-
-**Two loop entry points.** `loop` drives the full supervisor + seven-agent runner, whose QA step uses a
-dependency-free AST-parse gate (it cannot provision an arbitrary clone's bespoke venv — see bug-fix #6).
-`--loop` runs the Phase-11 `LoopController`, whose `TestGate` runs the target's **real `uv run pytest`**
-suite after every change and feeds SC-4. Both share the 5-iteration cap and the five stop conditions; a
-red gate fails SC-4 so the failing fix is never accepted (it stays isolated on its per-iteration feature
-branch — the undo path — and `git revert` is the history-preserving rollback for any committed iteration,
-covered by `tests/test_rollback.py` and `tests/test_red_gate_rollback.py`).
-
-### Screenshots
-
-The CLI image shows real command output; the `graph.html` and Obsidian graph below are now captured
-**live** from a real browser and Obsidian session on the httpie analysis.
-
-![ArchLens CLI run showing version and token-savings output](docs/screenshots/cli_run.png)
-*The thin CLI delegating to the SDK.*
-
-![Top-degree subgraph rendered from the real httpie graph.json](docs/screenshots/graph_html.png)
-*graph.html — the real 2033-node httpie dependency graph (top-degree subgraph).*
-
-![Obsidian vault index.md read-first hub](docs/screenshots/obsidian_vault.png)
-*The Obsidian vault's read-first `index.md` hub.*
-
-![Updated graph.html with OpenAI-labelled communities](docs/screenshots/graph.html_updated.png)
-*Live `graph.html` — the 2033-node httpie graph, communities now named by OpenAI (gpt-4.1-mini).*
-
-![Obsidian Graph View of the generated vault](docs/screenshots/obsidia_updated_graph.png)
-*Obsidian Graph View of the generated vault, navigated live.*
-
-## Architecture
-
-ArchLens is a LangGraph supervisor hub delegating to seven agents; all external calls route through
-the gatekeeper. See [docs/PRD.md](docs/PRD.md) and [docs/PLAN.md](docs/PLAN.md) for the full design.
-
-```mermaid
-graph TD
-    CLI[Thin CLI] --> SDK[ArchLensSDK]
-    SDK --> SUP[Supervisor]
-    SUP --> Repo[RepoAgent]
-    SUP --> Graph[GraphAgent]
-    SUP --> Analyst[AnalystAgent]
-    SUP --> Bug[BugHunterAgent]
-    SUP --> Refactor[RefactorAgent]
-    SUP --> QA[QAAgent]
-    SUP --> Metrics[MetricsAgent]
-    Repo --> GK[Gatekeeper]
-    Graph --> GK
-    Metrics --> GK
-    GK --> LLM[(Claude API)]
-    GK --> Git[(git / Graphify)]
-```
-
-## Configuration reference
-
-All behaviour is config-driven (no hardcoded values). The three config files and every key:
-
-### config/setup.json
-
-| Block | Keys | Effect |
-| --- | --- | --- |
-| (top) | `version`, `graphify_output_dir`, `obsidian_vault_dir` | config schema version + default Graphify/vault output roots |
-| `target_repo`, `fallback_repo` | `url`, `branch`, `pinned_commit`, `workdir_root`, `clone_depth`, `timeout_s`, `max_size_mb` | primary + fallback repo to clone, with sandbox root and size/time bounds |
-| `validation` | `python_min_share`, `min_file_count`, `max_file_count` | target-repo acceptance thresholds |
-| `graphify` | `binary`, `stages`, `output_root`, `timeout_s`, `analysis_depth`, `token_budget`, `llm_backend`, `llm_model` | Graphify CLI invocation; `analysis_depth=semantic` adds a `graphify label` community-naming pass via `llm_backend`/`llm_model` (shipped default OpenAI `gpt-4.1-mini`) |
-| `vault` | `vault_root`, `raw_dir_name`, `wiki_dir_name`, `hot_top_n`, `index_read_first_count` | Obsidian vault layout + hot/index sizing |
-| `analysis` | `confidence_floor`, `confidence_strong`, `duplicate_similarity_threshold` | edge-triage confidence band + duplicate threshold (0.91) |
-| `deliverables` | `output_dir`, `mermaid_direction`, `match_confidence_threshold` | reverse-engineering deliverable settings |
-| `sdk` | `default_analysis_depth`, `plugin_allowlist`, `vault_output_root`, `checkpoint_db` | SDK + LangGraph checkpointer settings |
-| `improvement_loop` | `max_iterations`, `priority_order`, `allowed_evidence_levels`, `branch_prefix` | loop cap (5), fix priority P1-P5, evidence gate |
-| `metrics` | `output_dir`, `baseline_ledger`, `assisted_ledger`, `metrics_json`, `savings_target_pct`, `max_wiki_pages`, `default_model` | token-measurement paths + 70% target |
-| `pricing` | `claude-opus-4-8`, `claude-sonnet-4-6`, `claude-haiku-4-5`, `gpt-4o`, `gpt-4o-mini`, `gpt-4.1-mini` (each `input_per_mtok`, `output_per_mtok`) | per-model USD/MTok pricing |
-| `knowledge_assets` | `raw_dir`, `wiki_dir`, `skills_dir`, `eval_task_set`, `metrics_output` | LLM-wiki + skills paths |
-| `sensitivity` | `run_count`, `analysis_depth`, `top_k_pages`, `rate_limit_rpm`, `similarity_threshold`, `baseline` | OAT ranges + baseline + repeat-run count |
-
-### config/rate_limits.json
-
-| Block | Keys | Effect |
-| --- | --- | --- |
-| (top) | `version` | schema version |
-| `rate_limits.services.default` | `requests_per_minute` (30), `requests_per_hour` (500), `concurrent_max` (5), `retry_after_seconds` (30), `max_retries` (3) | gatekeeper rate-limit policy |
-| `queue` | `max_depth`, `backpressure_warn_ratio` | FIFO overflow-queue depth + warn ratio |
-| `budget` | `token_budget`, `alert_ratio` | token-budget alert threshold |
-
-### config/logging_config.json
-
-| Block | Keys | Effect |
-| --- | --- | --- |
-| (top) | `version`, `disable_existing_loggers` | dictConfig v1 document |
-| `formatters.standard` | `format` | log line format |
-| `handlers.console`, `handlers.file` | `class`, `level`, `formatter`, (`filename`, `delay`) | console + file handlers |
-| `loggers.archlens` | `level`, `handlers`, `propagate` | the `archlens` logger config |
-
-## LLM modes (provider-agnostic live API vs offline mock)
-
-Every LLM call routes through the gatekeeper, which is **provider-agnostic** — it picks a client by
-*mode* (live/mock) and *provider* (Anthropic/OpenAI). The same `create(model, messages)` interface
-backs all three, so nothing downstream cares which provider answered.
-
-| `ARCHLENS_LLM_MODE` | Behaviour |
-| --- | --- |
-| `auto` (default) | **Live** API when any credential resolves, else the offline mock |
-| `live` | Always the real API (errors if no credential) |
-| `mock` | Always the offline mock (deterministic, no network) |
-
-| `ARCHLENS_LLM_PROVIDER` | Provider chosen |
-| --- | --- |
-| `auto` (default) | OpenAI when `OPENAI_API_KEY` is the key present; Anthropic otherwise (wins ties) |
-| `anthropic` | Force the Anthropic client (`ANTHROPIC_API_KEY` / `ANTHROPIC_AUTH_TOKEN`) |
-| `openai` | Force the OpenAI client (`OPENAI_API_KEY`) |
-
-A credential is detected from the **environment** only — `ANTHROPIC_API_KEY` / `ANTHROPIC_AUTH_TOKEN`
-**or** `OPENAI_API_KEY` (a real, non-`dummy` key) — typically via the git-ignored `.env`. No key is
-ever stored in code; the official SDK resolves it at call time.
-
-```bash
-# Use OpenAI (provider auto-detected from the key); pick a matching model:
-#   .env:  OPENAI_API_KEY=sk-...
-#          ARCHLENS_LLM_MODEL=gpt-4o
-uv run python src/main.py analyze          # AnalystAgent now calls GPT-4o for its read of the graph
-
-# Use Anthropic instead:
-#   .env:  ANTHROPIC_API_KEY=sk-ant-...     (ARCHLENS_LLM_MODEL defaults to the Anthropic model)
-uv run python src/main.py analyze          # AnalystAgent calls Claude
-
-# Force offline (no network, deterministic canned reply)
-ARCHLENS_LLM_MODE=mock uv run python src/main.py analyze
-```
-
-`ARCHLENS_LLM_MODEL` selects the model (so it matches your provider); it defaults to
-`config/setup.json` → `metrics.default_model`. Pricing rows for both providers' models live in the
-`pricing` block. Three agents now reason via the LLM through `sdk.ask_llm`: **AnalystAgent**
-(interprets the top hubs), **BugHunterAgent** (validates the worst bottleneck as a refactor target),
-and **RefactorAgent** (authors the fix rationale) — so `analyze`/`loop` genuinely invoke the active
-provider end to end. RefactorAgent also **applies** the fix: `sdk.apply_fix` → `RefactorFixes.break_bottleneck` inserts an
-interface **seam** and rewires the bottleneck's dependents off it (splitting the oversized module is
-the fallback when it has no dependents), GraphAgent re-graphifies and computes a real before/after
-diff, and `loop` reaches "stop conditions met" when the fix reduces inter-community edges. (Verified
-on httpie: `httpie/context.py` got a `context_interface.py` seam with its 26 dependents rewired,
-re-graphified, diffed — `modularity_improved` came back False, so the loop honestly hit the cap; the
-remaining target is a smarter behaviour-preserving transform than the current seam/split.)
-
-The measurement protocols also accept `live=True` (`sdk.run_baseline(..., live=True)`); the naive
-baseline sends ~148k tokens per question, so a full live baseline run costs real tokens. The tests
-always run in `mock` mode (pinned by an autouse fixture) so the suite stays offline and free.
-
-## Token economics
-
-The graph-first design is a direct response to the **"Lost in the Middle"** problem (Liu et al. 2024,
-the L07 §9 concept): LLMs attend most reliably to the **start** of the context and lose information
-buried in the middle of a long prompt. Rather than stuff the whole source tree into the window,
-ArchLens reads the `index.md` hub first and then ≤3 graph-scoped pages, keeping the highest-value
-evidence at the front — which is also what makes it cheap.
-
-Measured on the real httpie checkout (133 `.py` files), 10 standard architecture questions:
-
-| Protocol | Total input tokens | Per-question |
-| --- | --- | --- |
-| Baseline (naive full-context) | 1,368,538 | ~137k |
-| Graphify-assisted (index + ≤3 wiki + subgraph) | 39,950 | ~4.0k |
-
-**Token savings: 97.08%** (target ≥ 70%; real billed gpt-4.1-mini, $0.58). Even charging the one-time Graphify build cost (~136k
-tokens), the graph **breaks even after 2 queries**. Per-model USD cost tables are in
-`docs/metrics/COST_TABLES.md`; the full schema is `metrics/out/token_metrics.json`.
-
-![Break-even line chart: cumulative tokens vs query count, naive baseline vs graph-assisted](docs/assets/break_even_line.png)
-*Cumulative input tokens vs query count. The one-time Graphify build cost `T_build` (135,948 tokens) is
-the assisted curve's y-intercept; the curves cross at ~2 queries, after which graph-assisted retrieval
-is strictly cheaper. Rendered by `scripts/gen_charts.py` (`break_even_line`); also Figure 6 in
-`notebooks/archlens_analysis.ipynb`.*
-
-### Live cost: model selection (gpt-4o → gpt-4.1-mini)
-
-![OpenAI usage dashboard: high gpt-4o spend earlier, low gpt-4.1-mini spend now](docs/screenshots/openai_usage.png)
-*OpenAI usage dashboard — the earlier exploratory runs on **gpt-4o** (the high-spend days) versus the
-current measurement on **gpt-4.1-mini** (the low, flat spend).*
-
-The usage graph makes the cost optimisation concrete. The earlier agent and measurement runs on
-**gpt-4o** ($2.50 / $10.00 per 1M input/output tokens) produced the visible spend spike; repointing the
-LLM at **gpt-4.1-mini** ($0.40 / $1.60 per 1M — roughly **6× cheaper**) dropped daily usage to a flat
-low. The same ~1.4M-token baseline-vs-assisted study that would cost **~$3.7 on gpt-4o** ran for
-**$0.58 on gpt-4.1-mini** — an **~84% cost cut** with no measurable quality loss on these tasks. This
-is exactly the rubric §11 "select models by cost-benefit ratio" optimisation, shown end-to-end.
-
-A **live** evaluation measuring both tokens **and quality** (`sdk.compare_graph_vs_code`) answers the
-same architecture question from the graph neighbourhood vs the full source for the top 3 httpie
-bottlenecks, with an LLM judge scoring each. The committed run (`metrics/out/graph_vs_code.json`,
-live gpt-4.1-mini): **1,302 vs 8,125 tokens — 84.0% fewer — at equal quality (5.0 vs 5.0 / 5)**.
-Reproduce with `uv run python scripts/compare_graph_vs_code.py` (writes the JSON artifact).
-
-## Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for branch naming, PR review rules, commit style, and the
-uv-only policy. Every PR uses the gate checklist in
-[.github/PULL_REQUEST_TEMPLATE.md](.github/PULL_REQUEST_TEMPLATE.md) and must pass CI
-(ruff, coverage ≥ 85%, 150-line cap, forbidden-tooling, gitleaks).
-
-## License & credits
-
-- **License:** MIT (see `LICENSE`).
-- **Course materials:** Lecture 07 §11 and Parts A/B/C of the AI Agent Orchestration course.
-- **Graphify:** external code-graph CLI (`graphifyy` on PyPI, by Safi Shamsi).
-- **Target corpus:** `andela/buggy-python`, one of the PDF-listed debugging repositories.
-- **Third-party dependencies:** LangGraph, Anthropic SDK, NetworkX, Pydantic, matplotlib (see
-  `pyproject.toml` + `uv.lock`).
+Course: AI Agent Orchestration HW4 / EX04. Graph generation is based on Graphify-style artifacts.
+The submitted debugging corpus is `andela/buggy-python`. Dependencies are listed in
+`pyproject.toml` and locked in `uv.lock`.
