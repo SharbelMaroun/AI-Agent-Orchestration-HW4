@@ -8,6 +8,7 @@ quantifies what the wiki + skills add. Emits a schema-valid JSON document per ru
 import json
 from pathlib import Path
 
+from ..shared.config import check_config_version
 from .knowledge_scorers import (
     correct_file_identification,
     correct_tool_timing,
@@ -17,8 +18,10 @@ from .knowledge_scorers import (
 
 
 def load_tasks(path) -> list[dict]:
-    """Load the fixed evaluation task set (the ``tasks`` array)."""
-    return json.loads(Path(path).read_text(encoding="utf-8"))["tasks"]
+    """Load the fixed evaluation task set (the ``tasks`` array), validating its config version."""
+    raw = json.loads(Path(path).read_text(encoding="utf-8"))
+    check_config_version(raw.get("version", ""), str(path))  # runtime config-version match (R7)
+    return raw["tasks"]
 
 
 def _observe(task: dict, assisted: bool) -> dict:

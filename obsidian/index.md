@@ -17,6 +17,12 @@ fixed, defects in the leaves surface in turn.
 - [[suspects]] — candidate defect sites with graph evidence
 - [[repair]] — per-file root cause and the exact fix
 
+## Reverse engineering & findings
+- [[architecture]] — block + OOP-level diagrams of the target (EX04 §5.2)
+- [[localization]] — the BugLocalizer agent's graph-first output (EX04 §5.3)
+- [[findings]] — the eight §4 research questions, answered
+- [[tests]] — how the fix and the tooling are verified (EX04 §5.1)
+
 ## Artifacts
 - `../deliverables/BUG_REPORT.md` — full bug-analysis report (symptom → root cause → fix → verify)
 - `../artifacts/buggy-python-graph.json` — the Graphify graph (19 nodes / 28 edges / 4 communities)

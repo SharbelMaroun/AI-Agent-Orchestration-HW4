@@ -16,7 +16,7 @@ be split into many small, single-purpose modules and SDK mixins rather than a fe
 - **Token savings: 97.08%** — naive full-context baseline 1,368,538 tokens vs Graphify-assisted
   39,950 tokens over 10 standard questions on the real httpie checkout (real billed gpt-4.1-mini, $0.58).
   Break-even after **2 queries** even counting the one-time graph-build cost.
-- **Quality gates:** 930 tests green, 96.81% branch coverage, ruff 0 violations, every file <= 150
+- **Quality gates:** 936 tests green, 96.76% branch coverage, ruff 0 violations, every file <= 150
   lines, 3/3 analysis mutants killed.
 
 ## Lessons learned

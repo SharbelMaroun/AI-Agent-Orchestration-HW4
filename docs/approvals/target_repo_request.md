@@ -1,8 +1,8 @@
 # Target-Repository Approval Request
 
-> Version: 1.00 | Status: Prepared — pending send/approval | Course: AI Agent Orchestration — HW4 (EX04)
+> Version: 1.00 | Status: Sent 2026-06-13 — outcome recorded in `target_repo_approval.md` (2026-06-14) | Course: AI Agent Orchestration — HW4 (EX04)
 
-**Prepared:** 2026-06-13 (sent-date to be stamped on dispatch)
+**Prepared & sent:** 2026-06-13 | **Outcome:** approved 2026-06-14 (self-attested; see `target_repo_approval.md`)
 **To:** Course lecturer
 **From:** Sharbel Maroun
 **Subject:** EX04 target-repository approval (L07 §11 Core Task 1)
