@@ -16,23 +16,25 @@ uv run python scripts/compare_graph_vs_code.py [graph.json] [repo_path] [top_k]
 # defaults: runs/run/target/graphify-out/graph.json  runs/run/target  3   (needs a live key in .env)
 ```
 
-## Live result — real GPT-4o, top 3 bottlenecks of httpie
+## Live result — real gpt-4.1-mini, top 3 bottlenecks of httpie
+
+Committed artifact: `metrics/out/graph_vs_code.json` (regenerate with the command above).
 
 | Node | Quality WITH | Quality WITHOUT |
 | --- | :---: | :---: |
-| `utils_init_http` | 5 | 4 |
-| `httpie_context_environment` | 5 | 4 |
-| `utils_init_mockenvironment` | 4 | 5 |
+| `utils_init_http` | 5 | 5 |
+| `httpie_context_environment` | 5 | 5 |
+| `utils_init_mockenvironment` | 5 | 5 |
 
 | Metric | **With Graphify** (graph) | **Without Graphify** (full source) |
 | --- | ---: | ---: |
-| **Total tokens** (real) | **1,322** | **8,102** |
-| **Avg quality** (judge 1–5) | **4.67** | **4.33** |
+| **Total tokens** (real) | **1,302** | **8,125** |
+| **Avg quality** (judge 1–5) | **5.0** | **5.0** |
 
-**Result: 83.7% fewer tokens with Graphify, at equal-or-better quality (4.67 vs 4.33).** Reading the
-whole module costs ~6× more tokens and did **not** improve the diagnosis — the graph neighbourhood
-(degree, callers, dependencies) already carries what the model needs to name the coupling / god-object
-/ single-point-of-failure and propose the split. (The judge itself spent 892 tokens.)
+**Result: 84.0% fewer tokens with Graphify, at equal quality (5.0 vs 5.0).** Reading the whole module
+costs ~6× more tokens and did **not** improve the diagnosis — the graph neighbourhood (degree,
+callers, dependencies) already carries what the model needs to name the coupling / god-object /
+single-point-of-failure and propose the split. (The judge itself spent 897 tokens.)
 
 ## Relation to the formal economics
 

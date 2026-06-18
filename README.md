@@ -555,11 +555,11 @@ low. The same ~1.4M-token baseline-vs-assisted study that would cost **~$3.7 on 
 **$0.58 on gpt-4.1-mini** — an **~84% cost cut** with no measurable quality loss on these tasks. This
 is exactly the rubric §11 "select models by cost-benefit ratio" optimisation, shown end-to-end.
 
-A **live** evaluation measuring both tokens **and quality** (`docs/metrics/GRAPH_VS_CODE.md`,
-`sdk.compare_graph_vs_code`) answers the same architecture question from the graph neighbourhood vs
-the full source for the top 3 httpie bottlenecks, with an LLM judge scoring each: **1,322 vs 8,102
-tokens (83.7% fewer) at equal-or-better quality (4.67 vs 4.33 / 5)** —
-`uv run python scripts/compare_graph_vs_code.py`.
+A **live** evaluation measuring both tokens **and quality** (`sdk.compare_graph_vs_code`) answers the
+same architecture question from the graph neighbourhood vs the full source for the top 3 httpie
+bottlenecks, with an LLM judge scoring each. The committed run (`metrics/out/graph_vs_code.json`,
+live gpt-4.1-mini): **1,302 vs 8,125 tokens — 84.0% fewer — at equal quality (5.0 vs 5.0 / 5)**.
+Reproduce with `uv run python scripts/compare_graph_vs_code.py` (writes the JSON artifact).
 
 ## Contributing
 
