@@ -4,7 +4,7 @@ import hashlib
 from pathlib import Path
 
 from archlens.vault.layout import VaultLayout
-from archlens.vault.raw_ingest import ingest_raw
+from archlens.vault.raw_ingest import default_graph_raw_sources, ingest_raw
 
 GRAPHIFY = Path(__file__).resolve().parents[1] / "fixtures" / "graphify"
 
@@ -24,3 +24,18 @@ def test_no_wiki_page_writes_into_raw(vault_cfg):
     ingest_raw(layout, [GRAPHIFY / "full.json"])
     assert layout.raw_dir.is_dir()
     assert not any(p.suffix == ".md" and "wiki" in str(p) for p in layout.raw_dir.iterdir())
+
+
+def test_default_graph_raw_sources_includes_graph_and_sibling_report(tmp_path):
+    graph = tmp_path / "graph.json"
+    graph.write_text("{}", encoding="utf-8")
+    report = tmp_path / "GRAPH_REPORT.md"
+    report.write_text("# report", encoding="utf-8")
+    sources = default_graph_raw_sources(graph)
+    assert str(graph) in sources and str(report) in sources
+
+
+def test_default_graph_raw_sources_skips_missing_report(tmp_path):
+    graph = tmp_path / "graph.json"
+    graph.write_text("{}", encoding="utf-8")
+    assert default_graph_raw_sources(graph) == [str(graph)]  # no sibling report -> graph only

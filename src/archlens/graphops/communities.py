@@ -22,17 +22,56 @@ class LoadedCommunity:
 
 
 def load_communities(source: dict | str | Path) -> list[LoadedCommunity]:
-    """Parse the communities (cluster) section of a graph.json into LoadedCommunity records."""
+    """Parse the cluster section of a graph.json into LoadedCommunity records.
+
+    Supports both the canonical ``communities`` array and the NetworkX node-link format
+    `graphify update` emits, where membership lives on each node's ``community`` field.
+    """
     data = source if isinstance(source, dict) else json.loads(Path(source).read_text(encoding="utf-8"))
+    explicit = data.get("communities")
+    if explicit:
+        return [
+            LoadedCommunity(
+                community_id=c["community_id"],
+                label=c.get("label", c["community_id"]),
+                members=tuple(c.get("node_ids", [])),
+                inter_community_edge_count=c.get("inter_community_edge_count", 0),
+            )
+            for c in explicit
+        ]
+    return _communities_from_nodes(data.get("nodes", []))
+
+
+def _communities_from_nodes(nodes: list[dict]) -> list[LoadedCommunity]:
+    """Reconstruct communities from per-node ``community`` ids (node-link schema).
+
+    Each cluster is labelled by the leaf of its members' dominant source directory plus the
+    community id (kept unique), so the block diagram reads as folders rather than opaque ids.
+    """
+    groups: dict[object, list[tuple[str, str]]] = {}
+    for node in nodes:
+        cid = node.get("community")
+        if cid is not None:
+            groups.setdefault(cid, []).append((node["id"], node.get("source_file", "")))
     return [
         LoadedCommunity(
-            community_id=c["community_id"],
-            label=c.get("label", c["community_id"]),
-            members=tuple(c.get("node_ids", [])),
-            inter_community_edge_count=c.get("inter_community_edge_count", 0),
+            community_id=str(cid),
+            label=_community_label(cid, [sf for _, sf in members]),
+            members=tuple(nid for nid, _ in members),
+            inter_community_edge_count=0,
         )
-        for c in data.get("communities", [])
+        for cid, members in sorted(groups.items(), key=lambda kv: str(kv[0]))
     ]
+
+
+def _community_label(community_id: object, source_files: list[str]) -> str:
+    """Name a node-link community by the leaf of its dominant directory, suffixed with the id."""
+    folders = Counter(_folder(sf) for sf in source_files if sf)
+    if not folders:
+        return f"community-{community_id}"
+    dominant = min(folders, key=lambda folder: (-folders[folder], folder))
+    leaf = dominant.rsplit("/", 1)[-1] if dominant != "." else "root"
+    return f"{leaf} (c{community_id})"
 
 
 def _folder(source_file: str) -> str:

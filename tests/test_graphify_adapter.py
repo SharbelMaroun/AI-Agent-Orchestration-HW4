@@ -62,6 +62,30 @@ def test_maps_tier_and_pins_extracted_confidence():
     assert inferred.confidence == 0.7
 
 
+def test_handles_graphify_hyperedges_without_crashing():
+    """Real `graphify update` hyperedges use a `nodes` key, extra label/score fields, and
+    relations like `participate_in`/`form`; the adapter must map them, not raise ValidationError."""
+    source = {
+        "nodes": [{"id": "p", "label": "p", "file_type": "code", "source_file": "p.py", "community": 0}],
+        "links": [],
+        "hyperedges": [
+            {
+                "id": "h1",
+                "label": "context",
+                "nodes": ["p", "q"],
+                "relation": "participate_in",
+                "confidence": "EXTRACTED",
+                "confidence_score": 0.75,
+                "source_file": "docs/diagrams/x.svg",
+            }
+        ],
+    }
+    graph = load_graphify_graph(source)
+    assert len(graph.hyperedges) == 1
+    assert graph.hyperedges[0].member_node_ids == ["p", "q"]
+    assert graph.hyperedges[0].relation.value == "participate_in"
+
+
 def test_loads_canonical_from_to_format():
     canonical = {
         "nodes": [{"id": "x", "type": "code", "source_file": "x.py"}],

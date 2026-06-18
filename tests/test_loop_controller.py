@@ -64,12 +64,33 @@ def test_sdk_run_improvement_loop_delegates_to_controller():
     assert result.stop_reason == "queue_empty"
 
 
-def test_build_loop_deps_assembles_real_components(tmp_path):
-    deps = build_loop_deps(ArchLensSDK(), tmp_path, tmp_path)
+class _RecordingSDK:
+    """A fake SDK that records apply_fix calls and returns a re-graphify result (no subprocess)."""
+
+    def __init__(self, tmp_path):
+        self._tmp = tmp_path
+        self.applied: list[str] = []
+
+    def _config(self):
+        return ArchLensSDK()._config()
+
+    def apply_fix(self, fix, repo_path, graph_json=None):
+        self.applied.append(fix["fix_id"])
+        return True
+
+    def run_graphify_pipeline(self, repo_path):
+        return SimpleNamespace(graph_json=str(self._tmp / "after.json"))
+
+
+def test_build_loop_deps_wires_real_sdk_apply_and_regraph(tmp_path):
+    sdk = _RecordingSDK(tmp_path)
+    deps = build_loop_deps(sdk, tmp_path, tmp_path)
     assert isinstance(deps, LoopDeps)
     assert deps.evaluator.__class__.__name__ == "StopConditionEvaluator"
-    before, after = deps.regraph(tmp_path, 1)
-    assert before == after  # no structural change without an applied fix
-    assert deps.apply({"fix_id": "x"}, tmp_path) is None
+    # apply delegates to the SDK single writer (not a no-op), regraph re-runs the real pipeline.
+    assert deps.apply({"fix_id": "x"}, tmp_path) is True
+    assert sdk.applied == ["x"]
+    _before, after = deps.regraph(tmp_path, 1)
+    assert after == str(tmp_path / "after.json")
     report = deps.report(1, {"fix_id": "x"}, {"SC-1": True}, {"verdict": LoopVerdict.STOP})
     assert report.name == "iteration_01.md"

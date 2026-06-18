@@ -3,7 +3,8 @@
 Graphify's CLI has NO semantic edge-extraction command (the `/graphify` skill does that, not the
 flow). Its only LLM step is `graphify label`, which names communities with the configured backend.
 So the build is always the structural, no-LLM `graphify update`; when analysis_depth is semantic/full
-we ADDITIONALLY run `graphify label` (Gemini, cheapest model) to give communities readable names.
+we ADDITIONALLY run `graphify label` (configured backend; shipped default OpenAI gpt-4.1-mini) to
+give communities readable names.
 Graphify writes its artifacts (graph.json, graph.html, GRAPH_REPORT.md) to <repo>/graphify-out/.
 The actual semantic reverse engineering is done by the ArchLens LLM agents over the graph, not here.
 """

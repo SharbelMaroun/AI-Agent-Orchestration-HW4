@@ -30,3 +30,12 @@ def test_duplicate_ids_raise(tmp_path):
     bad.write_text(json.dumps({"version": "1.00", "questions": [dup, dup]}), encoding="utf-8")
     with pytest.raises(ValueError):
         load_questions(bad)
+
+
+def test_wrong_config_version_raises(tmp_path):
+    from archlens.shared.config import ConfigVersionError
+    bad = tmp_path / "questions.json"
+    one = {"id": "Q01", "text": "t", "expected_evidence": "hub"}
+    bad.write_text(json.dumps({"version": "9.99", "questions": [one]}), encoding="utf-8")
+    with pytest.raises(ConfigVersionError):  # runtime config-version validation (R7)
+        load_questions(bad)

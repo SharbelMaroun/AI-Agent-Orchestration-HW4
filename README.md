@@ -13,13 +13,14 @@ Full documentation lives in `docs/` (PRD, PLAN, specialized PRDs, TODO, prompt b
 
 1. [Quickstart (uv only)](#quickstart-uv-only)
 2. [Installation](#installation)
-3. [CLI usage](#cli-usage)
+3. [CLI usage](#cli-usage) — incl. [Screenshots](#screenshots)
 4. [Architecture](#architecture)
 5. [Configuration reference](#configuration-reference)
-6. [Token economics](#token-economics)
-7. [Report](#report)
-8. [Contributing](#contributing)
-9. [License & credits](#license--credits)
+6. [LLM modes (provider-agnostic live API vs offline mock)](#llm-modes-provider-agnostic-live-api-vs-offline-mock)
+7. [Token economics](#token-economics)
+8. [Report](#report)
+9. [Contributing](#contributing)
+10. [License & credits](#license--credits)
 
 ## Quickstart (uv only)
 
@@ -45,9 +46,9 @@ which gives communities readable names. So:
 
 - **`analysis_depth: "structural"`** — runs `graphify update` only. No LLM, no key, free.
 - **`analysis_depth: "semantic"` (default)** — *additionally* runs `graphify label` to name communities via
-  `llm_backend`/`llm_model` (default **Gemini `gemini-3-flash-preview`** — the Gemini 3 flash/light
-  tier). Graphify supports **Gemini, not OpenAI**, so this needs a `GEMINI_API_KEY`; if the quota is
-  exhausted Graphify falls back to `Community N` placeholders.
+  `llm_backend`/`llm_model` (shipped default **OpenAI `gpt-4.1-mini`**, as set in `config/setup.json`),
+  which needs an `OPENAI_API_KEY`; if the quota is exhausted Graphify falls back to `Community N`
+  placeholders. (A `GEMINI_API_KEY` backend is also supported but is not the shipped default.)
 
 The **actual semantic reverse engineering** — finding the architectural problems — is done by the
 ArchLens **LLM agents reasoning over the graph** (with your OpenAI key), not by Graphify. See the
@@ -105,8 +106,8 @@ upload, which only the submitter can do). All lecturer-approval gates were grant
 
 ```text
 $ uv run pytest --cov=archlens --cov-branch
-851 passed in 15.41s
-Required test coverage of 85.0% reached. Total coverage: 97.33%
+930 passed
+Required test coverage of 85.0% reached. Total coverage: 96.8%
 
 $ uv run ruff check .
 All checks passed!
@@ -276,7 +277,7 @@ the system temp directory. Full honest log trail: `docs/REPO_SELECTION.md` §3.
 
 ### What is verifiable right now
 
-- `uv run pytest` — 851 tests across the repo module, the Graphify pipeline (models,
+- `uv run pytest` — 930 tests across the repo module, the Graphify pipeline (models,
   validating parser, node-link adapter, diff engine, orchestrator), the graph-analysis
   engine, the Obsidian vault generator (hot.md golden file, broken-link/orphan validation,
   deterministic rebuild), the LangGraph multi-agent orchestration (supervisor + 7 agents +
@@ -312,6 +313,16 @@ the **semantic** community-labelling pass runs live via OpenAI (gpt-4.1-mini). T
 modularity — so the remaining gap is reliable convergence on arbitrary large repos (a smarter,
 behaviour-preserving transform than the current module split).
 
+**Evaluation-driven hardening (latest).** A materials-based review of this repo drove a further pass:
+the architecture **block diagram** now renders from the real node-link `graph.json` (was empty on the
+live graph); the Karpathy **LLM-Wiki raw layer** is populated (no dead links); the improvement-loop
+**SC-1 polarity** was reconciled across both stop-condition modules and dependency-loss is measured
+for real; the **governance layer** (EvidenceGate, three-tier guardrails + UndoRegistry, the
+human-approval interrupt node, the plugin registry) is now wired into the live orchestration, not
+test-only; stale research artifacts (`results/variance/summary.csv`, `docs/metrics/COST_TABLES.md`,
+the test report) were regenerated from real data; and the with/without-Graphify study is now a
+committed live artifact (`metrics/out/graph_vs_code.json`: 84.0% fewer tokens at equal quality).
+
 ### Correction (2026-06-13): Graphify integration rebuilt against the real CLI, then run for real
 
 We got something wrong in Phase 4 and fixed it. Recorded honestly, with before/after.
@@ -336,8 +347,8 @@ exercised against hand-authored `graph.json` fixtures with a **mocked** subproce
 1. Installed the real tool the uv-compliant way, pinned: `uv tool install graphifyy==0.8.39`.
 2. Rewrote `graphops/cli_wrapper.py` + `gatekeeper/graphify_ops.py` to call the real
    commands — `graphify update <repo>` for the structural, no-LLM pass (the "almost
-   free" AST analysis) and `graphify extract` for the semantic pass — through the
-   gatekeeper, exactly like `git`.
+   free" AST analysis) and `graphify label` for the semantic community-naming pass — through
+   the gatekeeper, exactly like `git`.
 3. Added `graphops/adapter.py` (`load_graphify_graph`) that normalizes real node-link
    output (and our canonical fixtures) into the `Graph` aggregate, and relaxed the
    models to reality (`relation` is now an open string; nodes carry `label` /
@@ -446,14 +457,14 @@ All behaviour is config-driven (no hardcoded values). The three config files and
 | (top) | `version`, `graphify_output_dir`, `obsidian_vault_dir` | config schema version + default Graphify/vault output roots |
 | `target_repo`, `fallback_repo` | `url`, `branch`, `pinned_commit`, `workdir_root`, `clone_depth`, `timeout_s`, `max_size_mb` | primary + fallback repo to clone, with sandbox root and size/time bounds |
 | `validation` | `python_min_share`, `min_file_count`, `max_file_count` | target-repo acceptance thresholds |
-| `graphify` | `binary`, `stages`, `output_root`, `timeout_s`, `analysis_depth`, `token_budget`, `llm_backend`, `llm_model` | Graphify CLI invocation; `analysis_depth=semantic` adds a `graphify label` community-naming pass via `llm_backend`/`llm_model` (default Gemini 3 flash, `gemini-3-flash-preview`) |
+| `graphify` | `binary`, `stages`, `output_root`, `timeout_s`, `analysis_depth`, `token_budget`, `llm_backend`, `llm_model` | Graphify CLI invocation; `analysis_depth=semantic` adds a `graphify label` community-naming pass via `llm_backend`/`llm_model` (shipped default OpenAI `gpt-4.1-mini`) |
 | `vault` | `vault_root`, `raw_dir_name`, `wiki_dir_name`, `hot_top_n`, `index_read_first_count` | Obsidian vault layout + hot/index sizing |
 | `analysis` | `confidence_floor`, `confidence_strong`, `duplicate_similarity_threshold` | edge-triage confidence band + duplicate threshold (0.91) |
 | `deliverables` | `output_dir`, `mermaid_direction`, `match_confidence_threshold` | reverse-engineering deliverable settings |
 | `sdk` | `default_analysis_depth`, `plugin_allowlist`, `vault_output_root`, `checkpoint_db` | SDK + LangGraph checkpointer settings |
 | `improvement_loop` | `max_iterations`, `priority_order`, `allowed_evidence_levels`, `branch_prefix` | loop cap (5), fix priority P1-P5, evidence gate |
 | `metrics` | `output_dir`, `baseline_ledger`, `assisted_ledger`, `metrics_json`, `savings_target_pct`, `max_wiki_pages`, `default_model` | token-measurement paths + 70% target |
-| `pricing` | `claude-opus-4-8`, `claude-sonnet-4-6`, `claude-haiku-4-5` (each `input_per_mtok`, `output_per_mtok`) | per-model USD/MTok pricing |
+| `pricing` | `claude-opus-4-8`, `claude-sonnet-4-6`, `claude-haiku-4-5`, `gpt-4o`, `gpt-4o-mini`, `gpt-4.1-mini` (each `input_per_mtok`, `output_per_mtok`) | per-model USD/MTok pricing |
 | `knowledge_assets` | `raw_dir`, `wiki_dir`, `skills_dir`, `eval_task_set`, `metrics_output` | LLM-wiki + skills paths |
 | `sensitivity` | `run_count`, `analysis_depth`, `top_k_pages`, `rate_limit_rpm`, `similarity_threshold`, `baseline` | OAT ranges + baseline + repeat-run count |
 
@@ -516,13 +527,13 @@ ARCHLENS_LLM_MODE=mock uv run python src/main.py analyze
 `pricing` block. Three agents now reason via the LLM through `sdk.ask_llm`: **AnalystAgent**
 (interprets the top hubs), **BugHunterAgent** (validates the worst bottleneck as a refactor target),
 and **RefactorAgent** (authors the fix rationale) — so `analyze`/`loop` genuinely invoke the active
-provider end to end. RefactorAgent also **applies** the fix: `sdk.apply_fix` →
-`RefactorFixes.split_module` rewrites the target module on disk, GraphAgent re-graphifies and
-computes a real before/after diff, and `loop` reaches "stop conditions met" when the fix reduces
-inter-community edges. (Verified on httpie: `httpie/context.py` was really split into
-`context_part1/2.py`, re-graphified, diffed — `modularity_improved` came back False, so the loop
-honestly hit the cap; the remaining target is a smarter behaviour-preserving transform than a raw
-split, plus the semantic `graphify extract` pass.)
+provider end to end. RefactorAgent also **applies** the fix: `sdk.apply_fix` → `RefactorFixes.break_bottleneck` inserts an
+interface **seam** and rewires the bottleneck's dependents off it (splitting the oversized module is
+the fallback when it has no dependents), GraphAgent re-graphifies and computes a real before/after
+diff, and `loop` reaches "stop conditions met" when the fix reduces inter-community edges. (Verified
+on httpie: `httpie/context.py` got a `context_interface.py` seam with its 26 dependents rewired,
+re-graphified, diffed — `modularity_improved` came back False, so the loop honestly hit the cap; the
+remaining target is a smarter behaviour-preserving transform than the current seam/split.)
 
 The measurement protocols also accept `live=True` (`sdk.run_baseline(..., live=True)`); the naive
 baseline sends ~148k tokens per question, so a full live baseline run costs real tokens. The tests
@@ -554,11 +565,11 @@ low. The same ~1.4M-token baseline-vs-assisted study that would cost **~$3.7 on 
 **$0.58 on gpt-4.1-mini** — an **~84% cost cut** with no measurable quality loss on these tasks. This
 is exactly the rubric §11 "select models by cost-benefit ratio" optimisation, shown end-to-end.
 
-A **live** evaluation measuring both tokens **and quality** (`docs/metrics/GRAPH_VS_CODE.md`,
-`sdk.compare_graph_vs_code`) answers the same architecture question from the graph neighbourhood vs
-the full source for the top 3 httpie bottlenecks, with an LLM judge scoring each: **1,322 vs 8,102
-tokens (83.7% fewer) at equal-or-better quality (4.67 vs 4.33 / 5)** —
-`uv run python scripts/compare_graph_vs_code.py`.
+A **live** evaluation measuring both tokens **and quality** (`sdk.compare_graph_vs_code`) answers the
+same architecture question from the graph neighbourhood vs the full source for the top 3 httpie
+bottlenecks, with an LLM judge scoring each. The committed run (`metrics/out/graph_vs_code.json`,
+live gpt-4.1-mini): **1,302 vs 8,125 tokens — 84.0% fewer — at equal quality (5.0 vs 5.0 / 5)**.
+Reproduce with `uv run python scripts/compare_graph_vs_code.py` (writes the JSON artifact).
 
 ## Contributing
 

@@ -53,6 +53,8 @@ DELIVERABLES_DIR = "deliverables"
 ARCHITECTURE_MD = "ARCHITECTURE.md"
 CLASS_SCHEMA_MD = "CLASS_SCHEMA.md"
 ALIGNMENT_AUDIT_MD = "ALIGNMENT_AUDIT.md"
+# Macro block diagram caps to the N largest communities for readability; the table keeps all.
+ARCHITECTURE_MAX_BLOCKS = 25
 EVIDENCE_TAGS = ("OBSERVED", "INFERRED", "EXTRACTED", "VALIDATED")
 
 # Phase 8 SDK-layer constants
@@ -132,6 +134,8 @@ class Relation(str, Enum):
     READS = "reads"
     DEFINES = "defines"
     AMBIGUOUS = "ambiguous"
+    PARTICIPATE_IN = "participate_in"
+    FORM = "form"
 
 
 class RationaleSubtype(str, Enum):

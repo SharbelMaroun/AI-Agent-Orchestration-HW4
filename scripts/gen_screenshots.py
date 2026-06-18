@@ -41,6 +41,13 @@ def cli_run() -> None:
     _text_image("ArchLens CLI run", body, OUT / "cli_run.png")
 
 
+def cli_help() -> None:
+    """Capture the live `archlens --help` so the documented screenshot never drifts behind the CLI."""
+    out = subprocess.run([sys.executable, str(ROOT / "src" / "main.py"), "--help"],
+                         cwd=ROOT, capture_output=True, text=True)
+    _text_image("ArchLens CLI — archlens --help", out.stdout.strip(), OUT / "cli_help_after.png")
+
+
 def graph_html() -> None:
     data = json.loads(GRAPH.read_text(encoding="utf-8"))
     graph = nx.DiGraph()
@@ -63,8 +70,12 @@ def obsidian_vault() -> None:
 def main() -> int:
     OUT.mkdir(parents=True, exist_ok=True)
     cli_run()
-    graph_html()
-    obsidian_vault()
+    cli_help()
+    for render in (graph_html, obsidian_vault):  # tolerate missing gitignored runs/ artifacts
+        try:
+            render()
+        except (OSError, KeyError, ValueError) as exc:
+            print(f"skipped {render.__name__}: {exc}")
     print("screenshots:", sorted(p.name for p in OUT.glob("*.png")))
     return 0
 

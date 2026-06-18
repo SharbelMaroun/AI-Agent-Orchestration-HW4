@@ -8,6 +8,7 @@ falls back to splitting the oversized module.
 
 from pathlib import Path
 
+from ..agents.guardrails import UndoRegistry
 from ..agents.refactor_fixes import RefactorFixes
 from ..graphops.errors import GraphSchemaError
 from ..graphops.loader import load_graph
@@ -33,12 +34,21 @@ class RefactorMixin:
     """Single-entry application of a structural fix to a cloned repo."""
 
     def apply_fix(self, finding: dict, repo_path: str, graph_json=None) -> bool:
-        """Apply the fix for ``finding`` under ``repo_path``; return True if a file was rewritten."""
+        """Apply the fix for ``finding`` under ``repo_path``; return True if a file was rewritten.
+
+        Every file is snapshotted into an UndoRegistry before it is rewritten (the reversible-action
+        guardrail), so ``undo_last_fix()`` can restore the checkout byte-for-byte if a gate later fails.
+        """
         repo = Path(repo_path or "")
         target = repo / finding.get("source_file", "")
         if not target.is_file():
             return False
         dependents = _dependents(graph_json, finding, repo)
+        undo = UndoRegistry()
+        undo.snapshot(target)
+        for dep in dependents:
+            undo.snapshot(dep)
+        self._undo = undo
         try:
             if dependents:
                 RefactorFixes().break_bottleneck(target, dependents)  # interface seam (decouple)
@@ -46,4 +56,12 @@ class RefactorMixin:
                 RefactorFixes().split_module(target)  # fallback: split the oversized module
         except (OSError, ValueError, SyntaxError):
             return False
+        return True
+
+    def undo_last_fix(self) -> bool:
+        """Roll back every file the last apply_fix snapshotted; True if an undo registry existed."""
+        undo = getattr(self, "_undo", None)
+        if undo is None:
+            return False
+        undo.rollback_all()
         return True

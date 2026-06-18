@@ -2,16 +2,24 @@
 
 Version: 1.00 | Course: AI Agent Orchestration — HW4 (EX04)
 
-Totals: 737 passed, 0 failed.
+Totals: 930 passed, 0 failed.
 
 | Test | Expected | Status |
 |---|---|---|
 | test_graph_agent_builds_vault | - | PASS |
+| test_clean_tree_is_green | - | PASS |
+| test_syntax_error_is_counted_and_not_green | - | PASS |
+| test_dotgit_directory_is_ignored | - | PASS |
+| test_missing_path_is_vacuously_green | - | PASS |
+| test_none_path_is_vacuously_green | - | PASS |
 | test_every_community_appears_exactly_once_as_a_mermaid_node | - | PASS |
 | test_pipeline_emits_a_fenced_diagram_with_an_edge | - | PASS |
+| test_real_nodelink_schema_renders_non_empty_diagram | - | PASS |
 | test_block_model_has_one_block_per_community | - | PASS |
 | test_block_member_counts_match_communities | - | PASS |
 | test_inter_block_edge_weight_is_aggregated_and_directed | - | PASS |
+| test_top_block_model_keeps_largest_blocks_and_inner_edges | - | PASS |
+| test_top_block_model_no_op_when_within_limit | - | PASS |
 | test_structural_bridge_detected_on_barbell | - | PASS |
 | test_community_connector_detected_on_two_community | - | PASS |
 | test_bridge_report_keeps_structural_and_connector_in_separate_sections | - | PASS |
@@ -82,6 +90,8 @@ Totals: 737 passed, 0 failed.
 | test_rejects_confidence_above_one | - | PASS |
 | test_rejects_confidence_below_zero | - | PASS |
 | test_rejects_unknown_relation | - | PASS |
+| test_loads_real_graphify_node_link_format | - | PASS |
+| test_native_unknown_tier_falls_back_to_ambiguous | - | PASS |
 | test_error_lists_every_offending_edge | - | PASS |
 | test_render_is_a_fenced_mermaid_flowchart | - | PASS |
 | test_one_node_per_block_with_member_counts | - | PASS |
@@ -125,12 +135,14 @@ Totals: 737 passed, 0 failed.
 | test_run_loop_reaches_hard_cap_when_stop_never_met | - | PASS |
 | test_run_loop_exits_early_when_stop_conditions_met | - | PASS |
 | test_build_vault_produces_artifacts | - | PASS |
+| test_build_vault_auto_populates_raw_layer_from_graph | - | PASS |
 | test_alignment_audit_aggregates_all_sections | - | PASS |
 | test_alignment_audit_flags_gatekeeper_requirement_as_gap | - | PASS |
 | test_alignment_audit_reports_orphan_modules | - | PASS |
 | test_sdk_generates_block_diagram_from_graph_json | - | PASS |
 | test_sdk_block_diagram_honors_explicit_direction | - | PASS |
 | test_sdk_extracts_class_model_and_diagram | - | PASS |
+| test_sdk_run_quality_gates_parses_a_clean_tree | - | PASS |
 | test_by_agent_breakdown_covers_all_agents | - | PASS |
 | test_by_model_breakdown_and_costs | - | PASS |
 | test_grand_total_sums_everything | - | PASS |
@@ -148,6 +160,7 @@ Totals: 737 passed, 0 failed.
 | test_exact_division_break_even | - | PASS |
 | test_non_positive_savings_returns_none | - | PASS |
 | test_analyst_emits_expected_categories | - | PASS |
+| test_analyst_includes_an_llm_summary_finding | - | PASS |
 | test_analyst_findings_are_tagged_from_analyst | - | PASS |
 | test_payload_assembly_carries_model_and_max_tokens | - | PASS |
 | test_429_maps_to_rate_limited | - | PASS |
@@ -156,10 +169,22 @@ Totals: 737 passed, 0 failed.
 | test_error_classes_are_upstream_api_errors | - | PASS |
 | test_api_key_read_from_environment | - | PASS |
 | test_no_api_call_sites_outside_gatekeeper | no external-client call sites in any non-gatekeeper module. | PASS |
+| test_apply_fix_splits_a_real_module_and_reports_success | - | PASS |
+| test_apply_fix_is_a_safe_noop_when_the_file_is_missing | - | PASS |
+| test_undo_last_fix_restores_the_files_byte_for_byte | - | PASS |
+| test_undo_last_fix_is_a_safe_noop_before_any_apply | - | PASS |
+| test_apply_fix_inserts_a_seam_and_rewires_dependents_when_the_graph_has_them | - | PASS |
 | test_pause_on_irreversible_action | - | PASS |
 | test_approve_path_records_decision | - | PASS |
 | test_reject_path_blocks_the_write | - | PASS |
 | test_register_copies_and_checksums_graph_html | - | PASS |
+| test_ask_llm_returns_text_via_the_gatekeeper_in_mock_mode | - | PASS |
+| test_ask_llm_accepts_a_system_prompt | - | PASS |
+| test_extract_text_reads_dot_text_shape | - | PASS |
+| test_extract_text_reads_anthropic_content_blocks | - | PASS |
+| test_extract_text_empty_response_is_empty_string | - | PASS |
+| test_resolve_model_prefers_env_override | - | PASS |
+| test_resolve_model_falls_back_to_config_default | - | PASS |
 | test_index_is_read_first | - | PASS |
 | test_wiki_pages_capped_at_three | - | PASS |
 | test_relevant_wiki_selected_by_keywords | - | PASS |
@@ -178,16 +203,35 @@ Totals: 737 passed, 0 failed.
 | test_budget_disabled_never_alerts_and_never_raises | - | PASS |
 | test_bughunter_emits_only_valid_evidence_findings | - | PASS |
 | test_bughunter_reports_spof_and_god_node | - | PASS |
+| test_bughunter_escalates_the_top_bottleneck_to_a_validated_llm_review | - | PASS |
+| test_spof_finding_carries_real_citation_confidence_not_a_fixed_0_95 | - | PASS |
+| test_healthy_hubs_are_emitted_as_observed_findings | - | PASS |
 | test_call_record_has_all_six_fields | - | PASS |
 | test_exactly_one_json_record_emitted | - | PASS |
 | test_api_key_value_is_redacted | - | PASS |
+| test_chart_writes_non_empty_png[bar-<lambda>] | - | PASS |
+| test_chart_writes_non_empty_png[line-<lambda>] | - | PASS |
+| test_chart_writes_non_empty_png[scatter-<lambda>] | - | PASS |
+| test_chart_writes_non_empty_png[heatmap-<lambda>] | - | PASS |
+| test_chart_writes_non_empty_png[box-<lambda>] | - | PASS |
+| test_chart_writes_non_empty_png[waterfall-<lambda>] | - | PASS |
 | test_both_charts_created_non_empty | - | PASS |
+| test_repo_is_clean_of_forbidden_tooling | - | PASS |
+| test_seeded_command_flagged | - | PASS |
+| test_prohibition_statements_allowlisted | - | PASS |
+| test_blank_and_comment_lines_excluded | - | PASS |
+| test_tests_directory_is_in_default_scope | - | PASS |
+| test_over_cap_file_flagged | - | PASS |
 | test_saver_uses_the_configured_db_path | - | PASS |
 | test_interrupt_after_graph_resumes_at_analyst_with_restored_state | - | PASS |
 | test_version_prints_and_exits_zero | - | PASS |
 | test_vault_help_exits_zero | - | PASS |
 | test_vault_subcommand_delegates_to_sdk | - | PASS |
 | test_no_args_prints_help_and_exits_zero | - | PASS |
+| test_help_lists_usage_examples | --help text includes runnable example invocations (H10 fix). | PASS |
+| test_help_names_every_subcommand | every subcommand appears in the help text. | PASS |
+| test_invalid_subcommand_is_actionable | an invalid subcommand exits non-zero and lists the valid choices. | PASS |
+| test_version_flag_prints_and_exits_zero | --version prints the version and returns 0. | PASS |
 | test_fake_clock_advance_moves_time_without_real_sleep | - | PASS |
 | test_fake_clock_sleep_advances_virtual_time | - | PASS |
 | test_system_clock_now_is_monotonic_non_decreasing | - | PASS |
@@ -224,6 +268,9 @@ Totals: 737 passed, 0 failed.
 | test_no_new_isolated_components_when_still_connected | - | PASS |
 | test_dtos_and_exceptions_have_docstrings | - | PASS |
 | test_sdk_public_methods_have_docstrings | - | PASS |
+| test_loads_non_empty_keys | - | PASS |
+| test_does_not_override_existing_env | - | PASS |
+| test_missing_file_is_noop | - | PASS |
 | test_drain_dispatches_in_fifo_order | - | PASS |
 | test_drain_waits_for_window_then_dispatches_all | - | PASS |
 | test_requeue_order_enters_at_tail | - | PASS |
@@ -318,16 +365,21 @@ Totals: 737 passed, 0 failed.
 | test_total_cost_sums_entries | - | PASS |
 | test_execute_appends_one_usage_entry_with_all_fields | - | PASS |
 | test_execute_records_one_entry_per_call | - | PASS |
+| test_get_queue_status_reports_depth_and_capacity | - | PASS |
 | test_50_threads_20_calls_record_1000_consistent_entries | - | PASS |
 | test_graph_node_stores_snapshot | - | PASS |
 | test_snapshot_id_increments_per_run | - | PASS |
+| test_resolves_real_graphify_output_path_and_counts | - | PASS |
 | test_graph_contains_supervisor_and_seven_agents | - | PASS |
+| test_graph_includes_the_human_approval_node | - | PASS |
 | test_supervisor_is_reachable_from_start | - | PASS |
 | test_mermaid_export_names_all_nodes | - | PASS |
 | test_model_exposes_all_stop_condition_fields | - | PASS |
 | test_diff_counts_between_fixtures | - | PASS |
 | test_moved_load_is_not_reported_as_dependency_loss | - | PASS |
 | test_true_dependency_loss_is_detected | - | PASS |
+| test_post_fix_regraph_computes_modularity_improvement | - | PASS |
+| test_first_graph_has_no_diff | - | PASS |
 | test_parse_full_fixture_counts | - | PASS |
 | test_parse_minimal_fixture | - | PASS |
 | test_malformed_fixture_raises_graph_parse_error | - | PASS |
@@ -336,13 +388,19 @@ Totals: 737 passed, 0 failed.
 | test_rerun_runs_the_five_stages_in_order | - | PASS |
 | test_rerun_creates_iteration_dir_with_fresh_graph_json | - | PASS |
 | test_rerun_raises_when_an_artifact_is_missing | - | PASS |
+| test_parse_scores_reads_the_two_ratings | - | PASS |
+| test_compare_evaluates_both_modes_and_aggregates | - | PASS |
+| test_sdk_entry_point_delegates | - | PASS |
 | test_loads_nodelink_format | - | PASS |
 | test_maps_file_type_to_node_type | - | PASS |
 | test_maps_tier_and_pins_extracted_confidence | - | PASS |
+| test_handles_graphify_hyperedges_without_crashing | - | PASS |
 | test_loads_canonical_from_to_format | - | PASS |
 | test_build_argv_uses_real_graphify_command | - | PASS |
-| test_structural_uses_update_and_semantic_uses_extract | - | PASS |
+| test_build_command_is_always_update | - | PASS |
 | test_run_delegates_to_gatekeeper | - | PASS |
+| test_structural_runs_only_update_no_llm | - | PASS |
+| test_semantic_also_labels_with_the_configured_gemini_model | - | PASS |
 | test_load_graphify_from_real_setup | - | PASS |
 | test_setup_config_embeds_graphify | - | PASS |
 | test_unknown_key_rejected | - | PASS |
@@ -369,6 +427,9 @@ Totals: 737 passed, 0 failed.
 | test_improvement_loop_block_present_with_all_keys | - | PASS |
 | test_priority_order_covers_p1_through_p5 | - | PASS |
 | test_max_iterations_matches_hard_cap_constant | - | PASS |
+| test_index_links_two_to_three_wiki_pages_per_topic | - | PASS |
+| test_index_caps_topic_links_at_three | - | PASS |
+| test_index_is_read_first_hub | - | PASS |
 | test_sample_repo_seeds_god_module_and_duplicate_pair | - | PASS |
 | test_full_pipeline_terminates_within_five_iterations | - | PASS |
 | test_analysis_chain_enforces_evidence_and_guardrails | - | PASS |
@@ -377,12 +438,31 @@ Totals: 737 passed, 0 failed.
 | test_conforming_class_satisfies_protocol | - | PASS |
 | test_missing_method_fails_protocol | - | PASS |
 | test_missing_rate_limit_hook_fails_protocol | - | PASS |
+| test_table_covers_all_eight_iso_characteristics | - | PASS |
+| test_measured_values_are_filled_from_metrics | - | PASS |
 | test_branch_name_zero_pads_and_slugifies | - | PASS |
 | test_create_checks_out_fix_iter_branch | - | PASS |
 | test_create_iteration_two_zero_pads | - | PASS |
 | test_report_writes_iteration_file_with_table_and_log | - | PASS |
 | test_report_computes_numeric_delta | - | PASS |
 | test_report_includes_decision_and_citation | - | PASS |
+| test_load_tasks_has_ten | - | PASS |
+| test_run_eval_records_four_scores_and_tokens_per_task | - | PASS |
+| test_assisted_beats_baseline_and_uses_fewer_tokens | - | PASS |
+| test_score_task_and_write_round_trip | - | PASS |
+| test_weakest_metric_picks_lowest | - | PASS |
+| test_stops_when_target_met | - | PASS |
+| test_stops_after_max_cycles | - | PASS |
+| test_cycle_logs_each_correction | - | PASS |
+| test_valid_rubric_has_four_metrics_and_total | - | PASS |
+| test_score_out_of_range_rejected | - | PASS |
+| test_missing_rationale_rejected | - | PASS |
+| test_unknown_metric_rejected | - | PASS |
+| test_rubric_requires_exactly_the_four_metrics | - | PASS |
+| test_source_traceability_boundaries | - | PASS |
+| test_noise_reduction_boundaries | - | PASS |
+| test_correct_file_identification_boundaries | - | PASS |
+| test_correct_tool_timing_boundaries | - | PASS |
 | test_entry_total_tokens_sums_input_and_output | - | PASS |
 | test_entry_rejects_negative_tokens | - | PASS |
 | test_entry_requires_agent_model_protocol | - | PASS |
@@ -401,6 +481,17 @@ Totals: 737 passed, 0 failed.
 | test_150_effective_lines_pass | - | PASS |
 | test_151_effective_lines_fail | - | PASS |
 | test_real_src_and_tests_within_cap | - | PASS |
+| test_mock_mode_returns_mock | - | PASS |
+| test_auto_without_credential_is_mock | - | PASS |
+| test_openai_key_is_a_credential | - | PASS |
+| test_openai_only_key_selects_openai_provider | - | PASS |
+| test_anthropic_wins_on_tie | - | PASS |
+| test_provider_env_override_forces_openai | - | PASS |
+| test_real_key_makes_auto_go_live | - | PASS |
+| test_auth_token_counts_as_credential | - | PASS |
+| test_dummy_key_is_not_a_credential | - | PASS |
+| test_live_mode_builds_a_live_client | - | PASS |
+| test_live_client_create_returns_message_with_usage | - | PASS |
 | test_load_migrated_true_when_neighbor_absorbs | - | PASS |
 | test_load_migrated_false_when_distributed | - | PASS |
 | test_dependencies_lost_true_when_removed_not_moved | - | PASS |
@@ -416,7 +507,7 @@ Totals: 737 passed, 0 failed.
 | test_loop_halts_at_hard_cap_when_never_converging | - | PASS |
 | test_loop_exits_when_queue_empties | - | PASS |
 | test_sdk_run_improvement_loop_delegates_to_controller | - | PASS |
-| test_build_loop_deps_assembles_real_components | - | PASS |
+| test_build_loop_deps_wires_real_sdk_apply_and_regraph | - | PASS |
 | test_loop_convergence_within_five_iterations | - | PASS |
 | test_defaults_are_zeroed_and_empty | - | PASS |
 | test_record_fix_tracks_history_and_branch | - | PASS |
@@ -436,6 +527,7 @@ Totals: 737 passed, 0 failed.
 | test_extend_history_preserves_order | - | PASS |
 | test_rerun_uses_new_dir_and_leaves_first_run_untouched | - | PASS |
 | test_metrics_appends_token_ledger_entries | - | PASS |
+| test_metrics_records_real_total_tokens | - | PASS |
 | test_metrics_has_all_top_level_keys | - | PASS |
 | test_metrics_json_round_trips | - | PASS |
 | test_canned_response_is_deterministic | - | PASS |
@@ -466,10 +558,24 @@ Totals: 737 passed, 0 failed.
 | test_permanent_error_surfaces_immediately | - | PASS |
 | test_transient_error_surfaces_after_max_retries | - | PASS |
 | test_defaults_are_read_from_rate_limits_config | - | PASS |
+| test_normalize_maps_openai_usage_and_text_to_canonical_shape | - | PASS |
+| test_normalize_handles_empty_choices | - | PASS |
+| test_create_forwards_to_chat_completions_and_normalizes | - | PASS |
 | test_strict_fifo_order | - | PASS |
+| test_enqueue_raises_a_backpressure_alert_at_the_warn_ratio | - | PASS |
+| test_no_backpressure_alert_when_warn_ratio_is_unset | - | PASS |
 | test_depth_gauge_tracks_size | - | PASS |
 | test_max_depth_from_config | - | PASS |
 | test_backpressure_blocks_until_space_frees_no_drops | - | PASS |
+| test_retry_success_paths[PR1-0] | - | PASS |
+| test_retry_success_paths[PR2-1] | - | PASS |
+| test_retry_exhaustion_path_pr3 | PR3 exhausts retries and is handled by on_exhausted, never raising. | PASS |
+| test_cli_dispatch_paths[PD1-argv0-version] | - | PASS |
+| test_cli_dispatch_paths[PD2-argv1-vault] | - | PASS |
+| test_cli_dispatch_paths[PD3-argv2-analyze] | - | PASS |
+| test_cli_dispatch_paths[PD4-argv3-loop] | - | PASS |
+| test_cli_dispatch_paths[PD5-argv4-tokens] | - | PASS |
+| test_cli_no_args_help_path_pd6 | PD6 with no arguments returns 0 via the help path. | PASS |
 | test_mocked_pipeline_under_wall_clock_budget | make_runner + invoke complete within the 30-second budget on the mocked SDK. | PASS |
 | test_fixture_repo_layout | 3 packages, an import cycle, and one >150-line module exist. | PASS |
 | test_fixture_graph_json_valid | the sample graph parses with the known node/edge/community counts. | PASS |
@@ -486,6 +592,7 @@ Totals: 737 passed, 0 failed.
 | test_duplicate_name_is_rejected | - | PASS |
 | test_allowlist_filters_unlisted_plugins | - | PASS |
 | test_names_lists_registered_plugins_sorted | - | PASS |
+| test_sdk_owns_the_plugin_registry_and_honors_config_allowlist | - | PASS |
 | test_prompt_loads_with_version_header[repo] | - | PASS |
 | test_prompt_loads_with_version_header[graph] | - | PASS |
 | test_prompt_loads_with_version_header[analyst] | - | PASS |
@@ -508,6 +615,7 @@ Totals: 737 passed, 0 failed.
 | test_every_question_has_non_empty_text_and_evidence | - | PASS |
 | test_missing_file_raises | - | PASS |
 | test_duplicate_ids_raise | - | PASS |
+| test_wrong_config_version_raises | - | PASS |
 | test_loads_default_config_values | - | PASS |
 | test_missing_file_raises | - | PASS |
 | test_malformed_json_raises | - | PASS |
@@ -520,10 +628,19 @@ Totals: 737 passed, 0 failed.
 | test_missing_file_raises | - | PASS |
 | test_unknown_key_rejected | - | PASS |
 | test_version_mismatch_raises | - | PASS |
+| test_every_ingested_file_carries_provenance_header | - | PASS |
+| test_provenance_header_contains_source_and_timestamp | - | PASS |
 | test_red_gate_reverts_and_restores_green_baseline | - | PASS |
 | test_refactor_plans_the_top_validated_finding | - | PASS |
-| test_refactor_produces_plan_without_writing | - | PASS |
+| test_refactor_marks_fixed_when_the_sdk_applies_the_fix | - | PASS |
+| test_refactor_stays_selected_when_the_fix_cannot_be_applied | - | PASS |
+| test_refactor_delegates_the_write_to_the_sdk | - | PASS |
 | test_refactor_is_noop_without_a_validated_finding | - | PASS |
+| test_refactor_rationale_is_authored_by_the_llm | - | PASS |
+| test_refactor_blocks_a_finding_without_a_full_citation | - | PASS |
+| test_refactor_defers_an_irreversible_action_to_human_approval | - | PASS |
+| test_refactor_records_an_auto_approved_guardrail_for_a_reversible_fix | - | PASS |
+| test_refactor_skips_a_finding_whose_approval_was_denied | - | PASS |
 | test_break_bottleneck_creates_interface_seam | - | PASS |
 | test_break_bottleneck_rewires_dependents | - | PASS |
 | test_break_bottleneck_keeps_original_module | - | PASS |
@@ -531,6 +648,11 @@ Totals: 737 passed, 0 failed.
 | test_merge_updates_both_call_sites | - | PASS |
 | test_merge_refuses_low_similarity | - | PASS |
 | test_merge_refuses_unvalidated_level | - | PASS |
+| test_rewrites_a_relative_import | - | PASS |
+| test_rewrites_a_dotted_package_import | - | PASS |
+| test_rewrites_a_bare_import_and_leaves_unrelated_ones | - | PASS |
+| test_seam_uses_a_relative_reexport_inside_a_package | - | PASS |
+| test_seam_uses_a_bare_reexport_for_a_flat_module | - | PASS |
 | test_precondition_module_exceeds_cap | - | PASS |
 | test_split_produces_parts_each_within_cap | - | PASS |
 | test_split_preserves_all_function_names | - | PASS |
@@ -550,6 +672,11 @@ Totals: 737 passed, 0 failed.
 | test_defaults_applied_for_optional_keys | - | PASS |
 | test_unknown_key_rejected | - | PASS |
 | test_select_repo_primary_and_fallback | - | PASS |
+| test_resolve_choice_by_number | - | PASS |
+| test_resolve_choice_accepts_a_pasted_url | - | PASS |
+| test_resolve_choice_out_of_range_is_none | - | PASS |
+| test_resolve_choice_garbage_is_none | - | PASS |
+| test_pick_repo_lists_options_and_reads_a_number | - | PASS |
 | test_ingest_extracts_sections_and_metrics | - | PASS |
 | test_report_summary_json_round_trip | - | PASS |
 | test_success_needs_no_wait | - | PASS |
@@ -570,6 +697,9 @@ Totals: 737 passed, 0 failed.
 | test_layout_create_makes_directory | - | PASS |
 | test_create_run_dir_is_isolated_per_run | - | PASS |
 | test_target_path_is_inside_run_dir_and_not_precreated | - | PASS |
+| test_fresh_target_removes_a_leftover_clone_so_reruns_never_collide | - | PASS |
+| test_fresh_target_on_clean_run_is_a_noop | - | PASS |
+| test_force_rmtree_clears_readonly_pack_files | - | PASS |
 | test_containment_rejects_paths_outside_root | - | PASS |
 | test_run_id_with_path_separators_rejected | - | PASS |
 | test_cleanup_is_idempotent | - | PASS |
@@ -589,10 +719,14 @@ Totals: 737 passed, 0 failed.
 | test_parse_graph_returns_graph_aggregate | - | PASS |
 | test_diff_graphs_returns_graphdiff | - | PASS |
 | test_run_pipeline_persists_manifest | - | PASS |
+| test_sdk_validate_skill_and_guardrail | - | PASS |
+| test_sdk_route_skill_uses_configured_skills_dir | - | PASS |
+| test_sdk_run_knowledge_eval | - | PASS |
 | test_load_questions_returns_ten | the SDK exposes the 10 standard questions. | PASS |
 | test_run_baseline_offline_estimating_gatekeeper | run_baseline builds the estimating gatekeeper and tags entries baseline. | PASS |
 | test_run_assisted_over_fake_vault | run_assisted answers all questions from the vault, tagged assisted. | PASS |
 | test_metrics_gatekeeper_is_constructed | the SDK can build a dedicated estimating metrics gatekeeper. | PASS |
+| test_metrics_gatekeeper_live_builds_real_mode_gatekeeper | live=True yields a real-API-mode gatekeeper (no network until a call is made). | PASS |
 | test_export_token_metrics_writes_and_returns | export_token_metrics writes the json file and returns the full schema dict. | PASS |
 | test_every_agent_factory_requires_injected_sdk[make_repo_node] | - | PASS |
 | test_every_agent_factory_requires_injected_sdk[make_graph_node] | - | PASS |
@@ -608,14 +742,53 @@ Totals: 737 passed, 0 failed.
 | test_run_loop_returns_loop_result_within_cap | - | PASS |
 | test_measure_tokens_returns_token_report | - | PASS |
 | test_measure_tokens_flags_explanation_below_seventy_percent | - | PASS |
+| test_variants_cover_all_four_parameters | - | PASS |
+| test_one_factor_varied_others_at_baseline | - | PASS |
+| test_varied_factor_matches_its_range | - | PASS |
+| test_run_param_sweep_writes_json_per_variant | - | PASS |
+| test_runner_invoked_once_per_variant | - | PASS |
 | test_load_success_returns_typed_model | - | PASS |
 | test_target_and_fallback_blocks_carry_identical_key_sets | - | PASS |
+| test_knowledge_assets_block_present_and_non_empty | - | PASS |
+| test_sensitivity_block_has_four_list_ranges_and_run_count | - | PASS |
 | test_missing_file_raises | - | PASS |
 | test_unknown_key_rejected | - | PASS |
 | test_version_mismatch_raises_config_version_error | - | PASS |
 | test_all_subpackages_importable_with_dunder_all | - | PASS |
 | test_sdk_single_entry_point | - | PASS |
 | test_gatekeeper_loads_rate_limits | - | PASS |
+| test_readonly_is_auto | - | PASS |
+| test_write_tool_with_reversible_step_is_reversible | - | PASS |
+| test_irreversible_step_is_irreversible | - | PASS |
+| test_disable_model_invocation_is_human_only | - | PASS |
+| test_reversible_step_without_undo_flagged | - | PASS |
+| test_irreversible_step_without_approval_flagged | - | PASS |
+| test_classify_reads_from_disk | - | PASS |
+| test_graph_reading_skill_file_is_auto | the shipped SKILL_graph_reading.md classifies as auto / read-only (task 14.012). | PASS |
+| test_refactor_skill_file_guardrails | SKILL_refactor.md is human-only with undo paths + approval markers (task 14.017). | PASS |
+| test_load_skills_from_directory_and_route | - | PASS |
+| test_exact_trigger_routes_to_skill | - | PASS |
+| test_ambiguous_no_trigger_returns_none | - | PASS |
+| test_multiple_matches_is_ambiguous | - | PASS |
+| test_disable_model_invocation_never_auto_returned | - | PASS |
+| test_routing_precision_on_twenty_prompts | - | PASS |
+| test_valid_skill_has_no_errors | - | PASS |
+| test_missing_name_rejected | - | PASS |
+| test_empty_description_rejected | - | PASS |
+| test_empty_allowed_tools_rejected | - | PASS |
+| test_parse_frontmatter_reads_lists_and_scalars | - | PASS |
+| test_shipped_skill_files_validate | - | PASS |
+| test_refactor_skill_sets_disable_model_invocation | - | PASS |
+| test_reads_the_real_file | - | PASS |
+| test_truncates_a_large_file | - | PASS |
+| test_missing_file_is_empty_string | - | PASS |
+| test_blank_inputs_are_empty_string | - | PASS |
+| test_run_start_clones_then_analyzes_the_chosen_repo | - | PASS |
+| test_run_start_reports_a_clone_failure_and_stops | - | PASS |
+| test_run_start_rejects_an_invalid_choice | - | PASS |
+| test_clone_url_builds_a_repoblock_and_clones_via_the_gatekeeper | - | PASS |
+| test_clone_url_rejects_a_disallowed_url_scheme | - | PASS |
+| test_config_exposes_the_lecturers_suggested_repos | - | PASS |
 | test_decide_stops_when_all_conditions_met | - | PASS |
 | test_decide_continues_when_a_condition_fails | - | PASS |
 | test_decide_stops_at_hard_cap_even_if_unmet | - | PASS |
@@ -623,13 +796,14 @@ Totals: 737 passed, 0 failed.
 | test_conditions_reflect_graph_and_qa_signals | - | PASS |
 | test_red_tests_block_sc4 | - | PASS |
 | test_conditions_all_met_sets_met_true | - | PASS |
-| test_conditions_dependency_loss_blocks_met | - | PASS |
+| test_conditions_no_dependency_loss_blocks_met | - | PASS |
 | test_conditions_no_modularity_improvement_blocks_met | - | PASS |
 | test_conditions_new_isolates_block_met | - | PASS |
 | test_conditions_red_tests_block_met | - | PASS |
 | test_conditions_ruff_violations_block_met | - | PASS |
 | test_hard_cap_increments_loop_iteration_when_unmet | - | PASS |
 | test_hard_cap_routes_end_at_iteration_five | - | PASS |
+| test_converged_state_ends_the_supervisor_loop | - | PASS |
 | test_hash_stable_for_unchanged_tree | - | PASS |
 | test_cache_miss_then_hit | - | PASS |
 | test_cache_miss_after_edit | - | PASS |
@@ -645,6 +819,8 @@ Totals: 737 passed, 0 failed.
 | test_supervisor_decision_branch[state9-END] | - | PASS |
 | test_supervisor_decision_branch[state10-END] | - | PASS |
 | test_decision_carries_a_reason | - | PASS |
+| test_pending_approval_routes_to_the_approval_agent | - | PASS |
+| test_validated_bug_already_selected_is_not_rerouted_to_refactor | - | PASS |
 | test_routing_maps_decision_to_node_or_end[state0-RepoAgent] | - | PASS |
 | test_routing_maps_decision_to_node_or_end[state1-GraphAgent] | - | PASS |
 | test_routing_maps_decision_to_node_or_end[state2-AnalystAgent] | - | PASS |
@@ -660,6 +836,8 @@ Totals: 737 passed, 0 failed.
 | test_nonzero_maps_to_fail | - | PASS |
 | test_runner_receives_uv_run_pytest_and_repo_cwd | - | PASS |
 | test_default_runner_routes_through_gatekeeper | - | PASS |
+| test_token_usage_is_zero_before_any_call | - | PASS |
+| test_token_usage_reflects_real_gatekeeper_usage_after_a_call | - | PASS |
 | test_one_jsonl_record_per_transition | - | PASS |
 | test_traced_wrapper_records_the_node | - | PASS |
 | test_completeness_trace_lists_every_node_in_order | - | PASS |
@@ -684,9 +862,18 @@ Totals: 737 passed, 0 failed.
 | test_license_recognized_spdx_marker | - | PASS |
 | test_license_unrecognized_text_fails | - | PASS |
 | test_license_missing_fails_with_reason | - | PASS |
+| test_mean_std_cv_computed | - | PASS |
+| test_zero_mean_cv_is_guarded | - | PASS |
+| test_write_summary_csv_has_mean_std_cv_columns | - | PASS |
 | test_version_constant_is_1_00 | - | PASS |
 | test_get_version_returns_constant | - | PASS |
 | test_package_dunder_version_matches | - | PASS |
+| test_one_wiki_page_per_raw_note | - | PASS |
+| test_every_wiki_page_backlinks_its_raw_source | - | PASS |
+| test_every_wiki_page_reachable_no_orphans | - | PASS |
+| test_full_build_writes_log_entry_per_stage | - | PASS |
+| test_entry_has_timestamp_source_action_outcome | - | PASS |
+| test_append_only_preserves_order | - | PASS |
 | test_minute_window_admits_30_defers_31 | - | PASS |
 | test_minute_window_count_tracks_admitted | - | PASS |
 | test_hour_window_admits_500_defers_501 | - | PASS |
@@ -696,6 +883,8 @@ Totals: 737 passed, 0 failed.
 | test_embeds_a_fenced_mermaid_flowchart | - | PASS |
 | test_has_community_table_and_evidence_tagged_narrative | - | PASS |
 | test_write_produces_architecture_file | - | PASS |
+| test_renders_real_nodelink_graph_with_communities | - | PASS |
+| test_max_blocks_caps_diagram_but_keeps_full_table | - | PASS |
 | test_has_all_four_section_headings | - | PASS |
 | test_lists_the_gatekeeper_gap | - | PASS |
 | test_every_claim_carries_an_evidence_tag | - | PASS |
@@ -724,6 +913,8 @@ Totals: 737 passed, 0 failed.
 | test_read_first_banner_present | - | PASS |
 | test_curated_start_here_has_two_to_three_links | - | PASS |
 | test_all_communities_linked | - | PASS |
+| test_artifacts_section_omitted_when_nothing_ingested | - | PASS |
+| test_artifacts_section_lists_only_real_files | - | PASS |
 | test_layout_creates_raw_and_wiki | - | PASS |
 | test_layout_named_artifact_paths | - | PASS |
 | test_entries_are_appended_not_truncated | - | PASS |
@@ -735,6 +926,8 @@ Totals: 737 passed, 0 failed.
 | test_multiple_h1_is_rejected | - | PASS |
 | test_raw_copies_are_byte_identical_and_logged | - | PASS |
 | test_no_wiki_page_writes_into_raw | - | PASS |
+| test_default_graph_raw_sources_includes_graph_and_sibling_report | - | PASS |
+| test_default_graph_raw_sources_skips_missing_report | - | PASS |
 | test_wiki_notes_never_link_into_raw | - | PASS |
 | test_report_clean_on_built_vault | - | PASS |
 | test_orphans | - | PASS |

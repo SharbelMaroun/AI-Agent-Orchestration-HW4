@@ -50,7 +50,8 @@
   "deliverables": {
     "output_dir": "deliverables",
     "mermaid_direction": "TD",
-    "match_confidence_threshold": 0.55
+    "match_confidence_threshold": 0.55,
+    "max_blocks": 25
   },
   "sdk": {
     "default_analysis_depth": "structural",

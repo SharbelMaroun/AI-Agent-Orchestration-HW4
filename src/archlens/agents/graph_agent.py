@@ -30,13 +30,18 @@ def _backup_graph(prev_json) -> str | None:
     return str(dest)
 
 
-def _real_diff(prev_json: str, curr_json: str) -> dict:
-    """The Part-C stop-condition diff computed from the actual before/after graph.json files."""
+def _real_diff(prev_json: str, curr_json: str, target: str = "") -> dict:
+    """The Part-C stop-condition diff computed from the actual before/after graph.json files.
+
+    SC-1 (dependency_loss) is measured against the fixed bottleneck ``target`` via the load-shift
+    detector — a genuine fix is one where the target shed load and it did not merely migrate.
+    """
     from ..metrics.graph_diff import modularity_improved, new_isolated_components
+    from ..metrics.load_shift import dependencies_lost
     try:
         return {"modularity_improved": modularity_improved(prev_json, curr_json),
                 "new_isolates": new_isolated_components(prev_json, curr_json),
-                "dependency_loss": False}
+                "dependency_loss": dependencies_lost(prev_json, curr_json, target) if target else False}
     except (OSError, ValueError, KeyError, GraphSchemaError):
         return {}  # a malformed/absent graph just yields no diff -> no convergence this round
 
@@ -75,12 +80,15 @@ def make_graph_node(sdk):
     def graph_node(state: dict) -> dict:
         repo = state["target_repo"]["local_path"]
         previous = state.get("graph_snapshot") or {}
-        fixed = any(f.get("status") == "fixed" for f in (state.get("findings") or []))
+        findings = state.get("findings") or []
+        fixed = any(f.get("status") == "fixed" for f in findings)
         backup = _backup_graph(previous.get("graph_json")) if fixed else None
+        target = next((f.get("node_id") or f.get("id", "")
+                       for f in findings if f.get("status") == "fixed"), "")
         result = sdk.run_graphify_pipeline(repo)
         graph_json = getattr(result, "graph_json", None) or str(_out_dir(repo) / GRAPH_JSON)
         nodes, edges = _counts(result, graph_json)
-        diff = _real_diff(backup, graph_json) if backup else getattr(result, "diff", {})
+        diff = _real_diff(backup, graph_json, target) if backup else getattr(result, "diff", {})
         return {"graph_snapshot": {
             "graph_json": graph_json,
             "node_count": nodes,

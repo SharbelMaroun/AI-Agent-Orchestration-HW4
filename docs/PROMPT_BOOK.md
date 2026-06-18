@@ -94,9 +94,9 @@ failed, and how the prompt was refined* (L07, section 11; Guidelines V3).
   added the house-style header block to every SPEC.
 - **Tokens:** not fully measured; per-writer budgets logged in MetricsAgent backlog.
 
-### PB-003 — Per-agent system prompts (planned)
-- **Date:** planned (development phase, after docs approval)
-- **Model:** to be selected per `config/setup.json`; routed via `gatekeeper/gatekeeper.py`
+### PB-003 — Per-agent system prompts (implemented)
+- **Date:** implemented — prompts live in `src/archlens/agents/prompts/{repo,graph,analyst,bughunter,refactor,qa,metrics}.md`
+- **Model:** selected per `config/setup.json`; routed via `gatekeeper/gatekeeper.py`
 - **Context / Goal:** Author and iterate the system prompts for the LangGraph roster:
   - **RepoAgent** — clone/validate the target repo (BugsInPy candidate or lecturer-approved
     simpler repo); refuse to proceed on dirty clone state; uv-managed env only.
@@ -108,13 +108,13 @@ failed, and how the prompt was refined* (L07, section 11; Guidelines V3).
     `relation -> confidence -> source_file`; uncited claims are rejected by the supervisor.
   - **RefactorAgent** — split >150-line modules, break bottlenecks, merge duplicates only when
     similarity >= 0.91 AND validated; always leave tests runnable (QAAgent gate).
-- **Prompt:** to be logged verbatim per agent on first commit of each prompt.
-- **Output Summary / Evaluation / Refinement:** pending; each agent gets its own sub-entry
-  (PB-003a..d) when implemented.
-- **Tokens:** to be recorded by MetricsAgent per invocation.
+- **Prompt:** logged verbatim in the per-agent `*.md` prompt files above (loaded via `prompt_loader.py`).
+- **Output Summary / Evaluation / Refinement:** implemented; see the later Phase-10 entries below and
+  the agent node modules in `src/archlens/agents/`.
+- **Tokens:** recorded by MetricsAgent per invocation (gatekeeper ledger).
 
-### PB-004 — Baseline-vs-assisted measurement prompts (planned)
-- **Date:** planned (after first full Graphify run)
+### PB-004 — Baseline-vs-assisted measurement prompts (implemented)
+- **Date:** implemented (measured live on gpt-4.1-mini; ledgers in `metrics/out/`)
 - **Model:** same model for both arms (controlled comparison)
 - **Context / Goal:** Token-economics proof (Part A/B): one **naive baseline prompt** that
   answers architecture questions from full repository context, vs the **Graphify-assisted
@@ -123,14 +123,13 @@ failed, and how the prompt was refined* (L07, section 11; Guidelines V3).
   (initial graph-scan cost amortization).
 - **Prompt:** identical question set for both arms; assisted arm instructed to read `index.md`
   first, then at most 2-3 wiki pages (Part B navigation rule). To be logged verbatim.
-- **Output Summary / Evaluation:** pending; results feed MetricsAgent cost tables
-  (input/output tokens, $ per model) and the before/after measurement on the 4 knowledge
-  metrics (source traceability, noise reduction, correct-file identification,
-  correct-tool-at-the-right-time).
-- **Tokens:** the entire point — both arms fully measured.
+- **Output Summary / Evaluation:** implemented — 97.08% input-token savings ($0.58 total),
+  recorded in `metrics/out/token_metrics.json` and `docs/metrics/COST_TABLES.md`; the before/after
+  knowledge metrics live in `src/archlens/metrics/knowledge_eval.py`.
+- **Tokens:** the entire point — both arms fully measured (1,368,538 -> 39,950 tokens).
 
-### PB-005 — SKILL.md routing descriptions (planned)
-- **Date:** planned (with the knowledge-assets deliverable)
+### PB-005 — SKILL.md routing descriptions (implemented)
+- **Date:** implemented — see `skills/SKILL_graph_reading.md`, `skills/SKILL_refactor.md`
 - **Model:** Claude (Anthropic)
 - **Context / Goal:** Write the YAML frontmatter `description` fields that make each ArchLens
   SKILL.md discoverable at the right moment ("correct tool at the right time" metric). Each
@@ -139,19 +138,21 @@ failed, and how the prompt was refined* (L07, section 11; Guidelines V3).
   human-only skills set `disable-model-invocation`.
 - **Prompt:** description-writing prompt will be A/B tested: generic description vs
   trigger-phrase-rich description, evaluated by routing accuracy on a fixed task list.
-- **Output Summary / Evaluation / Refinement:** pending.
-- **Tokens:** not yet measured.
+- **Output Summary / Evaluation / Refinement:** implemented — substring trigger routing in
+  `src/archlens/vault/skill_router.py`, guardrail validation in `skill_guardrails.py`.
+- **Tokens:** routing is local (no LLM call); descriptions kept short per the context-budget rule.
 
-### PB-006 — Improvement-loop diff-evaluation prompt (planned)
-- **Date:** planned (improvement-loop implementation)
+### PB-006 — Improvement-loop diff-evaluation prompt (implemented)
+- **Date:** implemented (stop conditions in `src/archlens/agents/stop_evaluator.py` / `stop_eval.py`)
 - **Model:** per `config/setup.json`
 - **Context / Goal:** After each RefactorAgent change and Graphify re-run, a supervisor prompt
   evaluates the metric diff against the Part C (p21) stop conditions: bottleneck node actually
   lost dependencies (not merely moved load), improved modularity (fewer inter-community
   edges), no new isolated components, all unit tests green, Ruff 0 violations; hard cap
   5 iterations. The prompt must force a binary continue/stop decision with cited metrics.
-- **Prompt / Output / Evaluation:** pending; to be logged with the first loop run.
-- **Tokens:** to be recorded by MetricsAgent per iteration.
+- **Prompt / Output / Evaluation:** implemented — the loop applies the 5 stop conditions and a
+  5-iteration hard cap; live runs recorded under `runs/loop_*.log` (all hit the cap, honestly noted).
+- **Tokens:** recorded by MetricsAgent per iteration via the gatekeeper ledger.
 
 ### PB-007 — Phase 1 + Phase 2 implementation session (logged)
 

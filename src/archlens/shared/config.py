@@ -8,6 +8,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 from ..graphops.config import GraphifyConfig
 from ..shared.constants import (
     ALLOWED_URL_SCHEMES,
+    ARCHITECTURE_MAX_BLOCKS,
     CONFIDENCE_MAX,
     CONFIDENCE_MIN,
     DEFAULT_CLONE_DEPTH,
@@ -91,6 +92,7 @@ class DeliverablesBlock(BaseModel):
     output_dir: str = DELIVERABLES_DIR
     mermaid_direction: str = "TD"
     match_confidence_threshold: float = CONFIDENCE_MIN
+    max_blocks: int = ARCHITECTURE_MAX_BLOCKS
 
 
 class SdkBlock(BaseModel):

@@ -1,0 +1,34 @@
+{
+  "rows": [
+    {
+      "node": "utils_init_http",
+      "source_file": "tests/utils/__init__.py",
+      "with_answer": "The main architectural problem is that 'utils_init_http' is a highly coupled and central node, indicated by its very high in-degree (335), making it a bottleneck and a maintenance risk due to its many dependents. This suggests it has too many responsibilities or exposes low-level details widely, leading to tight coupling and reduced modularity. A refactor to relieve this is to split 'utils_init_http' into smaller, well-defined components or services with clear interfaces, possibly employing the facade pattern to encapsulate complex operations. This modularization reduces coupling, improves testability, and limits the blast radius of changes.",
+      "without_answer": "The main architectural problem is that this module mixes multiple concerns\u2014test utilities, environment management, CLI command execution, and response parsing\u2014into a single large module with tightly coupled functionality. This creates a monolithic structure that is hard to maintain, extend, or test in isolation. A beneficial refactor would be to separate responsibilities by splitting this module into smaller, focused components: one handling environment setup and teardown, another dedicated to CLI invocation and subprocess management, and a third responsible for response data handling and parsing. This modularization would improve code clarity, promote reuse, simplify testing, and reduce coupling.",
+      "with_score": 5,
+      "without_score": 5
+    },
+    {
+      "node": "httpie_context_environment",
+      "source_file": "httpie/context.py",
+      "with_answer": "The main architectural problem is that \"httpie_context_environment\" is a highly coupled, low-cohesion god component serving as a central dependency with excessive inbound (128) and outbound (14) connections, making it a bottleneck and increasing system complexity. This creates tight coupling and impedes maintainability and testability. Refactoring should focus on splitting this component into smaller, cohesive modules or services based on distinct responsibilities (e.g., configuration management, logging, environment state) and applying dependency inversion to reduce coupling, enabling easier testing and isolated changes.",
+      "without_answer": "The main architectural problem is that the `Environment` class combines diverse responsibilities: managing I/O streams, configuration loading, terminal capabilities detection, logging, and even terminal color handling. This violates the Single Responsibility Principle, making the class large, hard to maintain, and inflexible. Refactoring should split these concerns into separate components or services\u2014e.g., separate classes for configuration management, I/O stream handling, terminal capabilities, and logging\u2014thereby promoting modularity, easier testing, and clearer, more maintainable code. Dependency injection could be used to compose these parts into an Environment facade if needed.",
+      "with_score": 5,
+      "without_score": 5
+    },
+    {
+      "node": "utils_init_mockenvironment",
+      "source_file": "tests/utils/__init__.py",
+      "with_answer": "The main architectural problem is that 'utils_init_mockenvironment' is a highly coupled and complex utility with very high in-degree (97), indicating it is a bottleneck and a single point of failure, as many components depend on it. It also depends on numerous other components, suggesting it has multiple responsibilities violating the Single Responsibility Principle. The appropriate refactor would be to decompose this large utility into smaller, well-defined modules or services with clear interfaces, thereby reducing coupling and improving modularity. Introducing an abstraction layer or dependency injection can further decouple clients from the concrete implementation, easing testing and maintenance.",
+      "without_answer": "The main architectural problem is that this single module mixes multiple responsibilities: test utilities, environment setup, CLI response modeling, and HTTP command execution, violating the Single Responsibility Principle and making it hard to maintain or extend. It tightly couples I/O handling, subprocess management, encoding logic, and test fixture setup all in one place, leading to high complexity and reduced testability. Refactoring by separating concerns into distinct modules\u2014for example, isolating environment mocks, CLI response classes, HTTP invocation logic, and test fixtures\u2014would improve modularity, clarity, and maintainability. This would also enable easier reuse and independent testing of each part.",
+      "with_score": 5,
+      "without_score": 5
+    }
+  ],
+  "with_tokens": 1302,
+  "without_tokens": 8125,
+  "judge_tokens": 897,
+  "with_quality": 5.0,
+  "without_quality": 5.0,
+  "token_savings_pct": 84.0
+}

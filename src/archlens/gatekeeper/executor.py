@@ -5,8 +5,10 @@ drain loop, call logger, and token ledger into one never-reject entry point. Sat
 and drain to completion; nothing is ever rejected, and all shared state is lock-guarded.
 """
 
+import logging
 import threading
 
+from ..shared.constants import LOGGER_NAME
 from .call_log import log_call
 from .concurrency import ConcurrencyLimiter
 from .ledger import TokenLedger
@@ -14,6 +16,8 @@ from .overflow_queue import OverflowQueue
 from .rate_config import load_rate_config, service_limits
 from .retry import RetryPolicy
 from .windows import hour_window, minute_window
+
+logger = logging.getLogger(f"{LOGGER_NAME}.executor")
 
 
 class _Pending:
@@ -38,7 +42,7 @@ class RateLimitedExecutor:
         self._hour = hour_window(limits, clock)
         self._semaphore = ConcurrencyLimiter(limits.concurrent_max)
         self._retry = RetryPolicy.from_config(limits, clock)
-        self._queue = OverflowQueue(cfg.queue.max_depth)
+        self._queue = OverflowQueue(cfg.queue.max_depth, cfg.queue.backpressure_warn_ratio)
         self.ledger = TokenLedger()
         self._lock = threading.Lock()
         self.dispatched = 0
@@ -63,10 +67,16 @@ class RateLimitedExecutor:
                 return True
         return False
 
+    def _on_exhausted(self, err: Exception):
+        """Retries exhausted: surface a warning (monitoring) and return no response (never raise)."""
+        logger.warning("gatekeeper call exhausted retries for model %s: %s",
+                       err.__class__.__name__, err)
+        return None
+
     def _dispatch(self, pending: _Pending) -> None:
         with self._semaphore:
             pending.response = self._retry.run(
-                lambda: self._client.create(**pending.request), on_exhausted=lambda err: None)
+                lambda: self._client.create(**pending.request), on_exhausted=self._on_exhausted)
         usage = getattr(pending.response, "usage", None)
         in_tokens = getattr(usage, "input_tokens", 0)
         out_tokens = getattr(usage, "output_tokens", 0)

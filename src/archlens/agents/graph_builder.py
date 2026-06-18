@@ -3,6 +3,7 @@
 from langgraph.graph import END, START, StateGraph
 
 from ..agents.analyst_agent import make_analyst_node
+from ..agents.approval import make_approval_node
 from ..agents.bughunter_agent import make_bughunter_node
 from ..agents.graph_agent import make_graph_node
 from ..agents.metrics_agent import make_metrics_node
@@ -39,11 +40,12 @@ def build_orchestration_graph(sdk, checkpointer=None, interrupt_after=None):
     for name, factory in _AGENTS.items():
         builder.add_node(name, factory(sdk))
     builder.add_node("stop_eval", make_stop_eval_node(sdk))
+    builder.add_node("ApprovalAgent", make_approval_node())  # HITL gate for irreversible actions
     builder.add_edge(START, "supervisor")
-    mapping = {name: name for name in _AGENTS}
-    mapping["stop_eval"] = "stop_eval"
+    extra = ("stop_eval", "ApprovalAgent")
+    mapping = {name: name for name in (*_AGENTS, *extra)}
     mapping[END] = END
     builder.add_conditional_edges("supervisor", route_from_supervisor, mapping)
-    for name in (*_AGENTS, "stop_eval"):
+    for name in (*_AGENTS, *extra):
         builder.add_edge(name, "supervisor")
     return builder.compile(checkpointer=checkpointer, interrupt_after=list(interrupt_after or []))
