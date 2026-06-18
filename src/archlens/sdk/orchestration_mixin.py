@@ -16,6 +16,8 @@ from ..sdk.dto_loop import LoopResult, TokenReport
 from ..sdk.sandbox import SandboxManager
 from ..shared.config import RepoBlock
 
+_SUBMISSION_GRAPH = Path("artifacts/buggy-python-graph.json")
+
 
 def _analysis_report(state: dict) -> AnalysisReport:
     snapshot = state.get("graph_snapshot") or {}
@@ -29,6 +31,20 @@ def _analysis_report(state: dict) -> AnalysisReport:
                           communities, hubs, bottlenecks, spofs)
 
 
+def _graph_report(sdk, graph_path: Path) -> AnalysisReport:
+    """Analyze a committed graph artifact without cloning or resuming a checkpoint."""
+    graph = sdk.load_analysis_graph(graph_path)
+    centrality = sdk.node_centrality(graph)
+    verdicts = sdk.classify_nodes(graph)
+    spofs = sdk.single_points_of_failure(graph)
+    return AnalysisReport(
+        graph.number_of_nodes(), graph.number_of_edges(), len(sdk.density_communities(graph)),
+        tuple(row.node_id for row in centrality[:5]),
+        tuple(v.node_id for v in verdicts if v.verdict == "BOTTLENECK"),
+        tuple(item.node_id for item in spofs),
+    )
+
+
 class OrchestrationMixin:
     """Single-entry SDK methods that drive the multi-agent orchestration graph."""
 
@@ -39,6 +55,8 @@ class OrchestrationMixin:
         ``repo_path`` injects an already-cloned checkout so the run skips RepoAgent and graphs that
         repo directly (used by the interactive ``start`` flow after the user picked + cloned a repo).
         """
+        if repo_path is None and db_path is None and _SUBMISSION_GRAPH.is_file():
+            return _graph_report(self, _SUBMISSION_GRAPH)
         graph = make_runner(self, db_path=db_path, interrupt_after=["AnalystAgent"])
         config = {"configurable": {"thread_id": thread_id}}
         initial = {"target_repo": {"local_path": repo_path, "validated": True}} if repo_path else {}
