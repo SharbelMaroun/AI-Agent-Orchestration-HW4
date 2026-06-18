@@ -9,16 +9,16 @@ Version: 1.00 | Course: AI Agent Orchestration - HW4 (EX04) | Task 16.041
 - [x] 10 ADRs + ADR index (`docs/adr/`)
 - [x] Target-repo module + validation (RepoAgent)
 - [x] Graphify pipeline integration + `graph.json` / `graph.html` / `GRAPH_REPORT.md` (`deliverables/graphify-out/`)
-- [x] Obsidian vault: `hot.md`, `index.md`, `wiki/`, `raw/`, `log.md` (`deliverables/httpie-vault/`)
+- [x] Obsidian vault: `hot.md`, `index.md`, `wiki/`, `raw/`, `log.md` (`deliverables/bugsinpy-vault/`)
 - [x] Graph analysis engine (centrality, communities, hub/bottleneck, bridges, SPOF, triage)
 - [x] Reverse-engineering deliverables: block diagram, OOP class schema, PRD-vs-code audit (`deliverables/`)
 - [x] SDK single entry point + thin CLI
 - [x] API gatekeeper: rate limiting + FIFO never-reject overflow queue
 - [x] Multi-agent LangGraph orchestration (supervisor + 7 agents)
 - [x] Improvement loop + 5 stop conditions + 5-iteration cap
-- [x] Token measurement: baseline vs assisted, **97.08% savings** (real billed gpt-4.1-mini), cost tables (`metrics/out/`)
+- [x] Token measurement: baseline vs assisted ledger, **97.08% savings** from the persisted billed development run; BugsInPy graph-vs-code proxy regenerated as inconclusive (`metrics/out/`)
 - [x] SKILL.md files with guardrails + LLM wiki (raw -> wiki -> index -> log)
-- [x] 4 knowledge-quality metrics measured before/after as a live top-3 proxy (`metrics/out/knowledge_quality_metrics.json`, `docs/metrics/KNOWLEDGE_QUALITY_METRICS.md`)
+- [x] 4 knowledge-quality metrics regenerated for BugsInPy as an honest inconclusive proxy (`metrics/out/knowledge_quality_metrics.json`, `docs/metrics/KNOWLEDGE_QUALITY_METRICS.md`)
 - [x] Research notebook + sensitivity analysis + charts (`notebooks/`, `docs/assets/`)
 - [x] README.md, CONTRIBUTING.md, LICENSE
 - [x] CI/CD workflow (`.github/workflows/ci.yml`) + PR template

@@ -1,37 +1,34 @@
 # Knowledge-Quality Metrics
 
-Version: 1.00 | Course: AI Agent Orchestration - HW4 (EX04)
+Version: 1.01 | Course: AI Agent Orchestration - HW4 (EX04)
 
-This file records the replacement for the removed synthetic four-metric chart. The old harness gave
-hardcoded before/after scores, so it was removed rather than presented as real evidence. The current
-artifact is a measured proxy based on the live with-vs-without-Graphify study in
-`metrics/out/graph_vs_code.json`.
+This file records the current knowledge-quality proxy after retargeting the project to the
+PDF-listed BugsInPy repository. The measurement is intentionally conservative: the regenerated
+`graph_vs_code` run used the local/offline canned response path, so it does **not** prove a quality
+improvement.
 
 ## Scope
 
 - Source artifact: `metrics/out/graph_vs_code.json`
 - Machine-readable result: `metrics/out/knowledge_quality_metrics.json`
-- Sample: top 3 bottlenecks from the real httpie graph
+- Sample: top 3 bottlenecks from the BugsInPy graph
 - Baseline: answer from full source context
 - Assisted: answer from Graphify neighbourhood context
-- Measured tokens: 8125 baseline vs 1302 assisted, 84.0% fewer tokens
-- LLM-judge quality: 5.0 baseline vs 5.0 assisted
-
-This is not the originally planned 10-task blind rubric. It is an honest live proxy over the
-available measured study.
+- Measured tokens: 45 baseline vs 45 assisted, 0.0% fewer tokens
+- LLM-judge quality: 0.0 baseline vs 0.0 assisted
 
 ## Scores
 
 | Metric | Baseline | Assisted | Delta | Rationale |
 | --- | ---: | ---: | ---: | --- |
-| Source traceability | 4 | 7 | +3 | Assisted rows carry node plus `source_file` evidence for all 3 cases; answers do not include full relation-confidence-source triples, so not perfect. |
-| Noise reduction | 0 | 8 | +8 | Context fell from 8125 to 1302 tokens, an 84.0% reduction. |
-| Correct-file identification | 10 | 10 | +0 | Both arms were evaluated on the same 3 ground-truth bottleneck files and scored 5/5 quality. |
-| Correct tool at the right time | 2 | 10 | +8 | Assisted starts from the graph neighbourhood; baseline reads broad source context. |
+| Source traceability | 2 | 2 | +0 | Rows retain `source_file` evidence, but canned responses prevent stronger credit. |
+| Noise reduction | 0 | 0 | +0 | The regenerated proxy measured 45 tokens in both arms. |
+| Correct-file identification | 0 | 0 | +0 | Both arms scored 0/5 in the local judge path. |
+| Correct tool at the right time | 2 | 2 | +0 | The assisted path used Graphify, but the answers were not meaningful. |
 
-Average score: baseline 4.0, assisted 8.75, delta +4.75.
+Average score: baseline 1.0, assisted 1.0, delta +0.0.
 
 ## Submission Note
 
-This closes the previous gap as a measured, non-fabricated proxy. If strict grading requires the full
-10-question Part B rubric, this remains the one area to expand.
+The project now uses the correct PDF-listed repository, but this specific quality metric should be
+expanded with a live 10-task evaluation if the grader expects the full Part B rubric.

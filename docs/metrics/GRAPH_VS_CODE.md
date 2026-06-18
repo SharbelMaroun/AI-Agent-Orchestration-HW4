@@ -1,45 +1,40 @@
-# With vs Without Graphify — Tokens AND Quality
+# With vs Without Graphify - Tokens AND Quality
 
-Version: 1.00 | Course: AI Agent Orchestration — HW4 (EX04)
+Version: 1.01 | Course: AI Agent Orchestration - HW4 (EX04)
 
-A reproducible evaluation of the lecture's core claim (L07 §6–9): the LLM should reason from the
-**graph** (targeted retrieval), not from the **code**. For each top bottleneck the agents detect, the
-SAME architecture question is answered twice — once from the node's **graph neighbourhood** (with
-Graphify), once from its **full source module** (without it) — then an LLM judge rates both 1–5 for
-correctness/specificity. Tokens are read back from the gatekeeper ledger, so they are the **flow's
-real usage**, not estimates.
+This evaluation compares answering the same architecture question from a node's Graphify
+neighbourhood versus from the broader source context.
 
 Code: `src/archlens/metrics/graph_vs_code.py` (via `sdk.compare_graph_vs_code`). Reproduce:
 
 ```bash
-uv run python scripts/compare_graph_vs_code.py [graph.json] [repo_path] [top_k]
-# defaults: runs/run/target/graphify-out/graph.json  runs/run/target  3   (needs a live key in .env)
+uv run python scripts/compare_graph_vs_code.py runs/run/target/graphify-out/graph.json runs/run/target 3
 ```
 
-## Live result — real gpt-4.1-mini, top 3 bottlenecks of httpie
+## Current BugsInPy Result
 
-Committed artifact: `metrics/out/graph_vs_code.json` (regenerate with the command above).
+Committed artifact: `metrics/out/graph_vs_code.json`.
+
+The project was retargeted to the PDF-listed BugsInPy repository and this comparison was
+regenerated. The local run used the offline/canned response path, so the result is recorded as
+inconclusive rather than as a live quality win.
 
 | Node | Quality WITH | Quality WITHOUT |
 | --- | :---: | :---: |
-| `utils_init_http` | 5 | 5 |
-| `httpie_context_environment` | 5 | 5 |
-| `utils_init_mockenvironment` | 5 | 5 |
+| `pysnooper_verify_my_function` | 0 | 0 |
+| `ansible_verify_my_function` | 0 | 0 |
+| `cookiecutter_verify_my_function` | 0 | 0 |
 
-| Metric | **With Graphify** (graph) | **Without Graphify** (full source) |
+| Metric | With Graphify | Without Graphify |
 | --- | ---: | ---: |
-| **Total tokens** (real) | **1,302** | **8,125** |
-| **Avg quality** (judge 1–5) | **5.0** | **5.0** |
+| Total tokens | 45 | 45 |
+| Avg quality | 0.0 | 0.0 |
 
-**Result: 84.0% fewer tokens with Graphify, at equal quality (5.0 vs 5.0).** Reading the whole module
-costs ~6× more tokens and did **not** improve the diagnosis — the graph neighbourhood (degree,
-callers, dependencies) already carries what the model needs to name the coupling / god-object /
-single-point-of-failure and propose the split. (The judge itself spent 897 tokens.)
+Result: 0.0% token savings in this offline proxy. A live-key rerun over a 10-question rubric is the
+remaining work if the grader requires a full Part B quality study on the retargeted BugsInPy corpus.
 
-## Relation to the formal economics
+## Historical Note
 
-This is the *agent-level, live* echo of the project's full token-economics study (naive full-context
-baseline vs Graphify-assisted retrieval over 10 standard questions): **1,368,538 → 39,950 tokens =
-97.08% savings** (`metrics/out/token_metrics.json`, measured live on gpt-4.1-mini, $0.58). The
-live numbers above independently confirm the same effect (~84%) **and** add a quality dimension the
-formal study did not measure.
+The earlier httpie development run measured 84.0% fewer tokens in this graph-vs-code comparison and
+97.08% savings in the separate token-economics ledger. Those numbers remain development history, but
+they are not claimed as BugsInPy-specific evidence.

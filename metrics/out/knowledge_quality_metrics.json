@@ -1,53 +1,53 @@
 {
-  "version": "1.00",
+  "version": "1.01",
   "source_artifact": "metrics/out/graph_vs_code.json",
-  "method": "Live top-3 bottleneck proxy over the with-vs-without-Graphify study.",
-  "scope_note": "This is an honest measured proxy, not the removed synthetic 10-task harness.",
+  "method": "BugsInPy top-3 bottleneck proxy over the with-vs-without-Graphify study.",
+  "scope_note": "Regenerated after retargeting to BugsInPy. The local run used canned/offline responses, so it is recorded as inconclusive rather than presented as proof of quality improvement.",
   "sample_size": 3,
   "baseline_label": "without_graphify_full_source",
   "assisted_label": "with_graphify_neighbourhood",
   "raw_observations": {
-    "baseline_tokens": 8125,
-    "assisted_tokens": 1302,
-    "token_savings_pct": 84.0,
-    "baseline_quality": 5.0,
-    "assisted_quality": 5.0,
+    "baseline_tokens": 45,
+    "assisted_tokens": 45,
+    "token_savings_pct": 0.0,
+    "baseline_quality": 0.0,
+    "assisted_quality": 0.0,
     "rows_with_source_file": 3,
     "total_rows": 3
   },
   "metrics": [
     {
       "metric": "source_traceability",
-      "baseline": 4,
-      "assisted": 7,
-      "delta": 3,
-      "rationale": "The graph-assisted rows carry explicit node and source_file evidence for all 3 cases; the answers still do not cite full relation-confidence-source triples, so this is not scored as perfect."
+      "baseline": 2,
+      "assisted": 2,
+      "delta": 0,
+      "rationale": "The regenerated rows preserve source_file evidence, but the answers are canned offline responses, so traceability cannot be credited beyond artifact linkage."
     },
     {
       "metric": "noise_reduction",
       "baseline": 0,
-      "assisted": 8,
-      "delta": 8,
-      "rationale": "Measured context fell from 8125 tokens without Graphify to 1302 tokens with Graphify, an 84.0% reduction."
+      "assisted": 0,
+      "delta": 0,
+      "rationale": "Measured context was 45 tokens in both arms, so the regenerated BugsInPy proxy does not demonstrate token reduction."
     },
     {
       "metric": "correct_file_identification",
-      "baseline": 10,
-      "assisted": 10,
+      "baseline": 0,
+      "assisted": 0,
       "delta": 0,
-      "rationale": "Both study arms were evaluated on the same 3 ground-truth bottleneck source files and received equal 5/5 quality."
+      "rationale": "Both arms received 0/5 quality from the local judge path; this is inconclusive rather than evidence of correct identification."
     },
     {
       "metric": "correct_tool_at_the_right_time",
       "baseline": 2,
-      "assisted": 10,
-      "delta": 8,
-      "rationale": "The assisted path starts from the Graphify neighbourhood, matching the Part B routing protocol; the baseline path uses broad full-source reading."
+      "assisted": 2,
+      "delta": 0,
+      "rationale": "The assisted path used the Graphify comparison entry point, but the canned/offline responses prevent a meaningful before/after score."
     }
   ],
   "averages": {
-    "baseline": 4.0,
-    "assisted": 8.75,
-    "delta": 4.75
+    "baseline": 1.0,
+    "assisted": 1.0,
+    "delta": 0.0
   }
 }

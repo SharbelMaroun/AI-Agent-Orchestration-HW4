@@ -9,6 +9,18 @@ with LangGraph agents, fixes them in a measured improvement loop, and proves tok
 
 Full documentation lives in `docs/` (PRD, PLAN, specialized PRDs, TODO, prompt book).
 
+## Current Target Repository
+
+The submission is currently retargeted to the PDF-listed BugsInPy repository:
+
+- Primary: `https://github.com/soarsmu/BugsInPy`
+- Branch/commit: `master` at `11c5f1eea954a42132cfd06bf257766a7963e0fd`
+- Fresh analysis result: 1639 nodes, 838 edges, 812 communities
+- Generated artifacts: `deliverables/graphify-out/` and `deliverables/bugsinpy-vault/`
+
+Older README history may mention the previous `httpie/cli` development target; the active
+submission configuration and regenerated deliverables now use BugsInPy.
+
 ## Table of Contents
 
 1. [Quickstart (uv only)](#quickstart-uv-only)
@@ -364,7 +376,7 @@ $ graphify update runs/run/target
 
 # ArchLens then consumed that real graph.json:
 REAL httpie graph: 2033 nodes, 4306 edges, 138 communities
-vault root: deliverables/httpie-vault   graph artifacts: deliverables/graphify-out
+vault root: deliverables/bugsinpy-vault   graph artifacts: deliverables/graphify-out
 raw/ files: ['GRAPH_REPORT.md', 'graph.json']
 VALIDATION ok: True | orphans: 0 | broken_links: 0 | lint: 0
 ```
