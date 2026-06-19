@@ -77,8 +77,11 @@ module code is executed.
 
 ## OOP View
 
-The target is procedural. It has functions and modules, but no classes. The honest OOP class schema
-is therefore empty; see `deliverables/CLASS_SCHEMA.md`.
+This debugging target is procedural — functions and modules, no classes — so its own class schema is
+honestly empty (`deliverables/CLASS_SCHEMA.md`). The §5.2 OOP class diagram (inheritance / composition
+/ encapsulation) is therefore demonstrated on a class-bearing **secondary** reverse-engineering target,
+**`deliverables/CLASS_SCHEMA_requests.md`** (psf/requests: 46 classes, 32 inheritance + 34 composition
+edges, auto-extracted by the same AST pipeline).
 
 ```mermaid
 classDiagram

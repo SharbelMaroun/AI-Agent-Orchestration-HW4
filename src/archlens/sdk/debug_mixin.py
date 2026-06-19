@@ -3,7 +3,7 @@
 import json
 from pathlib import Path
 
-from ..agents.bug_localizer import localize_import_failure
+from ..agents.localizer_graph import run_localizer
 
 _TOKEN_STUDY = Path("metrics/out/debug_token_study.json")
 
@@ -18,21 +18,21 @@ class DebugDemoMixin:
         report = Path("deliverables/BUG_REPORT.md")
         loc_page = Path("obsidian/localization.md")
         repair_page = Path("obsidian/repair.md")
-        loc = localize_import_failure(graph_path, failing_symbol)
+        loc = run_localizer(self, str(graph_path), failing_symbol)  # compiled LangGraph node, not a bare call
         lines = [
             "EX04 Debug Demo",
             "Target repo: https://github.com/andela/buggy-python",
             f"Graphify graph: {_display(graph_path)}",
             "Obsidian vault: obsidian/index.md, obsidian/hot.md",
-            "Agent workflow: BugLocalizer over graph neighbourhood",
-            f"Failure: ImportError cannot import {loc.failing_symbol}",
-            f"Suspect: {loc.suspect_file}",
-            f"Suspect node: {loc.suspect}",
+            "Agent workflow: BugLocalizer node via compiled LangGraph StateGraph",
+            f"Failure: ImportError cannot import {loc.get('failing_symbol', failing_symbol)}",
+            f"Suspect: {loc.get('suspect_file', '')}",
+            f"Suspect node: {loc.get('suspect', '')}",
             "Graph evidence:",
         ]
-        lines.extend(f"  - {item}" for item in loc.evidence)
+        lines.extend(f"  - {item}" for item in loc.get("evidence", []))
         lines.extend([
-            f"Root cause: {loc.root_cause}",
+            f"Root cause: {loc.get('root_cause', '')}",
             "Fix summary: restore package re-exports; repair loop/io/foobar leaf defects",
             "Fix patch: deliverables/buggy-python-fix.patch",
             f"Bug report: {_display(report)}",

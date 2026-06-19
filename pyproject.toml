@@ -17,6 +17,7 @@ dependencies = [
     "matplotlib>=3.10.9",
     "networkx>=3.4.2",
     "pydantic>=2.13.4",
+    "tiktoken>=0.13.0",
 ]
 
 [project.scripts]

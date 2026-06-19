@@ -12,6 +12,8 @@ Version: 1.00 | Course: AI Agent Orchestration - HW4 (EX04) | Task 16.041
 - [x] Obsidian investigation vault: `index.md`, `hot.md`, `localization.md`, `repair.md`, `architecture.md`, `findings.md` (`obsidian/`)
 - [x] Graph analysis engine (centrality, communities, hub/bottleneck, bridges, SPOF, triage)
 - [x] Reverse-engineering deliverables: block diagram, OOP class schema, PRD-vs-code audit (`deliverables/`)
+- [x] Real OOP class diagram (inheritance/composition) on class-bearing secondary target `deliverables/CLASS_SCHEMA_requests.md` (psf/requests)
+- [x] Rigorous scale token study, real tiktoken, clears 70% (`metrics/out/token_study_requests.json`, `docs/metrics/TOKEN_STUDY_REQUESTS.md`)
 - [x] SDK single entry point + thin CLI
 - [x] API gatekeeper: rate limiting + FIFO never-reject overflow queue
 - [x] Multi-agent LangGraph orchestration (supervisor + 7 agents)
@@ -26,7 +28,7 @@ Version: 1.00 | Course: AI Agent Orchestration - HW4 (EX04) | Task 16.041
 
 ## Quality Gates
 
-- [x] Tests green (950 passed; a fresh checkout shows 949 passed, 1 skipped — one debug-harness test is clone-gated)
+- [x] Tests green (951 passed; a fresh checkout shows 950 passed, 1 skipped — one debug-harness test is clone-gated)
 - [x] Branch coverage >= 85% (96.8%)
 - [x] Ruff 0 violations
 - [x] 150 effective-line cap on every file (incl. tests)

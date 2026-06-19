@@ -4,23 +4,25 @@
     {
       "config": {
         "analysis_depth": "structural",
-        "top_k_pages": 3,
         "rate_limit_rpm": 30,
-        "similarity_threshold": 0.91
+        "similarity_threshold": 0.91,
+        "top_k_pages": 3
       },
       "result": {
-        "tokens": 38827
+        "edges": 5683,
+        "tokens": 457835
       }
     },
     {
       "config": {
         "analysis_depth": "semantic",
-        "top_k_pages": 3,
         "rate_limit_rpm": 30,
-        "similarity_threshold": 0.91
+        "similarity_threshold": 0.91,
+        "top_k_pages": 3
       },
       "result": {
-        "tokens": 39957
+        "edges": 7030,
+        "tokens": 570115
       }
     }
   ]

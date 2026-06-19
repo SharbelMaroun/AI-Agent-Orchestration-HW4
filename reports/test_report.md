@@ -2,7 +2,7 @@
 
 Version: 1.00 | Course: AI Agent Orchestration — HW4 (EX04)
 
-Totals: 950 passed, 0 failed.
+Totals: 951 passed, 0 failed.
 
 | Test | Expected | Status |
 |---|---|---|
@@ -10,6 +10,7 @@ Totals: 950 passed, 0 failed.
 | test_localizer_uses_an_llm_explanation_when_provided | - | PASS |
 | test_localizer_node_emits_localization_via_the_sdk_llm | - | PASS |
 | test_sdk_localize_bug_is_the_single_entry_point | - | PASS |
+| test_localizer_runs_as_a_compiled_langgraph_node | - | PASS |
 | test_graph_agent_builds_vault | - | PASS |
 | test_clean_tree_is_green | - | PASS |
 | test_syntax_error_is_counted_and_not_green | - | PASS |

@@ -25,7 +25,7 @@ Expected high-level output:
 - debug target: `https://github.com/andela/buggy-python`
 - first suspect: `snippets/__init__.py`
 - analysis graph: `19` nodes, `28` edges
-- tests: `950 passed` (a fresh clone shows `949 passed, 1 skipped` — one debug-harness test is skipped until `runs/buggy-python/` is cloned; see note below)
+- tests: `951 passed` (a fresh clone shows `950 passed, 1 skipped` — one debug-harness test is skipped until `runs/buggy-python/` is cloned; see note below)
 - coverage: about `96.8%` (branch coverage; the suite fails under the configured 85% gate)
 
 ## Submitted Target
@@ -131,7 +131,10 @@ flowchart LR
 ```
 
 The OOP/class view is intentionally empty because `buggy-python` is procedural. The class-schema
-deliverable records that result instead of inventing classes that are not present.
+deliverable records that result instead of inventing classes that are not present. The §5.2 OOP
+class-diagram requirement (inheritance / composition / encapsulation) is demonstrated on a class-bearing
+**secondary** reverse-engineering target — `deliverables/CLASS_SCHEMA_requests.md` (psf/requests: 46
+classes, 32 inheritance + 34 composition edges, auto-extracted by the same AST pipeline).
 
 ## Research Questions
 
@@ -140,7 +143,7 @@ deliverable records that result instead of inventing classes that are not presen
 | Q1 | What is the actual architecture? | A thin `main.py` harness imports through one `snippets/__init__.py` re-export hub into three leaf modules. | `obsidian/architecture.md` |
 | Q2 | Which components are most central? | `snippets/__init__.py` is the top hub by degree; `main.py` and `snippets/io.py` follow. | `obsidian/hot.md` |
 | Q3 | Where are the God nodes or bottlenecks? | The re-export hub is the single failure point for package imports; `io.py` is a secondary logic bottleneck. | `obsidian/suspects.md` |
-| Q4 | How were block/OOP views extracted? | Graph communities form the block view; the target has no classes, so the honest OOP view is an empty class schema plus module/function dependencies. | `deliverables/CLASS_SCHEMA.md` |
+| Q4 | How were block/OOP views extracted? | Graph communities form the block view; buggy-python has no classes (honest empty schema), so the OOP class diagram is extracted from a class-bearing secondary target via the same AST pipeline. | `deliverables/CLASS_SCHEMA.md`, `deliverables/CLASS_SCHEMA_requests.md` |
 | Q5 | How was the bug identified? | `BugLocalizer` followed the graph from `main.py` to the missing `lambda_array` export and selected `snippets/__init__.py` first. | `obsidian/localization.md` |
 | Q6 | What did graph + Obsidian improve? | The investigation read 2 graph/vault units instead of 5 source files and reached the first fix site in one cycle. | `metrics/out/debug_token_study.json` |
 | Q7 | How were tokens saved? | Graph-guided localization used 685 input tokens vs 802 naive input tokens, a 14.59% reduction on this small target. | `docs/metrics/GRAPH_VS_CODE.md` |
@@ -160,10 +163,14 @@ The debug token study compares locating the first file to fix with and without g
 On this small repo, the token saving is modest (14.59%), but the graph path reads 60% fewer
 files/units and reaches the correct hub in one cycle.
 
-A separate, broader **10-question knowledge-retrieval pilot** (`metrics/out/baseline_ledger.jsonl` +
-`assisted_ledger.jsonl`, `docs/metrics/COST_TABLES.md`) reaches **~97%** input-token reduction against
-an aggressive full-context baseline — the upper end of the lecture's 70–95% range. The conservative
-focused study above is the submission headline; the pilot is reported separately, not blended into it.
+A second, **rigorous scale study** on the class-bearing `psf/requests` (19 modules) measures real
+`tiktoken o200k_base` tokens across **six** reverse-engineering questions: the naive full-source
+context (**49,592 tokens**) vs graph-scoped retrieval (the AST class map + the one focused module)
+saves **85.8% ± 5.48%** input tokens (range 77.9–94.4%), **clearing the lecture's 70% target** — see
+`docs/metrics/TOKEN_STUDY_REQUESTS.md` (`scripts/token_study_tiktoken.py` →
+`metrics/out/token_study_requests.json`). The two studies are complementary and never blended:
+`buggy-python` is the conservative floor (tiny repo, 14.59%), `requests` is the scale result. (An
+earlier exploratory ledger pilot remains under `metrics/out/*_ledger.jsonl` / `docs/metrics/COST_TABLES.md`.)
 
 ## Deliverables Map
 
@@ -172,7 +179,7 @@ focused study above is the submission headline; the pilot is reported separately
 | Choose a PDF-listed repo | `config/setup.json`, `docs/REPO_SELECTION.md` |
 | Graphify representation | `artifacts/buggy-python-graph.json`, `artifacts/buggy-python-GRAPH_REPORT.md` |
 | Obsidian documentation | `obsidian/` |
-| Reverse engineering | `deliverables/ARCHITECTURE.md`, `deliverables/CLASS_SCHEMA.md`, `obsidian/architecture.md` |
+| Reverse engineering | `deliverables/ARCHITECTURE.md`, `deliverables/CLASS_SCHEMA.md`, `obsidian/architecture.md`; **real OOP class diagram** `deliverables/CLASS_SCHEMA_requests.md` (psf/requests: 46 classes, inheritance + composition) |
 | Agentic debugging | `src/archlens/agents/bug_localizer.py`, `obsidian/localization.md` |
 | Code repair | `deliverables/BUG_REPORT.md`, `deliverables/buggy-python-fix.patch` |
 | Token proof | `metrics/out/debug_token_study.json`, `docs/metrics/GRAPH_VS_CODE.md` |

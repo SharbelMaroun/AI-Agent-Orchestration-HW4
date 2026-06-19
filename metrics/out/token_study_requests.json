@@ -1,0 +1,56 @@
+{
+  "target": "psf/requests",
+  "tokenizer": "tiktoken o200k_base (real tokens, not a chars heuristic)",
+  "measures": "input context-window size (naive full-source dump vs graph-scoped retrieval)",
+  "modules_in_target": 19,
+  "naive_tokens": 49592,
+  "questions": [
+    {
+      "question": "How is HTTP authentication implemented?",
+      "focused_module": "auth.py",
+      "naive_tokens": 49592,
+      "guided_tokens": 4709,
+      "savings_pct": 90.5
+    },
+    {
+      "question": "What is the exception hierarchy?",
+      "focused_module": "exceptions.py",
+      "naive_tokens": 49592,
+      "guided_tokens": 2785,
+      "savings_pct": 94.38
+    },
+    {
+      "question": "How does the HTTPAdapter manage connection pooling and retries?",
+      "focused_module": "adapters.py",
+      "naive_tokens": 49592,
+      "guided_tokens": 7809,
+      "savings_pct": 84.25
+    },
+    {
+      "question": "How is a request prepared and sent?",
+      "focused_module": "models.py",
+      "naive_tokens": 49592,
+      "guided_tokens": 10965,
+      "savings_pct": 77.89
+    },
+    {
+      "question": "How does a Session persist state across requests?",
+      "focused_module": "sessions.py",
+      "naive_tokens": 49592,
+      "guided_tokens": 9220,
+      "savings_pct": 81.41
+    },
+    {
+      "question": "How are cookies stored and merged?",
+      "focused_module": "cookies.py",
+      "naive_tokens": 49592,
+      "guided_tokens": 6769,
+      "savings_pct": 86.35
+    }
+  ],
+  "savings_pct_mean": 85.8,
+  "savings_pct_stdev": 5.48,
+  "savings_pct_min": 77.89,
+  "savings_pct_max": 94.38,
+  "target_met_70pct": true
+}
