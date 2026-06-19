@@ -2,7 +2,7 @@
 
 Version: 1.00 | Course: AI Agent Orchestration — HW4 (EX04)
 
-Totals: 951 passed, 0 failed.
+Totals: 953 passed, 0 failed.
 
 | Test | Expected | Status |
 |---|---|---|
@@ -18,6 +18,8 @@ Totals: 951 passed, 0 failed.
 | test_missing_path_is_vacuously_green | - | PASS |
 | test_none_path_is_vacuously_green | - | PASS |
 | test_fixed_buggy_python_harness_passes | the fixed buggy-python harness prints the success line at exit 0. | PASS |
+| test_buggy_case_sensitive_check_overwrites_user_host | - | PASS |
+| test_fixed_case_insensitive_check_preserves_user_host | - | PASS |
 | test_every_community_appears_exactly_once_as_a_mermaid_node | - | PASS |
 | test_pipeline_emits_a_fenced_diagram_with_an_edge | - | PASS |
 | test_real_nodelink_schema_renders_non_empty_diagram | - | PASS |

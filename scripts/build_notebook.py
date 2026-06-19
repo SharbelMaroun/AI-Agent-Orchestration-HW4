@@ -128,13 +128,15 @@ input tokens graph-guided vs 802 naive — 14.59% fewer**, with **60% fewer file
 does **not** reach the lecture's 70% target (`target_met = false`); the dominant benefit here is
 navigation, not raw token count — see `docs/metrics/SAVINGS_EXPLANATION.md`.
 
-**(B) Rigorous scale study (psf/requests).** A real-tokenizer (`tiktoken o200k_base`) measurement over
-a medium class-bearing repo (19 modules): the naive full-source context (**49,592 tokens**) vs
-graph-scoped retrieval (the AST class map + the one focused module) saves **85.8% +/- 5.48%** input
-tokens across six reverse-engineering questions (range 77.9-94.4%), **clearing the lecture's 70%
-target**. Artifact `metrics/out/token_study_requests.json`; see `docs/metrics/TOKEN_STUDY_REQUESTS.md`.
-The two studies are complementary and never blended: `buggy-python` is the conservative floor (14.59%),
-`requests` is the scale result. (Figures 1-2/6 below illustrate an *earlier exploratory* ledger pilot.)"""
+**(B) Live scale study (httpie).** A **live** measurement with **real provider token counts**
+(gatekeeper ledger deltas, not a `chars//4` estimate) over the class-bearing PDF-listed BugsInPy repo
+httpie: graph-scoped retrieval (the AST class map + the one focused module) saves a mean
+**79.68% +/- 7.91%** input tokens across six reverse-engineering questions (range 67.7-87.8%), cutting
+files read **13 -> 2** and cycles **13 -> 1** with **6/6 (100%)** correct guided localization,
+**clearing the lecture's 70% target**. Artifact `metrics/out/token_study_httpie.json`; see
+`docs/metrics/TOKEN_STUDY_HTTPIE.md`. The two studies are complementary and never blended:
+`buggy-python` is the conservative floor (14.59%), `httpie` is the live scale result. (Figures 1-2/6
+below illustrate an *earlier exploratory* ledger pilot.)"""
 
 ISO_CODE = """from IPython.display import Markdown
 
@@ -151,17 +153,18 @@ FINDINGS_MD = """## 8. Findings & Threats to Validity
 1. On the focused debug-localization task (study A), Graphify-assisted retrieval cut input tokens by
    **14.59%** and files read by **60%** (one cycle to the fix site); on this tiny target the headline
    benefit is navigation, not clearing the 70% token bar (`target_met = false`).
-2. On the rigorous scale study (study B, `psf/requests`, real tiktoken, n=6), graph-scoped retrieval
-   saves **85.8% ± 5.48%** input tokens — **clearing the 70% target** on a medium real repo.
+2. On the live scale study (study B, `httpie`, real provider tokens, n=6), graph-scoped retrieval
+   saves **79.68% ± 7.91%** input tokens (files 13→2, cycles 13→1, 6/6 localization) — **clearing the
+   70% target** on a medium real repo.
 3. Context size is the most sensitive OAT outcome: `top_k_pages` and `analysis_depth` move the
    assembled-context token count materially (Figure 4); the rate-limit model is analytical.
 
 **Threats to validity.** The focused study is a single localization task (n=1) on a 5-file target, so
 its 14.59% is conservative; the scale study measures **input context size** (the lecture's core claim)
-with a real tokenizer over six questions, not a live multi-turn agent loop. Per-question counts are
-near-deterministic, so run-to-run variance (Figure 5) is dominated by wall-clock runtime. Results span
-two targets: `andela/buggy-python` (debugging) and `psf/requests` (OOP class diagram + scale token
-study)."""
+with real provider token counts over six questions, not a live multi-turn agent loop. Per-question
+counts are near-deterministic, so run-to-run variance (Figure 5) is dominated by wall-clock runtime.
+Results span two targets: `andela/buggy-python` (focused procedural debugging) and `httpie` (OOP class
+diagram + live scale token study + Host-header bug)."""
 
 
 def main() -> int:

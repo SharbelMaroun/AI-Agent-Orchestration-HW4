@@ -20,10 +20,12 @@ The graph still demonstrates the required mechanism: it routes the agent from `m
 
 ## Scale study clears the 70% target
 
-To show the savings are not an artifact of a 5-file toy, a **rigorous scale study** repeats the
-measurement on a medium class-bearing repo, `psf/requests` (19 modules), with a **real tokenizer**
-(`tiktoken o200k_base`) over **six** reverse-engineering questions: the naive full-source context
-(**49,592 tokens**) vs graph-scoped retrieval saves **85.8% ± 5.48%** input tokens (range
-77.9–94.4%) — **above the lecture's 70% target**. Details: `docs/metrics/TOKEN_STUDY_REQUESTS.md`
-(`metrics/out/token_study_requests.json`). The two studies are complementary: buggy-python is the
-conservative floor, requests is the scale result; neither is blended into the other.
+To show the savings are not an artifact of a 5-file toy, the **headline scale study** repeats the
+measurement **live** on the class-bearing PDF-listed BugsInPy repo **httpie**, with **real provider
+token counts** (the gatekeeper's recorded `input_tokens`, not a `chars//4` estimate) over **six**
+reverse-engineering questions: graph-scoped retrieval (the AST class map + the one focused module)
+saves a mean **79.68% ± 7.91%** input tokens (range 67.7–87.8%), cutting files read **13 → 2** and
+cycles **13 → 1**, with **6/6** correct guided localization — **above the lecture's 70% target**.
+Details: `docs/metrics/TOKEN_STUDY_HTTPIE.md` (`metrics/out/token_study_httpie.json`). The two studies
+are complementary: buggy-python is the conservative floor, httpie is the live scale result; neither is
+blended into the other.

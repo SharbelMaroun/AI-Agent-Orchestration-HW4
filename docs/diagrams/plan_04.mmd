@@ -2,7 +2,7 @@
 %% NOTE: the agents are FUNCTIONAL node factories (make_repo_node, make_graph_node, ... in
 %% src/archlens/agents/*.py), NOT a BaseAgent class hierarchy. The SDK is a facade composing single-
 %% concern mixins; the contracts are frozen dataclasses. A full AST-extracted class diagram of a
-%% class-bearing reverse-engineering target is in deliverables/CLASS_SCHEMA_requests.md.
+%% class-bearing reverse-engineering target (httpie, 44 classes) is in deliverables/CLASS_SCHEMA.md.
 classDiagram
     class ArchLensSDK {
         +ask_llm(prompt, system, agent) str

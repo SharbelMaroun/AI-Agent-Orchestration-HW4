@@ -10,7 +10,8 @@ Version: 1.00 | Course: AI Agent Orchestration - HW4 / EX04
 > (`src/archlens/vault/arch_doc.py`, pinned by `tests/vault/test_arch_doc.py`) that emits a
 > community-labelled `# Architecture` doc; this file instead presents a file-level, prose synthesis
 > chosen for readability over that generic format. The OOP/class diagram below is intentionally empty
-> because the target is procedural Python with no classes — see `deliverables/CLASS_SCHEMA.md`.
+> because this debug target is procedural Python with no classes; the class-bearing OOP class diagram
+> lives on the primary httpie target — see `deliverables/CLASS_SCHEMA.md`.
 
 ## Scope
 
@@ -77,11 +78,12 @@ module code is executed.
 
 ## OOP View
 
-This debugging target is procedural — functions and modules, no classes — so its own class schema is
-honestly empty (`deliverables/CLASS_SCHEMA.md`). The §5.2 OOP class diagram (inheritance / composition
-/ encapsulation) is therefore demonstrated on a class-bearing **secondary** reverse-engineering target,
-**`deliverables/CLASS_SCHEMA_requests.md`** (psf/requests: 46 classes, 32 inheritance + 34 composition
-edges, auto-extracted by the same AST pipeline).
+This debugging target (`andela/buggy-python`, the subject of this document) is procedural — functions
+and modules, no classes — so its own class schema is honestly empty. The §5.2 OOP class diagram
+(inheritance / composition / encapsulation) is therefore demonstrated on the class-bearing **primary**
+reverse-engineering target, **`deliverables/CLASS_SCHEMA.md`** (httpie, a PDF-listed soarsmu/BugsInPy
+project: 44 classes, 19 inheritance + 15 composition edges, auto-extracted by the same AST pipeline).
+buggy-python remains the focused procedural debug target.
 
 ```mermaid
 classDiagram

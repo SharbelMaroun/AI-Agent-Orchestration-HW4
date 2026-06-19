@@ -23,7 +23,7 @@ points to `../deliverables/BUG_REPORT.md` as the committed reproduction proof.
 
 ## This Project's Own Suite (ArchLens)
 
-- **951 passed** (a fresh clone shows **950 passed, 1 skipped** — the debug-harness test is skipped
+- **953 passed** (a fresh clone shows **952 passed, 1 skipped** — the debug-harness test is skipped
   until `runs/buggy-python/` is cloned) across the repo module, Graphify pipeline, agents, gatekeeper,
   metrics, and vault. Full report: **`../reports/test_report.md`**.
 - Coverage gate: `uv run pytest --cov=src --cov-branch` -> **96.8%** (≥85% enforced).

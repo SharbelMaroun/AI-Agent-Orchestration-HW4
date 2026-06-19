@@ -1,0 +1,70 @@
+{
+  "target": "httpie (soarsmu/BugsInPy)",
+  "mode": "LIVE provider tokens (gatekeeper ledger)",
+  "naive_files_read": 13,
+  "guided_units_read": 2,
+  "headline_cycles_naive": 13,
+  "headline_cycles_guided": 1,
+  "questions": [
+    {
+      "question": "Which module builds the HTTP request line and its headers?",
+      "module": "models.py",
+      "naive_tokens": 17259,
+      "guided_tokens": 2193,
+      "savings_pct": 87.29,
+      "naive_correct": true,
+      "guided_correct": true
+    },
+    {
+      "question": "Which module defines and parses the command-line arguments?",
+      "module": "cli.py",
+      "naive_tokens": 17258,
+      "guided_tokens": 4699,
+      "savings_pct": 72.77,
+      "naive_correct": true,
+      "guided_correct": true
+    },
+    {
+      "question": "Which module handles file downloads and progress reporting?",
+      "module": "downloads.py",
+      "naive_tokens": 17257,
+      "guided_tokens": 4146,
+      "savings_pct": 75.97,
+      "naive_correct": true,
+      "guided_correct": true
+    },
+    {
+      "question": "Which module manages saved named sessions?",
+      "module": "sessions.py",
+      "naive_tokens": 17255,
+      "guided_tokens": 2329,
+      "savings_pct": 86.5,
+      "naive_correct": true,
+      "guided_correct": true
+    },
+    {
+      "question": "Which module sends the prepared request to the server?",
+      "module": "client.py",
+      "naive_tokens": 17258,
+      "guided_tokens": 2098,
+      "savings_pct": 87.84,
+      "naive_correct": true,
+      "guided_correct": true
+    },
+    {
+      "question": "Which module processes request items and input data?",
+      "module": "input.py",
+      "naive_tokens": 17257,
+      "guided_tokens": 5570,
+      "savings_pct": 67.72,
+      "naive_correct": true,
+      "guided_correct": true
+    }
+  ],
+  "savings_pct_mean": 79.68,
+  "savings_pct_stdev": 7.91,
+  "savings_pct_min": 67.72,
+  "savings_pct_max": 87.84,
+  "target_met_70pct": true,
+  "guided_localization_rate": 1.0
+}

@@ -8,7 +8,7 @@ Each Guidelines V3 quick-reference requirement, with verdict and evidence.
 | --- | --- | --- | --- |
 | 1 | uv-only toolchain (no pip/virtualenv/venv/`python -m`/requirements.txt) | PASS | `scripts/check_forbidden_tools.py`; `tests/test_check_forbidden_tools.py` |
 | 2 | `pyproject.toml` + committed `uv.lock` as single dependency source | PASS | `git ls-files uv.lock`; `uv lock --check` |
-| 3 | Test coverage >= 85% (statement + branch) | PASS | `uv run pytest --cov=src --cov-branch` -> 951 passed (950 + 1 clone-gated skip on a fresh checkout), 96.8% |
+| 3 | Test coverage >= 85% (statement + branch) | PASS | `uv run pytest --cov=src --cov-branch` -> 953 passed (952 + 1 clone-gated skip on a fresh checkout), 96.8% |
 | 4 | Ruff: 0 violations (E,F,W,I,N,UP,B,C4,SIM; ignore E501) | PASS | `uv run ruff check .`; `tests/test_ruff_gate.py` |
 | 5 | 150 effective-line cap per file (incl. tests) | PASS | `scripts/check_line_cap.py`; `tests/test_check_line_cap.py` |
 | 6 | TDD red-green workflow | PASS | per-phase red/green commit history; mutation spot checks |
@@ -17,8 +17,8 @@ Each Guidelines V3 quick-reference requirement, with verdict and evidence.
 | 9 | Single SDK entry point; thin zero-logic CLI | PASS | `tests/test_main_zero_logic.py`; `ArchLensSDK` facade |
 | 10 | Gatekeeper-only external calls + FIFO never-reject | PASS | `tests/test_api_call_routing.py`, `test_no_llm_bypass.py`, `test_no_direct_git.py` |
 | 11 | Graphify pipeline + Obsidian vault (hot/index/wiki/log) | PASS | `artifacts/buggy-python-graph.json`, `artifacts/buggy-python-GRAPH_REPORT.md`, `obsidian/` |
-| 12 | Reverse-engineering deliverables (block diagram, **OOP class diagram**, audit) | PASS | `deliverables/ARCHITECTURE.md`, `CLASS_SCHEMA.md`; **real OOP class diagram (46 classes, 32 inheritance + 34 composition) in `deliverables/CLASS_SCHEMA_requests.md`** (class-bearing secondary target psf/requests); `ALIGNMENT_AUDIT.md`, `BUG_REPORT.md` |
-| 13 | Token before/after with >= 70% savings (or amortization/explanation when target is small) | PASS (**70% target met on scale study**) | scale study `metrics/out/token_study_requests.json` -> **85.8% ± 5.48%** (real tiktoken, n=6, psf/requests); focused floor `metrics/out/debug_token_study.json` (14.59%); `docs/metrics/{TOKEN_STUDY_REQUESTS,SAVINGS_EXPLANATION}.md` |
+| 12 | Reverse-engineering deliverables (block diagram, **OOP class diagram**, audit) | PASS | `deliverables/ARCHITECTURE.md`; **real OOP class diagram (44 classes, 19 inheritance + 15 composition) in `deliverables/CLASS_SCHEMA.md`** (class-bearing primary target httpie, a PDF-listed BugsInPy project); `ALIGNMENT_AUDIT.md`, `BUG_REPORT.md` |
+| 13 | Token before/after with >= 70% savings (or amortization/explanation when target is small) | PASS (**70% target met on scale study**) | live scale study `metrics/out/token_study_httpie.json` -> **79.68% ± 7.91%** (real provider tokens, n=6, httpie), clears 70%; focused floor `metrics/out/debug_token_study.json` (14.59%, buggy-python); `docs/metrics/{TOKEN_STUDY_HTTPIE,SAVINGS_EXPLANATION}.md` |
 | 14 | 4 knowledge-quality metrics measured before/after | PASS | `deliverables/BUG_REPORT.md`, `obsidian/findings.md`, and `metrics/out/debug_token_study.json` document files read, cycles, root-cause quality, and token use |
 | 15 | SKILL.md with guardrails + LLM wiki | PASS | `skills/SKILL_graph_reading.md`, `SKILL_refactor.md` |
 | 16 | CI/CD pipeline (uv sync --frozen, gates) | PASS | `.github/workflows/ci.yml` |
