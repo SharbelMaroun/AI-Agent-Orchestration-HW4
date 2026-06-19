@@ -16,7 +16,7 @@ debugging with a naive source-reading path.
 From the project root:
 
 ```powershell
-uv sync; uv run python src/main.py --version; uv run python src/main.py submission-demo; uv run python src/main.py analyze; uv run pytest --cov=archlens --cov-branch
+uv sync; uv run python src/main.py --version; uv run python src/main.py submission-demo; uv run python src/main.py analyze; uv run pytest --cov=src --cov-branch
 ```
 
 Expected high-level output:
@@ -25,8 +25,8 @@ Expected high-level output:
 - debug target: `https://github.com/andela/buggy-python`
 - first suspect: `snippets/__init__.py`
 - analysis graph: `19` nodes, `28` edges
-- tests: `941 passed, 1 skipped`
-- coverage: about `96.80%`
+- tests: `946 passed` (a fresh clone shows `945 passed, 1 skipped` — one debug-harness test is skipped until `runs/buggy-python/` is cloned; see note below)
+- coverage: about `96.8%` (branch coverage; the suite fails under the configured 85% gate)
 
 ## Submitted Target
 
@@ -160,6 +160,11 @@ The debug token study compares locating the first file to fix with and without g
 On this small repo, the token saving is modest (14.59%), but the graph path reads 60% fewer
 files/units and reaches the correct hub in one cycle.
 
+A separate, broader **10-question knowledge-retrieval pilot** (`metrics/out/baseline_ledger.jsonl` +
+`assisted_ledger.jsonl`, `docs/metrics/COST_TABLES.md`) reaches **~97%** input-token reduction against
+an aggressive full-context baseline — the upper end of the lecture's 70–95% range. The conservative
+focused study above is the submission headline; the pilot is reported separately, not blended into it.
+
 ## Deliverables Map
 
 | PDF requirement | Evidence |
@@ -171,7 +176,7 @@ files/units and reaches the correct hub in one cycle.
 | Agentic debugging | `src/archlens/agents/bug_localizer.py`, `obsidian/localization.md` |
 | Code repair | `deliverables/BUG_REPORT.md`, `deliverables/buggy-python-fix.patch` |
 | Token proof | `metrics/out/debug_token_study.json`, `docs/metrics/GRAPH_VS_CODE.md` |
-| Quality gates | `uv run pytest --cov=archlens --cov-branch` |
+| Quality gates | `uv run pytest --cov=src --cov-branch` |
 
 ## Useful Commands
 
@@ -181,7 +186,7 @@ uv run python src/main.py --version
 uv run python src/main.py debug-demo
 uv run python src/main.py submission-demo
 uv run python src/main.py analyze
-uv run pytest --cov=archlens --cov-branch
+uv run pytest --cov=src --cov-branch
 uv run ruff check .
 uv run python scripts/check_line_cap.py
 uv run python scripts/check_forbidden_tools.py

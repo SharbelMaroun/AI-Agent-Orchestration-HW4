@@ -114,19 +114,24 @@ failed, and how the prompt was refined* (L07, section 11; Guidelines V3).
 - **Tokens:** recorded by MetricsAgent per invocation (gatekeeper ledger).
 
 ### PB-004 — Baseline-vs-assisted measurement prompts (implemented)
-- **Date:** implemented (measured live on gpt-4.1-mini; ledgers in `metrics/out/`)
+- **Date:** implemented. Two separate studies: the **broad 10-question pilot** ledgers were measured
+  live on gpt-4.1-mini (`metrics/out/{baseline,assisted}_ledger.jsonl`, ~97% input-token reduction);
+  the **focused debug-localization study** records input-token counts only
+  (`metrics/out/debug_token_study.json`; `output_tokens`/`usd_cost` are not billed in that artifact).
 - **Model:** same model for both arms (controlled comparison)
 - **Context / Goal:** Token-economics proof (Part A/B): one **naive baseline prompt** that
   answers architecture questions from full repository context, vs the **Graphify-assisted
   prompt** that answers from `graph.json` + Obsidian vault (`hot.md`, `index.md`, `wiki/`).
-  Target >= 70% input-token savings; if not achieved, log the written explanation here
-  (initial graph-scan cost amortization).
+  Target >= 70% input-token savings; the broad pilot clears it (~97%), while the focused debug task on
+  the tiny 5-file target does **not** (14.59%) — the written explanation is in
+  `docs/metrics/SAVINGS_EXPLANATION.md` (graph already built, so no per-query amortization debt).
 - **Prompt:** identical question set for both arms; assisted arm instructed to read `index.md`
-  first, then at most 2-3 wiki pages (Part B navigation rule). To be logged verbatim.
-- **Output Summary / Evaluation:** implemented for the submitted `andela/buggy-python` debug task:
+  first, then at most 2-3 wiki pages (Part B navigation rule). Logged in the per-agent prompt files.
+- **Output Summary / Evaluation:** the submission **headline** is the `andela/buggy-python` debug task:
   685 graph-guided input tokens vs 802 naive input tokens (14.59% fewer), recorded in
   `metrics/out/debug_token_study.json` and `docs/metrics/GRAPH_VS_CODE.md`.
-- **Tokens:** both arms measured on the same localization question.
+- **Tokens:** both arms measured on the same localization question (input tokens); the broad pilot's
+  full input/output/cost is in the ledgers and `docs/metrics/COST_TABLES.md`.
 
 ### PB-005 — SKILL.md routing descriptions (implemented)
 - **Date:** implemented — see `skills/SKILL_graph_reading.md`, `skills/SKILL_refactor.md`

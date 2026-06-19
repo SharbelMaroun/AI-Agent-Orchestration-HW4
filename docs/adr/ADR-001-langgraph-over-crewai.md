@@ -20,13 +20,13 @@ typed `AgentState`; persistence via the SQLite checkpointer (ADR-009).
 ## Alternatives
 
 - **CrewAI** — rejected: its role/task abstraction is convenient but routing is less
-  deterministic, and first-class `interrupt_before` approval gates plus checkpoint
+  deterministic, and first-class `interrupt()`/checkpoint approval primitives plus
   resume are exactly the LangGraph primitives the improvement loop needs.
 - **Hand-rolled orchestrator** — rejected: re-implements checkpointing and interrupts
   with no course credit for the plumbing.
 
 ## Consequences
 
-\+ Checkpointer gives crash-resume and `interrupt_before` approval gates for free;
+\+ Checkpointer gives crash-resume and interrupt-based approval gates for free;
 routing is unit-testable without an LLM.
 − More boilerplate than CrewAI's role abstraction; mitigated by a shared `BaseAgent`.

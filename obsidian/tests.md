@@ -23,9 +23,10 @@ points to `../deliverables/BUG_REPORT.md` as the committed reproduction proof.
 
 ## This Project's Own Suite (ArchLens)
 
-- **941 passed, 1 skipped** across the repo module, Graphify pipeline, agents, gatekeeper, metrics,
-  and vault. Full report: **`../reports/test_report.md`**.
-- Coverage gate: `uv run pytest --cov=archlens --cov-branch` -> **96.80%**.
+- **946 passed** (a fresh clone shows **945 passed, 1 skipped** — the debug-harness test is skipped
+  until `runs/buggy-python/` is cloned) across the repo module, Graphify pipeline, agents, gatekeeper,
+  metrics, and vault. Full report: **`../reports/test_report.md`**.
+- Coverage gate: `uv run pytest --cov=src --cov-branch` -> **96.8%** (≥85% enforced).
 - Ruff gate: `uv run ruff check .` -> **0 violations**.
 - The improvement loop runs QA after changes; mutation spot-checks are in
   `../reports/mutation_spotchecks.md`.

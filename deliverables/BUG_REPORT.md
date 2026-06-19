@@ -58,7 +58,8 @@ shows the original `!==` was both a syntax error *and* the wrong comparison).
 
 ### Fix diff (4 files, +28 / −26)
 
-The exact standalone patch is committed at `deliverables/buggy-python-fix.patch`.
+The exact standalone patch is committed at `deliverables/buggy-python-fix.patch` — a valid unified diff
+(`git apply`-able from a fresh `andela/buggy-python` clone root; verified with `git apply --check`).
 
 ```diff
 # snippets/__init__.py — restore the re-export hub
@@ -138,7 +139,7 @@ named the fix site (the hub) **before** any leaf source was read.
 ```bash
 git clone --depth 1 https://github.com/andela/buggy-python runs/buggy-python
 cd runs/buggy-python && PYTHONIOENCODING=utf-8 python main.py   # FAILS: ImportError (exit 1)
-# apply deliverables/buggy-python-fix.patch to snippets/{__init__,loop,io,foobar}.py
+git apply ../../deliverables/buggy-python-fix.patch             # valid unified diff; paths are repo-root-relative
 PYTHONIOENCODING=utf-8 python main.py                            # PASSES: "All test passed successfully!!" (exit 0)
 ```
 

@@ -137,7 +137,7 @@ Roster notes:
 
 - The graph compiles with a LangGraph **SQLite checkpointer** (`checkpoints.db` under the run output dir; path read from `config/setup.json` via `cfg.get`). Every super-step persists the full `AgentState`.
 - `thread_id` = run id (`archlens-<target>-<timestamp>`). Resuming with the same thread id continues from the last checkpoint: a crash mid-iteration never repeats a completed Graphify run, refactor, or LLM call sequence.
-- **Human-in-the-loop interrupt:** the graph declares `interrupt_before=["RefactorAgent"]`. Execution suspends at the checkpoint; the thin CLI (`src/main.py`, zero business logic) surfaces the pending approval with diff and citation; on `granted` the run resumes from the same checkpoint with the approval appended to `approvals`. Pending approvals survive process restarts indefinitely.
+- **Human-in-the-loop interrupt:** the ApprovalAgent node raises a dynamic LangGraph `interrupt()` (the supervisor routes to it whenever an approval is pending). Execution suspends there; the thin CLI (`src/main.py`, zero business logic) surfaces the pending approval with diff and citation; on `granted` the run resumes via `Command(resume=...)` with the approval appended to `approvals`. Pending approvals survive process restarts indefinitely.
 - **Undo mechanism:** each iteration's refactor is applied on a dedicated git feature branch `archlens/iter-<N>-<fix-id>`; rollback is performed via `git revert` of that branch's commits. Per-iteration artifacts persisted under `runs/<run_id>/iter_<n>/` (graph snapshot, refactor diff, QA logs) are REPORT ARTIFACTS ONLY — they let MetricsAgent diff iteration N vs N−1 but are NOT the undo path.
 - Checkpoint retention: all checkpoints of a run are kept until the run's metrics report is finalized; cleanup policy is config-driven, never automatic mid-run.
 
@@ -228,7 +228,7 @@ The gatekeeper exposes a config-driven **mock mode** returning canned responses 
 - Fixture: a tiny synthetic Python repo under `tests/fixtures/` with one planted bottleneck module and one duplicate function pair (similarity ≥ 0.91). Graphify runs for real; the LLM stays in gatekeeper mock mode.
 - `test_full_loop_happy_path` — run end-to-end with auto-granted approvals (test-only flag, unavailable in production config); assert the loop ends via `stop_eval.met`, ≥ 1 refactor applied, QAAgent ran after every change, `token_ledger` non-empty with prompt id + version tags.
 - `test_hard_cap` — mock MetricsAgent so stop conditions never satisfy; assert exit exactly at `loop_iteration == 5` with no sixth Graphify run.
-- `test_resume_from_checkpoint` — terminate the process at the RefactorAgent interrupt, restart with the same `thread_id`, grant the approval, assert completion without re-running any completed node (FR-AO-09).
+- `test_resume_from_checkpoint` — terminate the process while suspended at the ApprovalAgent `interrupt()`, restart with the same `thread_id`, grant the approval, assert completion without re-running any completed node (FR-AO-09).
 - `test_revert_on_red_qa` — plant a refactor that breaks a fixture test; assert revert via `git revert` of the iteration feature branch `archlens/iter-<N>-<fix-id>` and finding marked `fix_failed` (FR-AO-08).
 - Quality gates on the orchestration package itself: coverage ≥ 85% (statement + branch, `fail_under=85`) and `uv run ruff check` → 0 violations.
 

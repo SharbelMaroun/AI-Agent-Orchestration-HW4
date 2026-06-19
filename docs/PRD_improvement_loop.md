@@ -200,7 +200,7 @@ Aligned with the SKILL.md guardrail tiers (Part B knowledge-asset requirements):
 | Operation class | Tier | Policy |
 |---|---|---|
 | Graph reads, diffs, reports | Read-only | Automatic, no approval needed |
-| Refactors (split, extract, merge, move) | **Irreversible** | Require **explicit human approval per change** before execution, enforced via LangGraph `interrupt_before=[RefactorAgent]`; the feature branch + `git revert` (§7) remains the technical undo path, but approval is still required before applying; RefactorAgent must verify the branch exists before editing |
+| Refactors (split, extract, merge, move) | **Irreversible** | Require **explicit human approval per change** before execution, enforced via a dynamic LangGraph `interrupt()` in the ApprovalAgent node (the supervisor routes there on a pending approval); the headless loop records an explicit auto-approval-policy grant so it can progress, and every applied refactor still has a recorded granted approval; the feature branch + `git revert` (§7) remains the technical undo path, but approval is still required before applying; RefactorAgent must verify the branch exists before editing |
 | Deletions (removing an orphan module, dropping a file, deleting a public API) | **Irreversible** | Require **explicit human approval** before execution; the approval (who/when) is recorded in the decision log; absent approval, the agent quarantines instead of deletes |
 
 Additional guardrails: no fix may touch `config/` secrets or `.env`; the loop never operates

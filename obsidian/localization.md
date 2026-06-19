@@ -28,5 +28,5 @@ print(make_localizer_node(ArchLensSDK())({'graph_json':'artifacts/buggy-python-g
   `lambda_array` from `snippets_loop_lambda_array`, causing the ImportError when clients access it
   through the package."*
 
-→ The deterministic trace + the LLM explanation agree: **fix the hub first** ([[repair#hub]]), then the
-gated leaf defects. See [[suspects]] for the full ranking and [[repair]] for the per-file fixes.
+→ The deterministic trace + the LLM explanation agree: **fix the hub first** ([[repair#hub-snippetsinitpy]]),
+then the gated leaf defects. See [[suspects]] for the full ranking and [[repair]] for the per-file fixes.

@@ -1,6 +1,6 @@
 {
   "amortization": {
-    "break_even_queries": null,
+    "break_even_queries": 0,
     "graph_build_tokens": 0,
     "per_query_savings": 117
   },

@@ -2,6 +2,16 @@
 
 Version: 1.00 | Course: AI Agent Orchestration - HW4 / EX04
 
+> **Provenance.** This document is a HAND-AUTHORED reverse-engineering synthesis, not raw generator
+> output. Its facts are derived from machine-generated evidence: the auto-built graph
+> `artifacts/buggy-python-graph.json` (19 nodes · 28 edges · 4 communities), its report
+> `artifacts/buggy-python-GRAPH_REPORT.md`, and the `docs/diagrams/analysis_*.png` charts rendered by
+> `scripts/visualize_graph.py`. ArchLens also ships a generic block-doc generator
+> (`src/archlens/vault/arch_doc.py`, pinned by `tests/vault/test_arch_doc.py`) that emits a
+> community-labelled `# Architecture` doc; this file instead presents a file-level, prose synthesis
+> chosen for readability over that generic format. The OOP/class diagram below is intentionally empty
+> because the target is procedural Python with no classes — see `deliverables/CLASS_SCHEMA.md`.
+
 ## Scope
 
 This report describes the submitted target repository:

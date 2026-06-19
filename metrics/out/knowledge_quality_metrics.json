@@ -1,53 +1,40 @@
 {
-  "version": "1.01",
-  "source_artifact": "metrics/out/graph_vs_code.json",
-  "method": "buggy-python top-3 bottleneck proxy over the with-vs-without-Graphify study.",
-  "scope_note": "Regenerated after retargeting to andela/buggy-python. The local run used canned/offline responses, so it is recorded as inconclusive rather than presented as proof of quality improvement.",
-  "sample_size": 3,
-  "baseline_label": "without_graphify_full_source",
-  "assisted_label": "with_graphify_neighbourhood",
-  "raw_observations": {
-    "baseline_tokens": 45,
-    "assisted_tokens": 45,
-    "token_savings_pct": 0.0,
-    "baseline_quality": 0.0,
-    "assisted_quality": 0.0,
-    "rows_with_source_file": 3,
-    "total_rows": 3
-  },
+  "version": "1.02",
+  "source_artifact": "metrics/out/debug_token_study.json",
+  "method": "Real before/after measurement from the focused debug-localization study on andela/buggy-python (objective counts from the gatekeeper ledger + investigation; no canned/offline judge).",
+  "target": "andela/buggy-python",
+  "baseline_label": "naive_source_reading",
+  "assisted_label": "graph_guided_localization",
   "metrics": [
     {
-      "metric": "source_traceability",
-      "baseline": 2,
+      "metric": "noise_reduction_input_tokens",
+      "baseline": 802,
+      "assisted": 685,
+      "delta_pct": 14.59,
+      "unit": "input tokens",
+      "result": "14.59% fewer input tokens"
+    },
+    {
+      "metric": "source_units_read",
+      "baseline": 5,
       "assisted": 2,
-      "delta": 0,
-      "rationale": "The regenerated rows preserve source_file evidence, but the answers are canned offline responses, so traceability cannot be credited beyond artifact linkage."
+      "delta_pct": 60.0,
+      "unit": "files/units",
+      "result": "60% fewer files/units read"
     },
     {
-      "metric": "noise_reduction",
-      "baseline": 0,
-      "assisted": 0,
-      "delta": 0,
-      "rationale": "Measured context was 45 tokens in both arms, so this regenerated proxy does not demonstrate token reduction."
-    },
-    {
-      "metric": "correct_file_identification",
-      "baseline": 0,
-      "assisted": 0,
-      "delta": 0,
-      "rationale": "Both arms received 0/5 quality from the local judge path; this is inconclusive rather than evidence of correct identification."
-    },
-    {
-      "metric": "correct_tool_at_the_right_time",
+      "metric": "investigation_cycles",
       "baseline": 2,
-      "assisted": 2,
-      "delta": 0,
-      "rationale": "The assisted path used the Graphify comparison entry point, but the canned/offline responses prevent a meaningful before/after score."
+      "assisted": 1,
+      "unit": "cycles",
+      "result": "one cycle to the first fix site"
+    },
+    {
+      "metric": "correct_root_cause_localization",
+      "baseline": "snippets/__init__.py",
+      "assisted": "snippets/__init__.py",
+      "result": "both correct; the graph path reached the hub first, before any leaf source was read"
     }
   ],
-  "averages": {
-    "baseline": 1.0,
-    "assisted": 1.0,
-    "delta": 0.0
-  }
+  "interpretation": "The target is intentionally small, so the token delta is modest; the stronger benefit is navigation (60% fewer files, one cycle). See docs/metrics/KNOWLEDGE_QUALITY_METRICS.md."
 }

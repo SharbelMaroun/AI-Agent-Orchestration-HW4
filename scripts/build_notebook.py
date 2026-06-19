@@ -87,11 +87,14 @@ the cost side of this design."""
 
 FIGURES = """## 5. Figures
 
-![Figure 1: Tokens per question — naive baseline vs Graphify-assisted.](../docs/assets/tokens_bar.png)
-*Figure 1. Baseline vs assisted tokens per question (live gpt-4.1-mini).*
+> Figures 1, 2 and 6 visualize the **broad knowledge-retrieval pilot** (study B in §6, ~97% on a
+> 10-question full-context baseline), *not* the conservative 14.59% focused headline (study A).
+
+![Figure 1: Tokens per question — full-context baseline vs Graphify-assisted.](../docs/assets/tokens_bar.png)
+*Figure 1. Broad pilot: input tokens per question, full-context baseline vs Graphify-assisted (live gpt-4.1-mini).*
 
 ![Figure 2: Token savings decomposed by pipeline stage.](../docs/assets/tokens_waterfall.png)
-*Figure 2. Waterfall of token savings by stage; the final bar equals the total savings.*
+*Figure 2. Broad pilot: waterfall of token savings by stage; the final bar equals the total savings.*
 
 ![Figure 3: Similarity threshold vs validated duplicates.](../docs/assets/similarity_scatter.png)
 *Figure 3. Scatter with the 0.91 triage threshold annotated.*
@@ -103,8 +106,9 @@ FIGURES = """## 5. Figures
 *Figure 5. Box plot of tokens and runtime across the 3 baseline runs.*
 
 ![Figure 6: Break-even line chart.](../docs/assets/break_even_line.png)
-*Figure 6. Cumulative tokens vs query count; the one-time Graphify build cost T_build is the assisted
-curve's y-intercept and the curves cross at the break-even query count (PRD_token_metrics §9 / FR-TM-10).*"""
+*Figure 6. Broad pilot: cumulative tokens vs query count; the one-time Graphify build cost T_build is
+the assisted curve's y-intercept and the curves cross at the break-even query count (PRD_token_metrics
+§9 / FR-TM-10).*"""
 
 TOKENS_CODE = """metrics = load("metrics/out/token_metrics.json")
 savings = metrics["savings"]
@@ -114,10 +118,21 @@ pd.DataFrame(metrics["per_model"])"""
 
 TOKENS_MD = """## 6. Token Economics
 
-The per-model cost table above lists input/output tokens and USD cost. Measured savings vs the naive
-baseline exceed the 70% target (see Figure 1), and the one-time Graphify build cost is amortized
-within a handful of queries — the break-even crossing is shown in Figure 6 and reported as
-`amortization.break_even_queries` above."""
+We report two complementary, separately-measured token studies.
+
+**(A) Focused debug-localization study — the submission headline.** The cell above loads
+`metrics/out/token_metrics.json` (regenerated reproducibly from `metrics/out/debug_token_study.json`
+by `scripts/build_token_metrics.py`). Locating the first fix site in `andela/buggy-python` used **685
+input tokens graph-guided vs 802 naive — 14.59% fewer**, with **60% fewer files read (2 vs 5)** and
+**1 vs 2 investigation cycles**. On this intentionally tiny 5-file target the token delta is modest and
+does **not** reach the lecture's 70% target (`target_met = false`); the dominant benefit here is
+navigation, not raw token count — see `docs/metrics/SAVINGS_EXPLANATION.md`.
+
+**(B) Broad knowledge-retrieval pilot.** Figures 1, 2 and 6 visualize a separate 10-question pilot
+(`metrics/out/baseline_ledger.jsonl` + `assisted_ledger.jsonl`). Against an aggressive
+"inject-the-whole-corpus" baseline, graph-scoped retrieval cut input tokens by ~97% — the upper end of
+the lecture's 70-95% range under a full-context baseline. It is reported separately from, and does not
+replace, the conservative headline in (A)."""
 
 ISO_CODE = """from IPython.display import Markdown
 
@@ -131,14 +146,19 @@ Markdown(iso25010_table({
 FINDINGS_MD = """## 8. Findings & Threats to Validity
 
 **Findings.**
-1. Graphify-assisted retrieval cuts input tokens by well over the 70% target (Figure 1, Figure 2).
-2. Rate-limit throughput is the most sensitive OAT parameter for wait time (Figure 4).
+1. On the focused debug-localization task (study A), Graphify-assisted retrieval cut input tokens by
+   **14.59%** and files read by **60%** (one cycle to the fix site); on this tiny target the headline
+   benefit is navigation, not clearing the 70% token bar (`target_met = false`).
+2. The broad 10-question retrieval pilot (study B, Figures 1-2) shows **~97%** input-token reduction
+   against a full-context baseline.
+3. Rate-limit throughput is the most sensitive OAT parameter for wait time (Figure 4).
 
-**Threats to validity.** The token-economics and run-to-run-variance figures are real live
-measurements on gpt-4.1-mini; per-question token counts are near-deterministic, so the measured
-variance is dominated by wall-clock runtime (Figure 5). The similarity-threshold sweep is bounded by
-the analyzed graph's confidence distribution. Results are reported for a single target repository
-(`andela/buggy-python`)."""
+**Threats to validity.** The focused study is a single localization task (n=1) on a 5-file target, so
+its 14.59% is conservative and sensitive to prompt phrasing; the broad pilot's ~97% depends on an
+aggressive inject-everything baseline. Per-question token counts are near-deterministic, so the
+run-to-run variance (Figure 5) is dominated by wall-clock runtime. The similarity-threshold sweep is
+bounded by the analyzed graph's confidence distribution. All results are reported for a single target
+repository (`andela/buggy-python`)."""
 
 
 def main() -> int:

@@ -1,17 +1,22 @@
 """RefactorAgent node — LLM-plan a fix for the top VALIDATED finding and apply it (10.022).
 
-Governance is enforced here, on the live mutating path: a finding must clear the EvidenceGate
-(allowed level + full citation triple) before it can execute, the apply action is classified by the
-three-tier guardrail (read-only / reversible / irreversible), irreversible actions are deferred to
-human approval instead of auto-applying, and the SDK writer snapshots files for rollback. The
-rationale is LLM-authored FROM THE REAL SOURCE; the structural change goes through ``sdk.apply_fix``
-(the SDK is the only writer). On a successful apply the finding is marked ``fixed``.
+Governance is enforced here, on the live mutating path. A finding must clear the EvidenceGate
+(allowed level + full citation triple) before it can execute. The apply action is then classified by
+the three-tier guardrail: a source modification is *irreversible*-tier (ADR-009), so it MUST NOT run
+until a human-in-the-loop decision is recorded in ``state.approvals``. The node therefore works in two
+passes: with no recorded grant it requests approval (appends a ``pending`` record, marks the finding
+``awaiting_approval``) and returns WITHOUT writing; only once the ApprovalAgent has recorded a
+``granted`` decision does it author the rationale FROM THE REAL SOURCE and apply the change through
+``sdk.apply_fix`` (the SDK is the only writer). On a successful apply the finding is marked ``fixed``.
 """
 
 from ..agents.evidence_gate import EvidenceGate
 from ..agents.fix_policy import FixCandidate
-from ..agents.guardrails import classify_action, requires_approval
+from ..agents.guardrails import classify_action
 from ..agents.source_reader import read_source_excerpt
+
+# Decisions (recorded by the ApprovalAgent) that authorise an irreversible source modification.
+_GRANTED = ("granted", "approved")
 
 _REFACTOR_SYSTEM = (
     "You are a senior software engineer proposing a safe, behaviour-preserving refactor of a Python "
@@ -28,11 +33,32 @@ def _denied_findings(state: dict) -> set:
     return {a.get("finding") for a in (state.get("approvals") or []) if a.get("status") == "denied"}
 
 
+def _latest_approval(state: dict, finding_id) -> str | None:
+    """The most recently recorded approval decision for a finding id (None if never requested).
+
+    ``approvals`` is an append reducer, so a finding accumulates records (pending -> granted); the
+    last one wins.
+    """
+    status = None
+    for a in (state.get("approvals") or []):
+        if a.get("finding") == finding_id:
+            status = a.get("status")
+    return status
+
+
 def _validated_open(state: dict) -> list[dict]:
+    """VALIDATED bughunter findings still awaiting a fix: open or approval-pending, not yet handled.
+
+    Excludes findings already fixed/selected (terminal) and those whose approval was denied, so a
+    resolved finding is never re-refactored.
+    """
+    findings = state.get("findings") or []
     denied = _denied_findings(state)
-    return [f for f in (state.get("findings") or [])
+    handled = {f.get("id") for f in findings if f.get("status") in ("selected", "fixed")}
+    return [f for f in findings
             if f.get("from") == "bughunter" and f.get("level") == "VALIDATED"
-            and f.get("status") == "open" and f.get("id") not in denied]
+            and f.get("status") in ("open", "awaiting_approval")
+            and f.get("id") not in denied and f.get("id") not in handled]
 
 
 def _candidate(finding: dict) -> FixCandidate | None:
@@ -65,14 +91,17 @@ def make_refactor_node(sdk):
             return {"findings": [{**target, "status": "selected", "blocked_by": "evidence_gate"}]}
 
         action = f"apply {candidate.kind} fix to {target['source_file']}"
-        tier = classify_action(action)
-        if requires_approval(action):  # irreversible -> defer to the human-in-the-loop gate
+        tier = classify_action(action)  # irreversible: a source modification (ADR-009)
+        if _latest_approval(state, target.get("id")) not in _GRANTED:
+            # No recorded grant yet -> request approval and DEFER. The SDK writer is never reached:
+            # an irreversible source change cannot run until the ApprovalAgent records a decision.
             return {
-                "findings": [{**target, "status": "selected"}],
+                "findings": [{**target, "status": "awaiting_approval"}],
                 "approvals": [{"action": action, "finding": target.get("id"),
                                "tier": tier.value, "status": "pending"}],
             }
 
+        # Approval granted -> author the rationale from the real source and apply via the SDK.
         repo_path = (state.get("target_repo") or {}).get("local_path", "")
         graph_json = (state.get("graph_snapshot") or {}).get("graph_json")
         code = read_source_excerpt(repo_path, target["source_file"])
@@ -85,10 +114,6 @@ def make_refactor_node(sdk):
         plan = {"target": target["source_file"], "action": "seam_or_split", "rationale": rationale}
         applied = sdk.apply_fix(target, repo_path, graph_json)
         status = "fixed" if applied else "selected"
-        return {
-            "findings": [{**target, "status": status, "plan": plan, "applied": applied}],
-            "approvals": [{"action": action, "finding": target.get("id"),
-                           "tier": tier.value, "status": "auto-approved"}],
-        }
+        return {"findings": [{**target, "status": status, "plan": plan, "applied": applied}]}
 
     return refactor_node
