@@ -20,8 +20,8 @@ first fix site before any leaf module is opened.
 
 ### E2 — Improvement loop with five real stop conditions and a hard cap
 `src/archlens/agents/loop_controller.py` wires `select_fix → apply_fix → regraph_diff → evaluate` as a
-LangGraph StateGraph; `src/archlens/agents/stop_evaluator.py` composes five Part-C signals
-(dependency-loss, modularity-improved, new-isolates, tests-green, token-budget) plus a hard
+LangGraph StateGraph; `src/archlens/agents/stop_evaluator.py` composes the five Part-C signals SC-1..SC-5
+(`DEPENDENCIES_LOST`, `MODULARITY_IMPROVED`, `NO_NEW_ISOLATES`, `TESTS_GREEN`, `RUFF_ZERO`) plus a hard
 `MAX_LOOP_ITERATIONS=5` cap into a STOP/CONTINUE verdict, and re-runs Graphify after every change to
 measure the graph delta.
 *Tests:* `tests/test_loop_convergence.py` (converges in 2 iterations via the production evaluator with
@@ -38,9 +38,11 @@ recorded grant — §12.4).
 ## PDF-suggested example extensions, implemented on the target graph
 
 ### E4 — Centrality ranking of the bug-investigation hotspots
-`obsidian/hot.md` ranks the candidate nodes by graph centrality (degree), produced from
+`obsidian/hot.md` is a hand-curated investigation hotspot page whose degree figures are taken from
 `node_centrality` on the real `artifacts/buggy-python-graph.json` (hub `snippets/__init__.py` = degree
-9, ranked #1) — the graph, not file reading, sets the investigation order.
+9, ranked #1) — the graph, not file reading, sets the investigation order. (The auto-generator
+`src/archlens/vault/hot_page.py` emits a separate `# Hot` table; the committed page is the curated
+narrative.)
 *Tests:* `tests/graphops/test_centrality.py`.
 
 ### E5 — Orphan detection + automatic alignment-audit documentation

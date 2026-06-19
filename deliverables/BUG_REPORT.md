@@ -24,11 +24,13 @@ ImportError: cannot import name 'lambda_array' from 'snippets'
 
 ## 2. Graph-first localization (entry → hub → leaf)
 
-This localization is produced **by the BugLocalizer agent** (`sdk.localize_bug` /
-`src/archlens/agents/bug_localizer.py` → `make_localizer_node`), which traces the dependency graph and
-emits the suspect + root cause from the **graph neighbourhood only** — no source reading (see
-`obsidian/localization.md` for the agent's verbatim output). It is precisely the cross-module failure
-the assignment targets, and the graph localizes it faster than reading files linearly:
+This localization is produced **by the graph-first BugLocalizer** (`sdk.localize_bug` →
+`src/archlens/agents/bug_localizer.py::localize_import_failure`, also packaged as the
+`make_localizer_node` LangGraph node and driven by the `debug-demo` flow — it is the dedicated
+localization component, not one of the seven supervisor-orchestration agents). It traces the
+dependency graph and emits the suspect + root cause from the **graph neighbourhood only** — no source
+reading (see `obsidian/localization.md` for its verbatim output). It is precisely the cross-module
+failure the assignment targets, and the graph localizes it faster than reading files linearly:
 
 - **Entry node** `main.py` imports **6** symbols: `lambda_array, read_file, calculate_unpaid_loans,
   calculate_paid_loans, average_paid_loans, foo`.
