@@ -12,10 +12,14 @@ Version: 1.00 | Course: AI Agent Orchestration - HW4 (EX04) | Task 16.041
 - [x] Obsidian investigation vault: `index.md`, `hot.md`, `localization.md`, `repair.md`, `architecture.md`, `findings.md` (`obsidian/`)
 - [x] Graph analysis engine (centrality, communities, hub/bottleneck, bridges, SPOF, triage)
 - [x] Reverse-engineering deliverables: block diagram, OOP class schema, PRD-vs-code audit (`deliverables/`)
+- [x] Real OOP class diagram (inheritance/composition) on class-bearing primary target `deliverables/CLASS_SCHEMA.md` (httpie, PDF-listed BugsInPy: 44 classes, 19 inheritance + 15 composition)
+- [x] Live scale token study, real provider tokens, clears 70% (`metrics/out/token_study_httpie.json`, `docs/metrics/TOKEN_STUDY_HTTPIE.md` — httpie, 79.68% ± 7.91%, n=6)
+- [x] httpie BugsInPy bug 4 (Host-header overwrite in `HTTPRequest.headers`) localized, repaired, and reproduced (`deliverables/BUG_REPORT_httpie.md`, `scripts/repro_httpie_bug.py`)
 - [x] SDK single entry point + thin CLI
 - [x] API gatekeeper: rate limiting + FIFO never-reject overflow queue
 - [x] Multi-agent LangGraph orchestration (supervisor + 7 agents)
 - [x] Improvement loop + 5 stop conditions + 5-iteration cap
+- [x] Extensions / original ideas, dedicated deliverable (`deliverables/EXTENSIONS.md`)
 - [x] Token measurement: graph-guided vs naive debug study (`metrics/out/debug_token_study.json`) plus persisted development ledger (`metrics/out/`)
 - [x] SKILL.md files with guardrails + LLM wiki (raw -> wiki -> index -> log)
 - [x] 4 knowledge-quality metrics documented for the `buggy-python` investigation (`deliverables/BUG_REPORT.md`, `obsidian/findings.md`, `metrics/out/debug_token_study.json`)
@@ -25,8 +29,8 @@ Version: 1.00 | Course: AI Agent Orchestration - HW4 (EX04) | Task 16.041
 
 ## Quality Gates
 
-- [x] Tests green (941 passed, 1 skipped)
-- [x] Branch coverage >= 85% (96.80%)
+- [x] Tests green (953 passed; a fresh checkout shows 952 passed, 1 skipped — one debug-harness test is clone-gated)
+- [x] Branch coverage >= 85% (96.8%)
 - [x] Ruff 0 violations
 - [x] 150 effective-line cap on every file (incl. tests)
 - [x] uv-only toolchain; no pip/virtualenv/venv/requirements.txt

@@ -10,7 +10,7 @@ per answer.
 | # | Research question | Answer (short) | Evidence |
 |---|---|---|---|
 | Q1 | Actual architecture; what was not obvious? | A thin `main.py` harness over one `snippets/` package fronted by a **re-export hub**; the bug is a **chain** (one hub defect gating three leaf defects), not five independent bugs. | `artifacts/buggy-python-graph.json`; `obsidian/architecture.md` |
-| Q2 | Most central components? | `snippets/__init__.py` is #1 by centrality (**degree 9**); `main.py` and `io.py` follow. | `obsidian/hot.md`; `artifacts/buggy-python-GRAPH_REPORT.md` |
+| Q2 | Most central components? | `snippets/__init__.py` is #1 by centrality (**degree 9**); `main.py` and `io.py` follow. | `obsidian/hot.md` (states degree 9); `artifacts/buggy-python-graph.json` (the source graph it is computed from) |
 | Q3 | Complex focal points / God Nodes? | The re-export hub `snippets/__init__.py` is the **God Node / SPOF** because all imports route through it; `io.py` is a secondary bottleneck. | `obsidian/suspects.md`; `src/archlens/graphops/spof.py` |
 | Q4 | Extract block schema and OOP without docs? | Communities become the **block diagram**; module/function dependency edges become the structural view. The target is procedural (0 classes), so the UML class diagram is intentionally empty. | `obsidian/architecture.md`; `deliverables/CLASS_SCHEMA.md` |
 | Q5 | How was the bug found; root cause; steps? | **Graph-first** localization (`BugLocalizer`) moved from failing symbol to hub, then from hub to leaves. Root cause: commented re-exports plus leaf defects in `loop.py`, `io.py`, and `foobar.py`. | `obsidian/localization.md`; `deliverables/BUG_REPORT.md` |

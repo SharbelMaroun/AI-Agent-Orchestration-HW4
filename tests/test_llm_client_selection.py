@@ -72,6 +72,10 @@ def test_dummy_key_is_not_a_credential(monkeypatch):
 
 
 def test_live_mode_builds_a_live_client(monkeypatch):
+    # Hermetic: clear any other-provider credential (e.g. a real OPENAI_API_KEY in a local .env) so
+    # the test verifies the anthropic-key -> LiveAnthropicClient path without interference.
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    monkeypatch.delenv("ARCHLENS_LLM_PROVIDER", raising=False)
     monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-ant-test1234567890")
     from archlens.gatekeeper.live_client import LiveAnthropicClient
     assert isinstance(select_llm_client("live"), LiveAnthropicClient)

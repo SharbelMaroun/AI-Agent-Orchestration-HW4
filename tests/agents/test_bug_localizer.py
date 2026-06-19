@@ -42,7 +42,7 @@ def test_localizer_uses_an_llm_explanation_when_provided():
 
 def test_localizer_node_emits_localization_via_the_sdk_llm():
     class _SDK:
-        def ask_llm(self, prompt, *, system=None, agent="orchestrator", max_tokens=512):
+        def ask_llm(self, prompt, *, system=None, agent="orchestrator", max_tokens=512, **kwargs):
             return "graph-first explanation: fix pkg/__init__.py"
 
     out = make_localizer_node(_SDK())({"graph_json": GRAPH, "failing_symbol": "thing"})
@@ -54,3 +54,18 @@ def test_localizer_node_emits_localization_via_the_sdk_llm():
 def test_sdk_localize_bug_is_the_single_entry_point():
     loc = ArchLensSDK().localize_bug(GRAPH, "thing")
     assert loc.suspect_file == "pkg/__init__.py"
+
+
+def test_localizer_runs_as_a_compiled_langgraph_node():
+    # §5.3: make_localizer_node is executed through a real compiled StateGraph, not just called.
+    from archlens.agents.localizer_graph import build_localizer_graph, run_localizer
+
+    class _SDK:
+        def ask_llm(self, prompt, *, system=None, agent="orchestrator", max_tokens=512, **kwargs):
+            return "graph-first explanation: fix pkg/__init__.py"
+
+    graph = build_localizer_graph(_SDK())
+    assert "BugLocalizer" in set(graph.get_graph().nodes)  # genuinely a wired graph node
+    loc = run_localizer(_SDK(), GRAPH, "thing")            # invoked via compiled graph
+    assert loc["suspect_file"] == "pkg/__init__.py"
+    assert loc["root_cause"].startswith("graph-first explanation")

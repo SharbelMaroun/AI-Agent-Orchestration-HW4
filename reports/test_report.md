@@ -2,7 +2,7 @@
 
 Version: 1.00 | Course: AI Agent Orchestration — HW4 (EX04)
 
-Totals: 941 passed, 1 skipped, 0 failed.
+Totals: 953 passed, 0 failed.
 
 | Test | Expected | Status |
 |---|---|---|
@@ -10,6 +10,7 @@ Totals: 941 passed, 1 skipped, 0 failed.
 | test_localizer_uses_an_llm_explanation_when_provided | - | PASS |
 | test_localizer_node_emits_localization_via_the_sdk_llm | - | PASS |
 | test_sdk_localize_bug_is_the_single_entry_point | - | PASS |
+| test_localizer_runs_as_a_compiled_langgraph_node | - | PASS |
 | test_graph_agent_builds_vault | - | PASS |
 | test_clean_tree_is_green | - | PASS |
 | test_syntax_error_is_counted_and_not_green | - | PASS |
@@ -17,6 +18,8 @@ Totals: 941 passed, 1 skipped, 0 failed.
 | test_missing_path_is_vacuously_green | - | PASS |
 | test_none_path_is_vacuously_green | - | PASS |
 | test_fixed_buggy_python_harness_passes | the fixed buggy-python harness prints the success line at exit 0. | PASS |
+| test_buggy_case_sensitive_check_overwrites_user_host | - | PASS |
+| test_fixed_case_insensitive_check_preserves_user_host | - | PASS |
 | test_every_community_appears_exactly_once_as_a_mermaid_node | - | PASS |
 | test_pipeline_emits_a_fenced_diagram_with_an_edge | - | PASS |
 | test_real_nodelink_schema_renders_non_empty_diagram | - | PASS |
@@ -262,6 +265,8 @@ Totals: 941 passed, 1 skipped, 0 failed.
 | test_table_has_required_columns | - | PASS |
 | test_totals_row_is_last | - | PASS |
 | test_write_creates_file | - | PASS |
+| test_debug_demo_outputs_assignment_evidence | - | PASS |
+| test_submission_demo_outputs_full_grader_path | - | PASS |
 | test_deliverables_command_writes_three_files | - | PASS |
 | test_betweenness_delta_drops_for_relieved_node | - | PASS |
 | test_betweenness_delta_zero_when_unchanged | - | PASS |
@@ -420,6 +425,8 @@ Totals: 941 passed, 1 skipped, 0 failed.
 | test_classifier_read_only_executes_automatically | - | PASS |
 | test_classifier_reversible_requires_undo_path | - | PASS |
 | test_classifier_irreversible_requires_human_approval | - | PASS |
+| test_source_modification_is_irreversible_and_needs_approval | - | PASS |
+| test_classifier_follows_the_verb_not_the_target_path | - | PASS |
 | test_undo_registry_rolls_back_byte_identically | - | PASS |
 | test_repo_manifest_parses | - | PASS |
 | test_repo_manifest_rejects_unknown_key | - | PASS |
@@ -525,6 +532,8 @@ Totals: 941 passed, 1 skipped, 0 failed.
 | test_subcommand_maps_to_sdk_method_and_exits_zero[loop-loop] | - | PASS |
 | test_subcommand_maps_to_sdk_method_and_exits_zero[tokens-tokens] | - | PASS |
 | test_subcommand_maps_to_sdk_method_and_exits_zero[vault-vault] | - | PASS |
+| test_subcommand_maps_to_sdk_method_and_exits_zero[debug-demo-debug-demo] | - | PASS |
+| test_subcommand_maps_to_sdk_method_and_exits_zero[submission-demo-submission-demo] | - | PASS |
 | test_src_main_imports_only_the_sdk_layer | - | PASS |
 | test_main_has_no_business_logic | every top-level node in main.py is an import, the docstring, or the guard. | PASS |
 | test_main_guard_delegates_to_sdk_cli | main.py imports main from archlens.__main__ (delegation, not logic). | PASS |
@@ -605,6 +614,10 @@ Totals: 941 passed, 1 skipped, 0 failed.
 | test_prompt_loads_with_version_header[refactor] | - | PASS |
 | test_prompt_loads_with_version_header[qa] | - | PASS |
 | test_prompt_loads_with_version_header[metrics] | - | PASS |
+| test_llm_prompt_exposes_id_version_and_system[analyst] | - | PASS |
+| test_llm_prompt_exposes_id_version_and_system[bughunter] | - | PASS |
+| test_llm_prompt_exposes_id_version_and_system[refactor] | - | PASS |
+| test_llm_prompt_exposes_id_version_and_system[localizer] | - | PASS |
 | test_prompt_renders_with_no_unresolved_placeholders[repo] | - | PASS |
 | test_prompt_renders_with_no_unresolved_placeholders[graph] | - | PASS |
 | test_prompt_renders_with_no_unresolved_placeholders[analyst] | - | PASS |
@@ -636,15 +649,15 @@ Totals: 941 passed, 1 skipped, 0 failed.
 | test_every_ingested_file_carries_provenance_header | - | PASS |
 | test_provenance_header_contains_source_and_timestamp | - | PASS |
 | test_red_gate_reverts_and_restores_green_baseline | - | PASS |
-| test_refactor_plans_the_top_validated_finding | - | PASS |
-| test_refactor_marks_fixed_when_the_sdk_applies_the_fix | - | PASS |
-| test_refactor_stays_selected_when_the_fix_cannot_be_applied | - | PASS |
-| test_refactor_delegates_the_write_to_the_sdk | - | PASS |
+| test_refactor_defers_a_source_modification_until_approved | - | PASS |
+| test_refactor_plans_the_top_validated_finding_once_approved | - | PASS |
+| test_refactor_marks_fixed_when_the_sdk_applies_an_approved_fix | - | PASS |
+| test_refactor_stays_selected_when_an_approved_fix_cannot_be_applied | - | PASS |
+| test_refactor_delegates_the_write_to_the_sdk_after_approval | - | PASS |
 | test_refactor_is_noop_without_a_validated_finding | - | PASS |
 | test_refactor_rationale_is_authored_by_the_llm | - | PASS |
 | test_refactor_blocks_a_finding_without_a_full_citation | - | PASS |
-| test_refactor_defers_an_irreversible_action_to_human_approval | - | PASS |
-| test_refactor_records_an_auto_approved_guardrail_for_a_reversible_fix | - | PASS |
+| test_refactor_does_not_re_request_after_a_grant | - | PASS |
 | test_refactor_skips_a_finding_whose_approval_was_denied | - | PASS |
 | test_break_bottleneck_creates_interface_seam | - | PASS |
 | test_break_bottleneck_rewires_dependents | - | PASS |
@@ -653,6 +666,8 @@ Totals: 941 passed, 1 skipped, 0 failed.
 | test_merge_updates_both_call_sites | - | PASS |
 | test_merge_refuses_low_similarity | - | PASS |
 | test_merge_refuses_unvalidated_level | - | PASS |
+| test_refactor_pauses_for_human_approval_before_any_write | - | PASS |
+| test_every_applied_refactor_carries_a_recorded_grant | - | PASS |
 | test_rewrites_a_relative_import | - | PASS |
 | test_rewrites_a_dotted_package_import | - | PASS |
 | test_rewrites_a_bare_import_and_leaves_unrelated_ones | - | PASS |
@@ -691,6 +706,7 @@ Totals: 941 passed, 1 skipped, 0 failed.
 | test_from_config_uses_limit_values | - | PASS |
 | test_retry_parameters_come_from_config_not_source | - | PASS |
 | test_success_on_third_attempt | - | PASS |
+| test_retry_removes_partial_clone_between_attempts | - | PASS |
 | test_exhaustion_after_max_retries | - | PASS |
 | test_permanent_error_is_not_retried | - | PASS |
 | test_revert_restores_pre_fix_tree | - | PASS |
@@ -810,6 +826,7 @@ Totals: 941 passed, 1 skipped, 0 failed.
 | test_hard_cap_increments_loop_iteration_when_unmet | - | PASS |
 | test_hard_cap_routes_end_at_iteration_five | - | PASS |
 | test_converged_state_ends_the_supervisor_loop | - | PASS |
+| test_default_analyze_uses_buggy_python_artifact | - | PASS |
 | test_hash_stable_for_unchanged_tree | - | PASS |
 | test_cache_miss_then_hit | - | PASS |
 | test_cache_miss_after_edit | - | PASS |

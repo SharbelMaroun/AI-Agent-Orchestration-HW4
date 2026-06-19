@@ -12,7 +12,7 @@ sequenceDiagram
     BH->>SDK: hunt_bugs() — climb evidence ladder to VALIDATED
     SDK-->>BH: Finding(relation → confidence → source_file)
     BH-->>SUP: findings += VALIDATED finding
-    SUP->>HUM: interrupt_before RefactorAgent (irreversible)
+    SUP->>HUM: ApprovalAgent raises interrupt() — awaits approval (irreversible)
     HUM-->>SUP: approval granted (recorded in approvals)
     SUP->>RF: route (VALIDATED + granted)
     RF->>SDK: apply_refactor(finding) — one fix per iteration

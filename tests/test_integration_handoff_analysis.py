@@ -18,4 +18,5 @@ def test_analysis_chain_enforces_evidence_and_guardrails(tmp_path, mock_sdk, blo
         EvidenceFinding(id=f["id"], category=f["category"], level=f["level"],
                         relation=f["relation"], confidence=f["confidence"], source_file=f["source_file"])
 
-    assert classify_action("split_module in file") is ActionTier.REVERSIBLE
+    # Splitting a target module modifies its source -> irreversible-tier -> requires approval (ADR-009).
+    assert classify_action("split_module in file") is ActionTier.IRREVERSIBLE

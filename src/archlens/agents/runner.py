@@ -24,10 +24,11 @@ def make_checkpointer(db_path: str | None = None) -> SqliteSaver:
     return saver
 
 
-def make_runner(sdk, db_path: str | None = None, interrupt_after=None):
+def make_runner(sdk, db_path: str | None = None, interrupt_after=None, auto_approve=False):
     """Compile the orchestration graph with a SqliteSaver checkpointer for resumable runs."""
     return build_orchestration_graph(
-        sdk, checkpointer=make_checkpointer(db_path), interrupt_after=interrupt_after)
+        sdk, checkpointer=make_checkpointer(db_path), interrupt_after=interrupt_after,
+        auto_approve=auto_approve)
 
 
 def resume_run(graph, thread_id: str):

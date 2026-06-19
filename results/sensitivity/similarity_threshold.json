@@ -9,7 +9,7 @@
         "top_k_pages": 3
       },
       "result": {
-        "validated_duplicates": 3675
+        "validated_duplicates": 5749
       }
     },
     {
@@ -20,7 +20,7 @@
         "top_k_pages": 3
       },
       "result": {
-        "validated_duplicates": 3675
+        "validated_duplicates": 5702
       }
     },
     {
@@ -31,7 +31,7 @@
         "top_k_pages": 3
       },
       "result": {
-        "validated_duplicates": 3675
+        "validated_duplicates": 5702
       }
     },
     {
@@ -42,7 +42,7 @@
         "top_k_pages": 3
       },
       "result": {
-        "validated_duplicates": 3675
+        "validated_duplicates": 5702
       }
     }
   ]

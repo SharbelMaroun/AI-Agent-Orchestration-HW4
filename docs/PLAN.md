@@ -238,7 +238,7 @@ sequenceDiagram
     BH->>SDK: hunt_bugs() — climb evidence ladder to VALIDATED
     SDK-->>BH: Finding(relation → confidence → source_file)
     BH-->>SUP: findings += VALIDATED finding
-    SUP->>HUM: interrupt_before RefactorAgent (irreversible)
+    SUP->>HUM: route to ApprovalAgent — dynamic interrupt() (irreversible)
     HUM-->>SUP: approval granted (recorded in approvals)
     SUP->>RF: route (VALIDATED + granted)
     RF->>SDK: apply_refactor(finding) — one fix per iteration
@@ -297,7 +297,7 @@ stateDiagram-v2
     Supervisor --> [*]: stop_eval.met OR loop_iteration == 5
 ```
 
-Routing is a deterministic pure function `route(state) -> str` (no LLM), unit-testable table-driven. `AwaitingApproval` is realized as a LangGraph `interrupt_before=["RefactorAgent"]` checkpoint; the run suspends in SQLite and resumes after a human decision — approvals are never timed out into auto-grant.
+Routing is a deterministic pure function `route(state) -> str` (no LLM), unit-testable table-driven. `AwaitingApproval` is realized by the ApprovalAgent node raising a dynamic `interrupt()`; the supervisor routes there whenever an approval is pending, and the run suspends in SQLite until a decision — approvals are never timed out into auto-grant.
 
 ---
 
@@ -402,7 +402,7 @@ Every code file (tests included) respects the 150-code-line cap (blank/comment l
 ### ADR-001 — LangGraph over CrewAI
 **Context.** EX04 mandates an agent framework; candidates were LangGraph and CrewAI. We need deterministic routing, durable checkpoints, and a human-approval interrupt for irreversible refactors.
 **Decision.** LangGraph `StateGraph` with a supervisor pattern; routing is a pure function over typed state.
-**Consequences.** + Checkpointer gives crash-resume and `interrupt_before` approval gates for free; routing is unit-testable without an LLM. − More boilerplate than CrewAI's role abstraction; mitigated by `BaseAgent`.
+**Consequences.** + Checkpointer gives crash-resume and dynamic `interrupt()` approval gates; routing is unit-testable without an LLM. − More boilerplate than CrewAI's role abstraction; mitigated by `BaseAgent`.
 
 ### ADR-002 — uv over pip/venv
 **Context.** Guidelines V3 forbids pip, virtualenv, venv, and `python -m` everywhere — code, docs, CI.
@@ -442,7 +442,7 @@ Every code file (tests included) respects the 150-code-line cap (blank/comment l
 
 ### ADR-009 — SQLite checkpointer + interrupt-based human approval
 **Context.** Irreversible refactors need explicit human approval (Part B guardrails) and runs must survive restarts.
-**Decision.** LangGraph SQLite checkpointer (`checkpoints.db`, thread_id = run id) with `interrupt_before=["RefactorAgent"]`; approvals append to state and persist across sessions; denied → skip finding; no timeout auto-grant.
+**Decision.** LangGraph SQLite checkpointer (`checkpoints.db`, thread_id = run id) with a dynamic `interrupt()` in the ApprovalAgent node; approvals append to state and persist across sessions; denied → skip finding; no timeout auto-grant.
 **Consequences.** + Kill/resume demo is possible (acceptance criterion); approval audit trail. − Single-writer SQLite is fine locally but would need swapping for multi-user deployment (out of scope).
 
 ### ADR-010 — One refactor per iteration

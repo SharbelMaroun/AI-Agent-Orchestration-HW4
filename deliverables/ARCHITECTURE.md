@@ -2,6 +2,17 @@
 
 Version: 1.00 | Course: AI Agent Orchestration - HW4 / EX04
 
+> **Provenance.** This document is a HAND-AUTHORED reverse-engineering synthesis, not raw generator
+> output. Its facts are derived from machine-generated evidence: the auto-built graph
+> `artifacts/buggy-python-graph.json` (19 nodes · 28 edges · 4 communities), its report
+> `artifacts/buggy-python-GRAPH_REPORT.md`, and the `docs/diagrams/analysis_*.png` charts rendered by
+> `scripts/visualize_graph.py`. ArchLens also ships a generic block-doc generator
+> (`src/archlens/vault/arch_doc.py`, pinned by `tests/vault/test_arch_doc.py`) that emits a
+> community-labelled `# Architecture` doc; this file instead presents a file-level, prose synthesis
+> chosen for readability over that generic format. The OOP/class diagram below is intentionally empty
+> because this debug target is procedural Python with no classes; the class-bearing OOP class diagram
+> lives on the primary httpie target — see `deliverables/CLASS_SCHEMA.md`.
+
 ## Scope
 
 This report describes the submitted target repository:
@@ -67,8 +78,12 @@ module code is executed.
 
 ## OOP View
 
-The target is procedural. It has functions and modules, but no classes. The honest OOP class schema
-is therefore empty; see `deliverables/CLASS_SCHEMA.md`.
+This debugging target (`andela/buggy-python`, the subject of this document) is procedural — functions
+and modules, no classes — so its own class schema is honestly empty. The §5.2 OOP class diagram
+(inheritance / composition / encapsulation) is therefore demonstrated on the class-bearing **primary**
+reverse-engineering target, **`deliverables/CLASS_SCHEMA.md`** (httpie, a PDF-listed soarsmu/BugsInPy
+project: 44 classes, 19 inheritance + 15 composition edges, auto-extracted by the same AST pipeline).
+buggy-python remains the focused procedural debug target.
 
 ```mermaid
 classDiagram

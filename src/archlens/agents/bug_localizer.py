@@ -8,7 +8,14 @@ from the graph neighbourhood (the SDK LLM when wired via the node; a determinist
 
 from dataclasses import dataclass
 
+from ..agents import prompt_loader
 from ..graphops.loader import load_graph
+
+# System prompt loaded by id+version from the prompt book — no inline literal (PRD §9 / FR-AO-13).
+_PROMPT = "localizer"
+_SYSTEM = prompt_loader.system_prompt(_PROMPT)
+_PID = prompt_loader.prompt_id(_PROMPT)
+_PVER = prompt_loader.version_of(_PROMPT)
 
 
 @dataclass(frozen=True)
@@ -80,8 +87,8 @@ def make_localizer_node(sdk):
             prompt = (f"An ImportError reports that `{sym}` cannot be imported. Using ONLY this "
                       f"dependency-graph evidence (no source code):\n- " + "\n- ".join(evidence) +
                       f"\n\nIn 2-3 sentences, name the file to fix (`{suspect_file}`) and the root cause.")
-            return sdk.ask_llm(prompt, system="You localize bugs from a code dependency graph, not "
-                               "from source.", agent="BugLocalizer", max_tokens=200)
+            return sdk.ask_llm(prompt, system=_SYSTEM, agent="BugLocalizer", max_tokens=200,
+                               prompt_id=_PID, prompt_version=_PVER)
 
         loc = localize_import_failure(graph_json, symbol, explain=_explain if symbol else None)
         return {"localization": {

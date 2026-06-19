@@ -17,15 +17,38 @@ class ActionTier(str, Enum):
 
 
 _READ_ONLY = ("analyze", "read", "query", "inspect", "graph", "report", "view")
-_IRREVERSIBLE = ("push", "delete", "force", "deploy", "publish", "drop", "rm ")
+# Irreversible tier == requires human approval. Two families belong here: destructive VCS/deploy
+# verbs, AND source-mutation verbs. Per ADR-009 every modification of the target's source code is
+# irreversible-tier: an autonomous agent rewriting a human's repository must not run unsupervised,
+# even though the SDK snapshots the file for rollback. The reversible tier is reserved for low-stakes
+# writes to *derived* artifacts (vault notes, reports) that carry a registered undo path.
+_IRREVERSIBLE = ("push", "delete", "force", "deploy", "publish", "drop", "rm ",
+                 "apply", "refactor", "rewrite", "modify", "split", "edit", "patch")
+_PATH_SEPARATORS = (" to ", " in ", " at ", " on ")
+
+
+def _verb_phrase(action: str) -> str:
+    """Return the action's verb phrase, excluding any trailing target path.
+
+    Action strings are shaped ``"<verb...> to|in|at|on <path>"``. Classifying only the verb phrase
+    keeps a *path* that merely contains a loaded word (e.g. ``delete_helper.py`` or ``deploy.py``)
+    from spuriously escalating an otherwise reversible action — the tier must follow the verb, not
+    the filename.
+    """
+    text = action.lower()
+    for sep in _PATH_SEPARATORS:
+        head, found, _ = text.partition(sep)
+        if found:
+            return head
+    return text
 
 
 def classify_action(action: str) -> ActionTier:
-    """Classify an action string into its guardrail tier."""
-    text = action.lower()
-    if any(token in text for token in _IRREVERSIBLE):
+    """Classify an action string into its guardrail tier (by its verb, not its target path)."""
+    verb = _verb_phrase(action)
+    if any(token in verb for token in _IRREVERSIBLE):
         return ActionTier.IRREVERSIBLE
-    if any(token in text for token in _READ_ONLY):
+    if any(token in verb for token in _READ_ONLY):
         return ActionTier.READ_ONLY
     return ActionTier.REVERSIBLE
 

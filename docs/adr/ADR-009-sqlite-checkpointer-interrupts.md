@@ -15,17 +15,23 @@ survive restarts.
 ## Decision
 
 LangGraph **SQLite checkpointer** (`SqliteSaver`, `checkpoints.db`,
-`thread_id` = run id) with **`interrupt_before=["RefactorAgent"]`** as the approval
-interrupt point — every RefactorAgent source modification pauses for explicit human
-approval; approvals append to `AgentState.approvals` and persist across sessions;
-denied → the finding is skipped; there is **no timeout auto-grant**.
+`thread_id` = run id) for crash-resume, plus an approval gate realized as a
+**dynamic `interrupt()` raised inside the ApprovalAgent node** (the supervisor routes
+there whenever a finding's latest approval status is `pending`) — every RefactorAgent
+source modification defers until a decision is recorded; approvals append to
+`AgentState.approvals` and persist across sessions; denied → the finding is skipped.
+There is **no timeout-based auto-grant**: interactive runs await a human, while the
+headless improvement loop uses an explicit recorded auto-approval policy (approver
+`auto-approval-policy`).
 
 ## Alternatives
 
 - **In-memory checkpointer** — rejected: no kill/resume demo (an acceptance
   criterion), no audit trail after a crash.
 - **Auto-approve reversible-looking refactors** — rejected: the project classifies
-  every source modification as irreversible-tier (PRD_agent_orchestration §5).
+  every source modification as irreversible-tier (PRD_agent_orchestration §5). The
+  headless loop's auto-approval is an explicit recorded grant (approver
+  `auto-approval-policy`), not a silent reversible-tier auto-approve.
 
 ## Consequences
 

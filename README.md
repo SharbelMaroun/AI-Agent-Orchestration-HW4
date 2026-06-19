@@ -16,7 +16,7 @@ debugging with a naive source-reading path.
 From the project root:
 
 ```powershell
-uv sync; uv run python src/main.py --version; uv run python src/main.py submission-demo; uv run python src/main.py analyze; uv run pytest --cov=archlens --cov-branch
+uv sync; uv run python src/main.py --version; uv run python src/main.py submission-demo; uv run python src/main.py analyze; uv run pytest --cov=src --cov-branch
 ```
 
 Expected high-level output:
@@ -25,8 +25,8 @@ Expected high-level output:
 - debug target: `https://github.com/andela/buggy-python`
 - first suspect: `snippets/__init__.py`
 - analysis graph: `19` nodes, `28` edges
-- tests: `941 passed, 1 skipped`
-- coverage: about `96.80%`
+- tests: `953 passed` (a fresh clone shows `952 passed, 1 skipped` — one debug-harness test is skipped until `runs/buggy-python/` is cloned; see note below)
+- coverage: about `96.8%` (branch coverage; the suite fails under the configured 85% gate)
 
 ## Submitted Target
 
@@ -131,7 +131,12 @@ flowchart LR
 ```
 
 The OOP/class view is intentionally empty because `buggy-python` is procedural. The class-schema
-deliverable records that result instead of inventing classes that are not present.
+deliverable records that result instead of inventing classes that are not present. The §5.2 OOP
+class-diagram requirement (inheritance / composition / encapsulation) is demonstrated on the
+class-bearing **primary** reverse-engineering target — `deliverables/CLASS_SCHEMA.md` (httpie, a
+PDF-listed soarsmu/BugsInPy project: 44 classes, 19 inheritance + 15 composition edges,
+auto-extracted by the same AST pipeline; e.g. `HTTPMessage<|--HTTPRequest/HTTPResponse`,
+`FormatterPlugin<|--`4 formatters, `BaseStream<|--EncodedStream<|--PrettyStream`).
 
 ## Research Questions
 
@@ -140,7 +145,7 @@ deliverable records that result instead of inventing classes that are not presen
 | Q1 | What is the actual architecture? | A thin `main.py` harness imports through one `snippets/__init__.py` re-export hub into three leaf modules. | `obsidian/architecture.md` |
 | Q2 | Which components are most central? | `snippets/__init__.py` is the top hub by degree; `main.py` and `snippets/io.py` follow. | `obsidian/hot.md` |
 | Q3 | Where are the God nodes or bottlenecks? | The re-export hub is the single failure point for package imports; `io.py` is a secondary logic bottleneck. | `obsidian/suspects.md` |
-| Q4 | How were block/OOP views extracted? | Graph communities form the block view; the target has no classes, so the honest OOP view is an empty class schema plus module/function dependencies. | `deliverables/CLASS_SCHEMA.md` |
+| Q4 | How were block/OOP views extracted? | Graph communities form the block view; buggy-python has no classes (honest empty schema), so the OOP class diagram is extracted from the class-bearing primary target httpie (44 classes) via the same AST pipeline. | `deliverables/CLASS_SCHEMA.md` (httpie) |
 | Q5 | How was the bug identified? | `BugLocalizer` followed the graph from `main.py` to the missing `lambda_array` export and selected `snippets/__init__.py` first. | `obsidian/localization.md` |
 | Q6 | What did graph + Obsidian improve? | The investigation read 2 graph/vault units instead of 5 source files and reached the first fix site in one cycle. | `metrics/out/debug_token_study.json` |
 | Q7 | How were tokens saved? | Graph-guided localization used 685 input tokens vs 802 naive input tokens, a 14.59% reduction on this small target. | `docs/metrics/GRAPH_VS_CODE.md` |
@@ -160,6 +165,17 @@ The debug token study compares locating the first file to fix with and without g
 On this small repo, the token saving is modest (14.59%), but the graph path reads 60% fewer
 files/units and reaches the correct hub in one cycle.
 
+The submission's **headline scale study** runs **live** on the class-bearing PDF-listed BugsInPy
+target **httpie**, with **real provider token counts** (gatekeeper ledger deltas, not a `chars//4`
+estimate) across **six** reverse-engineering questions: graph-scoped retrieval (the AST class map +
+the one focused module) saves a mean **79.68% ± 7.91%** input tokens (range 67.7–87.8%), cutting
+files read **13 → 2** and investigation cycles **13 → 1**, with **100% (6/6)** correct guided
+localization — **clearing the lecture's 70% target** on a real medium repo — see
+`docs/metrics/TOKEN_STUDY_HTTPIE.md` (`scripts/token_study_httpie_live.py` →
+`metrics/out/token_study_httpie.json`). The two studies are complementary and never blended:
+`buggy-python` is the conservative floor (tiny repo, 14.59%), `httpie` is the live scale result. (An
+earlier exploratory ledger pilot remains under `metrics/out/*_ledger.jsonl` / `docs/metrics/COST_TABLES.md`.)
+
 ## Deliverables Map
 
 | PDF requirement | Evidence |
@@ -167,11 +183,12 @@ files/units and reaches the correct hub in one cycle.
 | Choose a PDF-listed repo | `config/setup.json`, `docs/REPO_SELECTION.md` |
 | Graphify representation | `artifacts/buggy-python-graph.json`, `artifacts/buggy-python-GRAPH_REPORT.md` |
 | Obsidian documentation | `obsidian/` |
-| Reverse engineering | `deliverables/ARCHITECTURE.md`, `deliverables/CLASS_SCHEMA.md`, `obsidian/architecture.md` |
+| Reverse engineering | `deliverables/ARCHITECTURE.md`, `deliverables/CLASS_SCHEMA.md` (httpie: **real OOP class diagram**, 44 classes, inheritance + composition), `obsidian/architecture.md` |
 | Agentic debugging | `src/archlens/agents/bug_localizer.py`, `obsidian/localization.md` |
 | Code repair | `deliverables/BUG_REPORT.md`, `deliverables/buggy-python-fix.patch` |
 | Token proof | `metrics/out/debug_token_study.json`, `docs/metrics/GRAPH_VS_CODE.md` |
-| Quality gates | `uv run pytest --cov=archlens --cov-branch` |
+| Extensions / original ideas | `deliverables/EXTENSIONS.md` |
+| Quality gates | `uv run pytest --cov=src --cov-branch` |
 
 ## Useful Commands
 
@@ -181,7 +198,7 @@ uv run python src/main.py --version
 uv run python src/main.py debug-demo
 uv run python src/main.py submission-demo
 uv run python src/main.py analyze
-uv run pytest --cov=archlens --cov-branch
+uv run pytest --cov=src --cov-branch
 uv run ruff check .
 uv run python scripts/check_line_cap.py
 uv run python scripts/check_forbidden_tools.py

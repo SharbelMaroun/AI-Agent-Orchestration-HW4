@@ -84,9 +84,15 @@ class OrchestrationMixin:
             db.unlink()
 
     def run_loop(self, db_path: str | None = None, thread_id: str = "loop") -> LoopResult:
-        """Run the full improvement loop under the Part C stop conditions and 5-iteration cap."""
-        graph = make_runner(self, db_path=db_path)
-        config = {"configurable": {"thread_id": thread_id}, "recursion_limit": 100}
+        """Run the full improvement loop under the Part C stop conditions and 5-iteration cap.
+
+        This is the AUTONOMOUS (headless) entry point, so the irreversible-action approval gate runs
+        under the auto-approval policy: every refactor still passes through the ApprovalAgent and is
+        recorded as a granted approval, but the loop never blocks on a human. Interactive operation
+        uses the human ``interrupt()`` gate (default ``auto_approve=False``).
+        """
+        graph = make_runner(self, db_path=db_path, auto_approve=True)
+        config = {"configurable": {"thread_id": thread_id}, "recursion_limit": 150}
         graph.invoke({}, config)
         state = graph.get_state(config).values
         stop = state.get("stop_eval") or {}

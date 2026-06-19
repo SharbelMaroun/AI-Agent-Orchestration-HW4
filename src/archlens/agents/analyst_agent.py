@@ -1,8 +1,16 @@
 """AnalystAgent node — append typed analysis findings into state via the SDK (task 10.018).
 
 After the deterministic graph metrics, it asks the LLM (through the SDK, so it stays provider-
-agnostic and never imports a client) for a short architectural reading of the top hubs.
+agnostic and never imports a client) for a short architectural reading of the top hubs. The system
+prompt is loaded by id+version from the prompt book (no inline literal — PRD §9 / FR-AO-13).
 """
+
+from ..agents import prompt_loader
+
+_PROMPT = "analyst"
+_SYSTEM = prompt_loader.system_prompt(_PROMPT)
+_PID = prompt_loader.prompt_id(_PROMPT)
+_PVER = prompt_loader.version_of(_PROMPT)
 
 
 def _interpretation(sdk, top_rows, communities: int) -> dict:
@@ -12,10 +20,9 @@ def _interpretation(sdk, top_rows, communities: int) -> dict:
         "You are a software architect reverse-engineering a codebase from its dependency graph. "
         f"It has {communities} communities; the highest-degree hubs are: {hubs}. In 2-3 sentences, "
         "explain the architectural risk these hubs pose and what to investigate first.")
-    system = ("You are a software architect reading a dependency graph during reverse engineering; "
-              "be concrete about coupling and single-points-of-failure risk.")
     return {"from": "analyst", "category": "llm_summary",
-            "text": sdk.ask_llm(prompt, system=system, agent="AnalystAgent")}
+            "text": sdk.ask_llm(prompt, system=_SYSTEM, agent="AnalystAgent",
+                                prompt_id=_PID, prompt_version=_PVER)}
 
 
 def make_analyst_node(sdk):

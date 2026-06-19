@@ -5,7 +5,12 @@ from dataclasses import dataclass
 
 @dataclass(frozen=True)
 class TokenLedgerEntry:
-    """One LLM call's token usage, tagged by agent, model, protocol, and question."""
+    """One LLM call's token usage, tagged by agent, model, protocol, question, and prompt id/version.
+
+    ``prompt_id``/``prompt_version`` attribute the call to a specific PROMPT_BOOK entry (FR-AO-11),
+    so token deltas are traceable to the exact prompt revision; both default to "" for deterministic
+    (non-LLM) calls and for ledgers written before prompt tagging existed.
+    """
 
     agent: str
     model: str
@@ -13,6 +18,8 @@ class TokenLedgerEntry:
     input_tokens: int
     output_tokens: int
     question_id: str = ""
+    prompt_id: str = ""
+    prompt_version: str = ""
 
     def __post_init__(self) -> None:
         if self.input_tokens < 0 or self.output_tokens < 0:
