@@ -1,75 +1,51 @@
+%% ArchLens code-level (C4 L4) class view — reconciled to the SHIPPED code (not forward design).
+%% NOTE: the agents are FUNCTIONAL node factories (make_repo_node, make_graph_node, ... in
+%% src/archlens/agents/*.py), NOT a BaseAgent class hierarchy. The SDK is a facade composing single-
+%% concern mixins; the contracts are frozen dataclasses. A full AST-extracted class diagram of a
+%% class-bearing reverse-engineering target is in deliverables/CLASS_SCHEMA_requests.md.
 classDiagram
     class ArchLensSDK {
-        +clone_target(cfg) TargetRepo
-        +run_graphify(repo) GraphSnapshot
-        +build_vault(snapshot) VaultPaths
-        +analyze_graph(snapshot) list~Finding~
-        +hunt_bugs(findings, snapshot) list~Finding~
-        +apply_refactor(finding, approval) ChangeManifest
-        +run_qa(repo) QAVerdict
-        +diff_metrics(prev, curr) LoopState
-        +token_report() CostTable
+        +ask_llm(prompt, system, agent) str
+        +localize_bug(graph, symbol) BugLocalization
+        +analyze(repo_path) AnalysisReport
+        +run_loop(db_path) LoopResult
+        +extract_class_schema(source_root) dict
+        +measure_tokens() TokenReport
     }
+    class LLMMixin
+    class OrchestrationMixin
+    class DeliverablesMixin
+    class DebugDemoMixin
+    class MetricsMixin
     class Gatekeeper {
-        -rate_limits: RateLimits
-        -fifo_queue: deque
-        -ledger: TokenLedger
-        +call_llm(prompt_id, version, payload) LLMResponse
-        +ledger_snapshot() dict
+        -usage_ledger: TokenLedger
+        -_executor: RateLimitedExecutor
+        +execute(model, messages, agent, prompt_id, prompt_version)
+        +git_clone(repo, dest) Path
     }
-    class SupervisorRouter {
-        +route(state: AgentState) str
-    }
-    class BaseAgent {
-        <<abstract>>
-        #sdk: ArchLensSDK
-        +run(state) StateDelta
-        +output_contract() dict
-    }
-    class RepoAgent
-    class GraphAgent
-    class AnalystAgent
-    class BugHunterAgent
-    class RefactorAgent
-    class QAAgent
-    class MetricsAgent
-    class GraphSnapshot {
-        +snapshot_id: str
-        +iteration: int
-        +graph_json: Path
-        +graph_html: Path
-        +report_md: Path
-        +vault_paths: dict
-    }
-    class Finding {
+    class RateLimitedExecutor
+    class TokenLedger
+    class EvidenceFinding {
         +id: str
-        +category: BugCategory
-        +evidence_level: EvidenceLevel
+        +level: str
         +relation: str
         +confidence: float
         +source_file: str
-        +triage: EdgeTriage
-        +similarity: float
     }
-    class LoopState {
-        +iteration: int
-        +bottleneck_deps_lost: bool
-        +modularity_improved: bool
-        +no_new_isolates: bool
-        +tests_green: bool
-        +ruff_zero: bool
-        +met() bool
-    }
-    BaseAgent <|-- RepoAgent
-    BaseAgent <|-- GraphAgent
-    BaseAgent <|-- AnalystAgent
-    BaseAgent <|-- BugHunterAgent
-    BaseAgent <|-- RefactorAgent
-    BaseAgent <|-- QAAgent
-    BaseAgent <|-- MetricsAgent
-    BaseAgent --> ArchLensSDK : delegates ALL logic
-    ArchLensSDK --> Gatekeeper : sole external-API path
-    SupervisorRouter ..> BaseAgent : routes to
-    ArchLensSDK ..> GraphSnapshot : produces
-    ArchLensSDK ..> Finding : produces
-    ArchLensSDK ..> LoopState : evaluates
+    class FindingBatch
+    class GraphSnapshotRef
+    class EvidenceGate
+    class FixCandidate
+    class StopConditionEvaluator
+
+    ArchLensSDK --|> LLMMixin
+    ArchLensSDK --|> OrchestrationMixin
+    ArchLensSDK --|> DeliverablesMixin
+    ArchLensSDK --|> DebugDemoMixin
+    ArchLensSDK --|> MetricsMixin
+    ArchLensSDK *-- Gatekeeper : sole external-API path
+    Gatekeeper *-- RateLimitedExecutor
+    Gatekeeper *-- TokenLedger
+    FindingBatch *-- EvidenceFinding
+    EvidenceGate ..> FixCandidate : admits
+    EvidenceGate ..> EvidenceFinding : gates

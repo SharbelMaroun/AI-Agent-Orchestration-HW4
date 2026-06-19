@@ -19,6 +19,7 @@ from archlens.sdk.sdk import ArchLensSDK
 ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "runs" / "requests" / "src" / "requests"
 OUT = ROOT / "deliverables" / "CLASS_SCHEMA_requests.md"
+OUT_MMD = ROOT / "docs" / "diagrams" / "requests_classes.mmd"  # discoverable in the diagrams folder
 
 
 def _hierarchies(relations) -> list[str]:
@@ -64,8 +65,10 @@ def main() -> int:
         "",
     ]
     OUT.write_text("\n".join(doc) + "\n", encoding="utf-8")
-    print(f"wrote {OUT} ({len(schema['classes'])} classes, {kinds.get('inheritance', 0)} inheritance, "
-          f"{kinds.get('composition', 0)} composition)")
+    raw_mmd = schema["diagram"].removeprefix("```mermaid\n").removesuffix("```").rstrip() + "\n"
+    OUT_MMD.write_text(raw_mmd, encoding="utf-8")  # raw .mmd in docs/diagrams/ for discoverability
+    print(f"wrote {OUT} + {OUT_MMD} ({len(schema['classes'])} classes, "
+          f"{kinds.get('inheritance', 0)} inheritance, {kinds.get('composition', 0)} composition)")
     return 0
 
 
