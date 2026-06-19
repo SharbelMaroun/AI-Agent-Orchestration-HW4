@@ -12,16 +12,20 @@ class LLMMixin:
     """Single-entry free-form LLM access for the agents."""
 
     def ask_llm(self, prompt: str, *, system: str | None = None,
-               agent: str = "orchestrator", max_tokens: int = 512) -> str:
+               agent: str = "orchestrator", max_tokens: int = 512,
+               prompt_id: str = "", prompt_version: str = "") -> str:
         """Send one prompt (optional system role) to the active provider via the gatekeeper.
 
         The system message is provider-agnostic: OpenAI/mock consume the ``system`` role directly,
         and LiveAnthropicClient lifts it into the SDK's top-level ``system`` parameter.
+        ``prompt_id``/``prompt_version`` are forwarded to the token ledger so the call is attributable
+        to its PROMPT_BOOK entry (FR-AO-11); agents pass the values from ``prompt_loader``.
         """
         messages = []
         if system:
             messages.append({"role": "system", "content": system})
         messages.append({"role": "user", "content": prompt})
         model = resolve_model(self._config())
-        response = self._gk().execute(model, messages, agent=agent, max_tokens=max_tokens)
+        response = self._gk().execute(model, messages, agent=agent, max_tokens=max_tokens,
+                                      prompt_id=prompt_id, prompt_version=prompt_version)
         return extract_text(response)

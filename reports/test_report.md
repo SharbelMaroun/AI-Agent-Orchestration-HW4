@@ -2,7 +2,7 @@
 
 Version: 1.00 | Course: AI Agent Orchestration — HW4 (EX04)
 
-Totals: 946 passed, 0 failed.
+Totals: 950 passed, 0 failed.
 
 | Test | Expected | Status |
 |---|---|---|
@@ -611,6 +611,10 @@ Totals: 946 passed, 0 failed.
 | test_prompt_loads_with_version_header[refactor] | - | PASS |
 | test_prompt_loads_with_version_header[qa] | - | PASS |
 | test_prompt_loads_with_version_header[metrics] | - | PASS |
+| test_llm_prompt_exposes_id_version_and_system[analyst] | - | PASS |
+| test_llm_prompt_exposes_id_version_and_system[bughunter] | - | PASS |
+| test_llm_prompt_exposes_id_version_and_system[refactor] | - | PASS |
+| test_llm_prompt_exposes_id_version_and_system[localizer] | - | PASS |
 | test_prompt_renders_with_no_unresolved_placeholders[repo] | - | PASS |
 | test_prompt_renders_with_no_unresolved_placeholders[graph] | - | PASS |
 | test_prompt_renders_with_no_unresolved_placeholders[analyst] | - | PASS |

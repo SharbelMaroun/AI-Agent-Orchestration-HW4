@@ -43,7 +43,7 @@ class OrchSDK(ArchLensSDK):
         return {"baseline": 100, "assisted": 30, "total": 130, "input": 90, "output": 40,
                 "rows": [{"model": "x"}]}
 
-    def ask_llm(self, prompt, *, system=None, agent="orchestrator", max_tokens=512):
+    def ask_llm(self, prompt, *, system=None, agent="orchestrator", max_tokens=512, **kwargs):
         return "canned llm reply"
 
     def apply_fix(self, finding, repo_path, graph_json=None):

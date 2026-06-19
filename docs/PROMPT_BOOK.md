@@ -95,7 +95,12 @@ failed, and how the prompt was refined* (L07, section 11; Guidelines V3).
 - **Tokens:** not fully measured; per-writer budgets logged in MetricsAgent backlog.
 
 ### PB-003 — Per-agent system prompts (implemented)
-- **Date:** implemented — prompts live in `src/archlens/agents/prompts/{repo,graph,analyst,bughunter,refactor,qa,metrics}.md`
+- **Date:** implemented — prompts live in `src/archlens/agents/prompts/{repo,graph,analyst,bughunter,refactor,qa,metrics,localizer}.md`
+- **Ids / versions (loaded at runtime, no inline literals):** the four LLM-issuing agents load their
+  system prompt by id+version via `prompt_loader.system_prompt()` and tag every gatekeeper call with
+  the id+version (FR-AO-11): `PB-analyst-01`, `PB-bughunter-01`, `PB-refactor-01`, `PB-localizer-01`
+  (all v1.00). The deterministic RepoAgent/GraphAgent/QAAgent/MetricsAgent perform SDK operations and
+  issue no LLM call, so their `.md` files document the task rather than a loaded system prompt.
 - **Model:** selected per `config/setup.json`; routed via `gatekeeper/gatekeeper.py`
 - **Context / Goal:** Author and iterate the system prompts for the LangGraph roster:
   - **RepoAgent** — clone/validate the configured target repo (`andela/buggy-python` for this

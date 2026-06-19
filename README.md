@@ -25,7 +25,7 @@ Expected high-level output:
 - debug target: `https://github.com/andela/buggy-python`
 - first suspect: `snippets/__init__.py`
 - analysis graph: `19` nodes, `28` edges
-- tests: `946 passed` (a fresh clone shows `945 passed, 1 skipped` — one debug-harness test is skipped until `runs/buggy-python/` is cloned; see note below)
+- tests: `950 passed` (a fresh clone shows `949 passed, 1 skipped` — one debug-harness test is skipped until `runs/buggy-python/` is cloned; see note below)
 - coverage: about `96.8%` (branch coverage; the suite fails under the configured 85% gate)
 
 ## Submitted Target
@@ -176,6 +176,7 @@ focused study above is the submission headline; the pilot is reported separately
 | Agentic debugging | `src/archlens/agents/bug_localizer.py`, `obsidian/localization.md` |
 | Code repair | `deliverables/BUG_REPORT.md`, `deliverables/buggy-python-fix.patch` |
 | Token proof | `metrics/out/debug_token_study.json`, `docs/metrics/GRAPH_VS_CODE.md` |
+| Extensions / original ideas | `deliverables/EXTENSIONS.md` |
 | Quality gates | `uv run pytest --cov=src --cov-branch` |
 
 ## Useful Commands

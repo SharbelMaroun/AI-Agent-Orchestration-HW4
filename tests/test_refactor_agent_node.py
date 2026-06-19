@@ -19,7 +19,7 @@ class _SDK:
         return SimpleNamespace(
             improvement_loop=SimpleNamespace(allowed_evidence_levels=["EXTRACTED", "VALIDATED"]))
 
-    def ask_llm(self, prompt, *, system=None, agent="orchestrator", max_tokens=512):
+    def ask_llm(self, prompt, *, system=None, agent="orchestrator", max_tokens=512, **kwargs):
         return "extract the request-routing helper into its own module"
 
     def apply_fix(self, finding, repo_path, graph_json=None):

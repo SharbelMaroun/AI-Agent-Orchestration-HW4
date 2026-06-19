@@ -1,8 +1,11 @@
 """Debug-demo SDK flow: graph-first bug localization plus repair evidence."""
 
+import json
 from pathlib import Path
 
 from ..agents.bug_localizer import localize_import_failure
+
+_TOKEN_STUDY = Path("metrics/out/debug_token_study.json")
 
 
 class DebugDemoMixin:
@@ -62,15 +65,30 @@ class DebugDemoMixin:
             "  Before/after architecture snapshot: deliverables/BUG_REPORT.md section 5",
             "",
             "Token comparison:",
-            "  Naive: 802 input tokens, 5 files/units, 2 cycles",
-            "  Graph-guided: 685 input tokens, 2 files/units, 1 cycle",
+            *_token_comparison(),
             "  Explanation: docs/metrics/SAVINGS_EXPLANATION.md",
             "",
             "Verification commands:",
             "  uv run python src/main.py analyze",
-            "  uv run pytest --cov=archlens --cov-branch",
+            "  uv run pytest --cov=src --cov-branch",
         ]
         return "\n".join(lines)
+
+
+def _token_comparison() -> list[str]:
+    """Format the naive-vs-graph token lines from the committed study (no hardcoded literals)."""
+    if not _TOKEN_STUDY.is_file():
+        return [f"  (token study artifact absent: {_TOKEN_STUDY.as_posix()})"]
+    study = json.loads(_TOKEN_STUDY.read_text(encoding="utf-8"))
+    naive, guided = study["naive"], study["graph_guided"]
+    return [
+        f"  Naive: {naive['input_tokens']} input tokens, {naive['files_read']} files/units, "
+        f"{naive['iterations']} cycles",
+        f"  Graph-guided: {guided['input_tokens']} input tokens, {guided['files_read']} files/units, "
+        f"{guided['iterations']} cycle(s)",
+        f"  Savings: {study['token_savings_pct']}% input tokens, "
+        f"{study['files_reduction_pct']}% fewer files (target_met=false; small repo)",
+    ]
 
 
 def _verify_buggy_python() -> str:

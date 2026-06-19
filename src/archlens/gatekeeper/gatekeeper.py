@@ -48,27 +48,30 @@ class Gatekeeper:
         return RateLimitedExecutor(select_llm_client(self._mode), SystemClock(), self._config)
 
     def execute(self, model, messages, *, agent: str = "orchestrator",
-                protocol: str = PROTOCOL_BASELINE, question_id: str = "", **kwargs):
+                protocol: str = PROTOCOL_BASELINE, question_id: str = "",
+                prompt_id: str = "", prompt_version: str = "", **kwargs):
         """Single entry point for every outbound LLM call, under the rate_limits.json policy.
 
-        Records one TokenLedgerEntry (agent/protocol/question tagged) per call before returning.
+        Records one TokenLedgerEntry (agent/protocol/question/prompt tagged) per call before returning.
+        ``prompt_id``/``prompt_version`` attribute the call to its PROMPT_BOOK entry (FR-AO-11).
         """
         if self._executor is None:
             self._executor = self._build_executor()
         response = self._executor.execute(model, messages, **kwargs)
-        self.record_usage(response, agent=agent, model=model,
-                          protocol=protocol, question_id=question_id)
+        self.record_usage(response, agent=agent, model=model, protocol=protocol,
+                          question_id=question_id, prompt_id=prompt_id, prompt_version=prompt_version)
         return response
 
     def record_usage(self, response, *, agent: str, model: str, protocol: str,
-                     question_id: str = "") -> TokenLedgerEntry:
+                     question_id: str = "", prompt_id: str = "",
+                     prompt_version: str = "") -> TokenLedgerEntry:
         """Append one metrics TokenLedgerEntry for a completed LLM call (task 12.009)."""
         usage = getattr(response, "usage", None)
         entry = self.usage_ledger.append(TokenLedgerEntry(
             agent=agent, model=model, protocol=protocol,
             input_tokens=int(getattr(usage, "input_tokens", 0) or 0),
             output_tokens=int(getattr(usage, "output_tokens", 0) or 0),
-            question_id=question_id))
+            question_id=question_id, prompt_id=prompt_id, prompt_version=prompt_version))
         self._check_budget()
         return entry
 

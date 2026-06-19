@@ -10,6 +10,7 @@ passes: with no recorded grant it requests approval (appends a ``pending`` recor
 ``sdk.apply_fix`` (the SDK is the only writer). On a successful apply the finding is marked ``fixed``.
 """
 
+from ..agents import prompt_loader
 from ..agents.evidence_gate import EvidenceGate
 from ..agents.fix_policy import FixCandidate
 from ..agents.guardrails import classify_action
@@ -18,10 +19,11 @@ from ..agents.source_reader import read_source_excerpt
 # Decisions (recorded by the ApprovalAgent) that authorise an irreversible source modification.
 _GRANTED = ("granted", "approved")
 
-_REFACTOR_SYSTEM = (
-    "You are a senior software engineer proposing a safe, behaviour-preserving refactor of a Python "
-    "module to reduce coupling around a bottleneck. Reference the actual code; prefer extracting an "
-    "interface/seam or splitting cohesive groups. Be concrete and brief.")
+# System prompt loaded by id+version from the prompt book — no inline literal (PRD §9 / FR-AO-13).
+_PROMPT = "refactor"
+_REFACTOR_SYSTEM = prompt_loader.system_prompt(_PROMPT)
+_PID = prompt_loader.prompt_id(_PROMPT)
+_PVER = prompt_loader.version_of(_PROMPT)
 
 _CATEGORY_TO_KIND = {
     "SPOF": "spof", "god_node": "bottleneck", "bottleneck": "bottleneck",
@@ -110,7 +112,7 @@ def make_refactor_node(sdk):
             f"Propose a concrete, behaviour-preserving refactor to relieve the {target['category']} "
             f"at {target['source_file']}.{body}\n\nGive 2-3 specific steps (what to extract or split, "
             "and why it lowers coupling).", system=_REFACTOR_SYSTEM, agent="RefactorAgent",
-            max_tokens=500)
+            max_tokens=500, prompt_id=_PID, prompt_version=_PVER)
         plan = {"target": target["source_file"], "action": "seam_or_split", "rationale": rationale}
         applied = sdk.apply_fix(target, repo_path, graph_json)
         status = "fixed" if applied else "selected"

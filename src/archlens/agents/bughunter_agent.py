@@ -6,14 +6,15 @@ target to RefactorAgent in the improvement loop (task 10.020). The LLM is reache
 SDK, so this agent never imports a client.
 """
 
+from ..agents import prompt_loader
 from ..agents.evidence import EvidenceFinding
 from ..shared.constants import EXTRACTED_CONFIDENCE
 
-_ARCHITECT_SYSTEM = (
-    "You are a senior software architect reverse-engineering an unfamiliar codebase from its "
-    "dependency GRAPH (not its source). Reason from graph structure — degree, who depends on whom, "
-    "communities — to name the real architectural risks (coupling, single points of failure, god "
-    "objects) and the refactor that relieves them. Be concrete and brief; no filler.")
+# System prompt loaded by id+version from the prompt book — no inline literal (PRD §9 / FR-AO-13).
+_PROMPT = "bughunter"
+_ARCHITECT_SYSTEM = prompt_loader.system_prompt(_PROMPT)
+_PID = prompt_loader.prompt_id(_PROMPT)
+_PVER = prompt_loader.version_of(_PROMPT)
 
 
 def _finding(finding_id: str, category: str, source_file: str, relation: str,
@@ -46,7 +47,8 @@ def _validate_top(sdk, top, graph) -> dict:
         f"{_graph_context(graph, top.node_id)}\n\nReasoning only from this graph structure, in 3-4 "
         "sentences: what architectural problem does this indicate (coupling, single point of "
         "failure, god object), and what refactor would relieve it?")
-    review = sdk.ask_llm(prompt, system=_ARCHITECT_SYSTEM, agent="BugHunterAgent", max_tokens=500)
+    review = sdk.ask_llm(prompt, system=_ARCHITECT_SYSTEM, agent="BugHunterAgent", max_tokens=500,
+                         prompt_id=_PID, prompt_version=_PVER)
     return _finding(f"validated-{top.node_id}", "god_node", top.source_file, "betweenness",
                     level="VALIDATED", text=review)
 

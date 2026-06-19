@@ -164,9 +164,9 @@ Every failure event is appended to the handoff trace and counted in `token_ledge
 ## 9. Prompt Versioning (PROMPT_BOOK.md)
 
 - Every agent system prompt and every routing-relevant template is registered in `docs/PROMPT_BOOK.md` with: prompt id (`PB-<agent>-<nn>`), version (starting at 1.00, same convention as `shared/version.py`), full prompt text, target model, rationale for changes, and observed-effect notes (token cost delta, output-quality delta).
-- Agent code references prompts only by id + version through a prompt loader in the SDK; prompts are data files, never inline string literals (supports the no-hardcoded-values rule and DRY).
+- Every agent that issues an LLM call (Analyst, BugHunter, Refactor, BugLocalizer) loads its system prompt by id + version through `agents/prompt_loader.py` (`system_prompt()`/`prompt_id()`/`version_of()`); prompts are data files under `agents/prompts/`, never inline string literals (supports the no-hardcoded-values rule and DRY). The deterministic Repo/Graph/QA/Metrics agents perform SDK operations and issue no LLM call, so they load no system prompt.
 - A prompt change bumps the version and adds a PROMPT_BOOK changelog entry; the old version remains in the book for audit.
-- The `token_ledger` records prompt id + version on every gatekeeper call, so token-economics deltas are attributable to specific prompt revisions in the before/after measurement (Part B: correct-tool-at-the-right-time and noise-reduction metrics).
+- The `token_ledger` records prompt id + version on every LLM gatekeeper call (`TokenLedgerEntry.prompt_id`/`prompt_version`), so token-economics deltas are attributable to specific prompt revisions in the before/after measurement (Part B: correct-tool-at-the-right-time and noise-reduction metrics).
 
 ---
 
@@ -186,7 +186,7 @@ Every failure event is appended to the handoff trace and counted in `token_ledge
 | FR-AO-10 | All retry/rate parameters SHALL be read from `config/rate_limits.json`; overflow SHALL queue FIFO up to the config-driven max depth and SHALL never reject a request or crash. |
 | FR-AO-11 | The gatekeeper SHALL record input/output tokens and $ cost per call into `token_ledger`, tagged with agent, model, and prompt id + version, supporting the baseline-vs-Graphify ≥ 70% savings comparison. |
 | FR-AO-12 | Every finding routed to RefactorAgent SHALL be at evidence level VALIDATED and SHALL cite `relation → confidence → source_file`. |
-| FR-AO-13 | All agent prompts SHALL be loaded by id + version and registered in `docs/PROMPT_BOOK.md` per §9. |
+| FR-AO-13 | Every agent system prompt that drives an LLM call SHALL be loaded by id + version via `prompt_loader` (no inline literal) and registered in `docs/PROMPT_BOOK.md` per §9. |
 | FR-AO-14 | Every node SHALL be idempotent under re-invocation with identical state (no duplicated side effects on retry/resume). |
 
 Non-functional requirements (inherited from the parent PRD, restated for traceability):

@@ -19,4 +19,5 @@ def test_submission_demo_outputs_full_grader_path():
     assert "RepoAgent -> GraphAgent" in report
     assert "BugLocalizer/BugHunterAgent" in report
     assert "deliverables/buggy-python-fix.patch" in report
-    assert "uv run pytest --cov=archlens --cov-branch" in report
+    assert "uv run pytest --cov=src --cov-branch" in report
+    assert "685 input tokens" in report  # loaded from the committed study, not a hardcoded literal

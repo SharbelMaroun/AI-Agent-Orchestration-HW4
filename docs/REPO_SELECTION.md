@@ -31,6 +31,18 @@ the assignment requirement to show graph-first localization instead of linear fi
 The repository has no Docker or third-party dependency setup, so the failing-to-passing story is
 reproducible in the same uv-managed environment used by this project.
 
+## 2.1 Candidates Considered (all three PDF-listed repos)
+
+The assignment (§2) offers three base repositories. We evaluated all three before choosing:
+
+| Candidate | Character | Decision |
+|---|---|---|
+| `andela/buggy-python` | A few stdlib-only Python scripts with their own `main.py` assertion harness; one cross-module import failure through a package re-export hub. | **CHOSEN** — small enough to investigate honestly, yet the first failure is genuinely cross-module (entry → hub → leaves), which is exactly what graph-first localization is meant to beat linear reading on. No external setup, so the failing→passing story reproduces in the same uv env. |
+| `soarsmu/BugsInPy` | Real bugs mined from large real-world projects; the most realistic scenario. | **Rejected** — each bug needs per-project environment adaptation (often Docker, version-pinned third-party deps). The PDF itself warns against starting here without strong environment/dependency experience; the setup cost would dominate the token-and-graph story this assignment is actually grading. |
+| `martinpeck/broken-python` | A loose collection of broken Python snippets for debugging practice. | **Rejected** — largely Python-2-era, mostly self-contained single-file snippets with little cross-module structure, so it offers a weak dependency graph and a poor fit for the graph-navigation / re-export-hub thesis. (Recorded in `config/setup.json` as "less suitable … py2 snippets".) |
+
+The deciding factor was the assignment's core requirement — *prove graph-oriented localization over linear code reading* — which needs a real cross-module dependency shape with low environment friction. `andela/buggy-python` is the only candidate that gives both.
+
 ## 3. Evidence
 
 | Requirement | Evidence |

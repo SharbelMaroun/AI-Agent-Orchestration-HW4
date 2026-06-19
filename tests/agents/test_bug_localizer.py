@@ -42,7 +42,7 @@ def test_localizer_uses_an_llm_explanation_when_provided():
 
 def test_localizer_node_emits_localization_via_the_sdk_llm():
     class _SDK:
-        def ask_llm(self, prompt, *, system=None, agent="orchestrator", max_tokens=512):
+        def ask_llm(self, prompt, *, system=None, agent="orchestrator", max_tokens=512, **kwargs):
             return "graph-first explanation: fix pkg/__init__.py"
 
     out = make_localizer_node(_SDK())({"graph_json": GRAPH, "failing_symbol": "thing"})
